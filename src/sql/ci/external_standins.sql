@@ -172,6 +172,77 @@ CREATE TABLE [CE].[vwContact] (
     [address2_county] nvarchar(80) NULL
 );
 GO
+-- CE.vwLocalGroup (view)
+IF OBJECT_ID(N'[CE].[vwLocalGroup]') IS NULL
+CREATE TABLE [CE].[vwLocalGroup] (
+    [apuk_localgroupid] uniqueidentifier NULL,
+    [apuk_name] nvarchar(100) NULL,
+    [apuk_code] nvarchar(100) NULL,
+    [apuk_regionid] uniqueidentifier NULL,
+    [apuk_regionid_name] nvarchar(200) NULL,
+    [apuk_worldregionid] uniqueidentifier NULL,
+    [apuk_worldregionid_name] nvarchar(100) NULL,
+    [apuk_countryid] uniqueidentifier NULL,
+    [country_two_char_code] nvarchar(5) NULL,
+    [country_three_char_code] varchar(3) NULL,
+    [apuk_countryid_name] nvarchar(100) NULL,
+    [apuk_reportingregion] uniqueidentifier NULL,
+    [apuk_reportingregion_name] nvarchar(200) NULL,
+    [apuk_subregion] uniqueidentifier NULL,
+    [apuk_subregion_name] nvarchar(200) NULL,
+    [apuk_reportingsubworldregion] uniqueidentifier NULL,
+    [apuk_reportingsubworldregion_name] nvarchar(200) NULL,
+    [statecode] int NULL,
+    [StateCode_Description] nvarchar(350) NULL,
+    [statuscode] int NULL,
+    [StatusCode_Description] nvarchar(350) NULL,
+    [Fin_Market] varchar(23) NULL,
+    [Fin_Region] varchar(15) NULL,
+    [Fin_World_Region] varchar(5) NULL,
+    [UK Region] nvarchar(200) NULL,
+    [Market_reporting_region] varchar(15) NULL,
+    [Budget_Region] varchar(10) NULL
+);
+GO
+-- Subs.vwSubsMemberStatuses (view)
+IF OBJECT_ID(N'[Subs].[vwSubsMemberStatuses]') IS NULL
+CREATE TABLE [Subs].[vwSubsMemberStatuses] (
+    [Contact No.] nvarchar(100) NULL,
+    [Campaign Year] int NULL,
+    [Movement] varchar(7) NOT NULL,
+    [Quote Count] int NULL,
+    [Quote Active Count] int NULL,
+    [Quote Won Count] int NULL,
+    [Quote Draft Count] int NULL,
+    [Quote Closed Count] int NULL,
+    [Quote Won Amount] numeric(38,6) NULL,
+    [Quote Fully Credited Amount] numeric(38,6) NULL,
+    [Member Quote Position] varchar(14) NULL,
+    [Has Quote] varchar(1) NOT NULL,
+    [Has Won Quote] varchar(1) NOT NULL,
+    [Invoice Count] int NULL,
+    [Inv Full Concession Count] int NULL,
+    [Inv Fully Paid Count] int NULL,
+    [Inv Partially Paid Count] int NULL,
+    [Inv No Payment Count] int NULL,
+    [Inv Fully Credited Count] int NULL,
+    [Inv Zero Value Invoice Count] int NULL,
+    [Inv Total Amount] numeric(38,6) NULL,
+    [Inv Paid Amount] numeric(38,6) NULL,
+    [Inv Fully Paid Amount] numeric(38,6) NULL,
+    [Inv Partially Paid Amount] numeric(38,6) NULL,
+    [Inv Balance Amount] numeric(38,6) NULL,
+    [Member Invoice Position] varchar(18) NULL,
+    [Has Concession] varchar(1) NULL,
+    [Retired Concession] varchar(17) NOT NULL,
+    [Retired Concession True] varchar(1) NOT NULL,
+    [Renewal Date] date NULL,
+    [Renewal Date Adj] date NULL,
+    [First Retired Year] int NULL,
+    [Lapsed Date (In Campaign)] date NULL,
+    [Is Lapsed (MS)] varchar(1) NOT NULL
+);
+GO
 -- synapse_ce.apuk_ricsrecord (table)
 IF OBJECT_ID(N'[synapse_ce].[apuk_ricsrecord]') IS NULL
 CREATE TABLE [synapse_ce].[apuk_ricsrecord] (
