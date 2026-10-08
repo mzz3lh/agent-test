@@ -1,0 +1,86 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Insert_PAYMTERM]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:29:56
+	Description: Insert stored procedure for PAYMTERM from synapse finops datalake to BI
+*/
+BEGIN
+	INSERT INTO [synapse_fo].[PAYMTERM]
+	(
+		[ADDITIONALMONTHS],
+		[CASH],
+		[CASHLEDGERDIMENSION],
+		[CFMPAYMENTREQUESTTYPEPAYMENT],
+		[CFMPAYMENTREQUESTTYPEPREPAYMENT],
+		[CREDITCARDCREDITCHECK],
+		[CREDITCARDPAYMENTTYPE],
+		[CUSTOMERUPDATEDUEDATE],
+		[CUTOFFDAY],
+		[DATAAREAID],
+		[DataLakeModified_DateTime],
+		[DEFAULTPAYMTERM_PSN],
+		[DESCRIPTION],
+		[DUEDATELIMITGROUPID_ES],
+		--[FileName],
+		[LastProcessedChange_DateTime],
+		--[LSN],
+		[NUMOFDAYS],
+		[NUMOFMONTHS],
+		[PARTITION],
+		[PAYMDAYID],
+		[PAYMMETHOD],
+		[PAYMSCHED],
+		[PAYMTERMID],
+		[POSTOFFSETTINGAR],
+		[RECID],
+		[RECVERSION],
+		[SHIPCARRIERANCILLARYCHARGE],
+		[SHIPCARRIERCERTIFIEDCHECK],
+		--[SysRowId],
+		[USEDELIVERYDATEFORDUEDATE_ES],
+		[USEEMPLACCOUNT_RU],
+		[VENDORUPDATEDUEDATE]
+	)
+	SELECT 
+		stg.[ADDITIONALMONTHS],
+		stg.[CASH],
+		stg.[CASHLEDGERDIMENSION],
+		stg.[CFMPAYMENTREQUESTTYPEPAYMENT],
+		stg.[CFMPAYMENTREQUESTTYPEPREPAYMENT],
+		stg.[CREDITCARDCREDITCHECK],
+		stg.[CREDITCARDPAYMENTTYPE],
+		stg.[CUSTOMERUPDATEDUEDATE],
+		stg.[CUTOFFDAY],
+		stg.[DATAAREAID],
+		stg.[DataLakeModified_DateTime],
+		stg.[DEFAULTPAYMTERM_PSN],
+		stg.[DESCRIPTION],
+		stg.[DUEDATELIMITGROUPID_ES],
+		--stg.--[FileName],
+		stg.[LastProcessedChange_DateTime],
+		--stg.--[LSN],
+		stg.[NUMOFDAYS],
+		stg.[NUMOFMONTHS],
+		stg.[PARTITION],
+		stg.[PAYMDAYID],
+		stg.[PAYMMETHOD],
+		stg.[PAYMSCHED],
+		stg.[PAYMTERMID],
+		stg.[POSTOFFSETTINGAR],
+		stg.[RECID],
+		stg.[RECVERSION],
+		stg.[SHIPCARRIERANCILLARYCHARGE],
+		stg.[SHIPCARRIERCERTIFIEDCHECK],
+		--stg.--[SysRowId],
+		stg.[USEDELIVERYDATEFORDUEDATE_ES],
+		stg.[USEEMPLACCOUNT_RU],
+		stg.[VENDORUPDATEDUEDATE]	
+	FROM [staging_fo].[PAYMTERM] stg
+		LEFT JOIN [synapse_fo].[PAYMTERM] tgt
+			ON stg.[DataAreaId] = tgt.[DataAreaId] 
+			AND stg.[PARTITION] = tgt.[PARTITION] 
+			AND stg.[PaymTermId] = tgt.[PaymTermId] 
+		
+	WHERE tgt.[RECID] IS NULL
+END

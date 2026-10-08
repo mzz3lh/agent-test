@@ -1,0 +1,30 @@
+CREATE   VIEW [CE].[vwRicsGroup]
+AS 
+SELECT 
+	[Rics_groupId],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[OverriddenCreatedOn],
+	[Rics_WorldRegionId],
+	[Rics_WorldRegion],
+	[Rics_ReportingSubWorldRegionId],
+	[Rics_ReportingSubWorldRegion],
+	[rics_countryid],
+	[rics_countryidName],
+	[Rics_Code],
+	[Rics_name],
+	[Rics_RegionId],
+	[Rics_Region],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[Rics_ReportingLocalGroup],
+	[CreatedOnBehalfByName],
+	[ModifiedOnBehalfByName],
+	[Country_Name]
+FROM [synapse_ce].[vwRicsGroup]

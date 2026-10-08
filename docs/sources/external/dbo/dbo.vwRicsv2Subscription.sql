@@ -1,0 +1,36 @@
+CREATE VIEW [dbo].[vwRicsv2Subscription]
+AS
+
+SELECT
+	[ricsv2_subscriptionId],
+	[ricsv2_SubscriptionNo],
+	[ricsv2_SubscriptionsidName],
+	[ricsv2_subscriptionsId],
+	[CreatedBy],
+	[CreatedByName],
+	[Created_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Modified_On],
+	[OwnerId],
+	[OwnerIdName],
+	[ricsv1_licencesused],
+	[ricsv1_licencesused_Date],
+	[ricsv1_licencesused_State],
+	[ricsv1_recalculated],
+	[ricsv1_SalesOrderId],
+	[ricsv1_SalesOrderIdName],
+	[ricsv1_SubscriptionProduct],
+	[ricsv1_SubscriptionProductName],
+	[ricsv2_EndDate],
+	[ricsv2_InvoiceNumber],
+	[ricsv2_name],
+	[ricsv2_NumberofLicences],
+	[ricsv2_PaymentId],
+	[ricsv2_PONumber],
+	[ricsv2_StartDate],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description]
+FROM [Ext].[PBI02_dbo_vwRicsv2Subscription]

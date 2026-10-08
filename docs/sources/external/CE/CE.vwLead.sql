@@ -1,0 +1,37 @@
+CREATE   VIEW [CE].[vwLead]
+AS 
+SELECT 
+	[Lead_Key],
+	[Transaction_Currency],
+	[CRM_ProductGroup_Id],
+	[Address1_City],
+	[Address1_Country],
+	[Address1_Line1],
+	[Address1_Line2],
+	[Address1_Line3],
+	[Address1_PostalCode],
+	[Topic],
+	[CRM_Owner_Id],
+	[OwnerIdName],
+	[CRM_MarketingSource_Id],
+	StatusCode_Description AS [Status_Reason],
+	StateCode_Description AS [Lead_State_Code],
+	[Rating],
+	[Est_Revenue],
+	[Opportunity_Status],
+	[ActualCloseDate],
+	[Territory],
+	[OwningUser],
+	[Created_On],
+	[Created_By],
+	[Modified_On],
+	[Modified_By],
+	[ContactId],
+	[AccountId],
+	NULL AS [ContactIDName],
+	[CompanyName],
+	[Opportunity_Key],
+	[apuk_reasonforcontact],
+	[apuk_reasonforcontact_description]
+
+FROM [synapse_ce].[vwLead]--[Ext].[PBI03_CE_vwLead]

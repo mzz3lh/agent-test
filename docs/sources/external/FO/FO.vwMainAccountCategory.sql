@@ -1,0 +1,7 @@
+CREATE   VIEW [FO].[vwMainAccountCategory] AS 
+	SELECT 
+	 [ACCOUNTCATEGORY] AS 'Main Account Category ID'
+	,MAX([DESCRIPTION]) AS 'Main Account Category'
+	FROM [synapse_fo].[MAINACCOUNTCATEGORY]
+	WHERE ISNULL(ACCOUNTCATEGORY, '') <> ''
+	GROUP BY [ACCOUNTCATEGORY]

@@ -1,0 +1,33 @@
+CREATE VIEW [RegsBI].[vwSurveyAnswers]
+AS
+SELECT 
+	[ricsv1_surveyanswerid],
+	[ricsv1_name],
+	[Created_On],
+	[CreatedByName],
+	[CreatedOnBehalfByName],
+	[ricsv1_surveyresponse],
+	[SurveyResponse_Name],
+	[ricsv1_SurveyName],
+	[StatusCode_Description],
+	[StateCode_Description],
+	[ricsv1_score],
+	[ricsv1_QuestionSetName],
+	[ricsv1_QuestionName],
+	[ricsv1_PossibleAnswerName],
+	[OwnerIdName],
+	[ricsv1_order],
+	[Modified_On],
+	[ModifiedOnBehalfByName],
+	[ModifiedByName],
+	[ricsv1_HeadingName],
+	[ricsv1_answerstatus],
+	[ricsv1_answer],
+	[ricsv1_additionalinformation],
+	[ricsv1_regulatedscheme],
+	[ricsv1_regulatedschemeName],
+	[ricsv1_status_Description],
+	[ricsv1_surveyId],
+	[SurveyName],
+	[rics_contactno]
+FROM [Ext].[PBI02_RegsBI_vwSurveyAnswers]

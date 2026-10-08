@@ -1,0 +1,152 @@
+CREATE   VIEW [synapse_fo].[vwINVENTPROCUREMENTLEDGERPOSTINGDEFINITION]
+AS
+SELECT 
+	T1.ITEMCODE AS ITEMCODE
+	,T1.ITEMRELATION AS ITEMRELATION
+	,T1.CATEGORYRELATION AS CATEGORYRELATION
+	,T1.CUSTVENDCODE AS CUSTVENDCODE
+	,T1.CUSTVENDRELATION AS CUSTVENDRELATION
+	,T1.LEDGERDIMENSION AS MAINACCOUNTID
+	,T1.RECVERSION AS RECVERSION
+	,T1.DATAAREAID AS DATAAREAID
+	,T1.PARTITION AS PARTITION
+	,T1.RECID AS RECID
+	--,T2.DISPLAYVALUE AS MAINACCOUNT
+	,T2.MAINACCOUNT
+	,T3.CATEGORYNAME AS PRODUCTCATEGORYNAME
+	,(
+		CAST((
+				CASE T1.INVENTACCOUNTTYPE
+					WHEN 0
+						THEN 0
+					WHEN 1
+						THEN 1
+					WHEN 110
+						THEN 50
+					WHEN 2
+						THEN 2
+					WHEN 250
+						THEN 250
+					WHEN 27
+						THEN 5
+					WHEN 28
+						THEN 6
+					WHEN 29
+						THEN 7
+					WHEN 3
+						THEN 3
+					WHEN 32
+						THEN 8
+					WHEN 33
+						THEN 9
+					WHEN 34
+						THEN 10
+					WHEN 35
+						THEN 11
+					WHEN 4
+						THEN 4
+					WHEN 51
+						THEN 53
+					WHEN 62
+						THEN 55
+					WHEN 63
+						THEN 54
+					ELSE 0
+					END
+				) AS INT)
+		) AS INVENTORYACCOUNTTYPE
+	,(
+		CAST((
+				CASE 
+					WHEN 0 = T1.ITEMCODE
+						THEN T1.ITEMRELATION
+					ELSE ''
+					END
+				) AS NVARCHAR(20))
+		) AS ITEMNUMBER
+	,(
+		CAST((
+				CASE 
+					WHEN 1 = T1.ITEMCODE
+						THEN T1.ITEMRELATION
+					ELSE ''
+					END
+				) AS NVARCHAR(10))
+		) AS PRODUCTGROUPID
+	,(
+		CAST((
+				CASE 
+					WHEN 0 = T1.CUSTVENDCODE
+						THEN T1.CUSTVENDRELATION
+					ELSE ''
+					END
+				) AS NVARCHAR(20))
+		) AS VENDORACCOUNTNUMBER
+	,(
+		CAST((
+				CASE 
+					WHEN 1 = T1.CUSTVENDCODE
+						THEN T1.CUSTVENDRELATION
+					ELSE ''
+					END
+				) AS NVARCHAR(10))
+		) AS VENDORGROUPID
+
+FROM [synapse_fo].[INVENTPOSTING] T1
+LEFT OUTER JOIN [synapse_fo].[DIMENSIONCOMBINATIONENTITY_RICS] T2 ON (
+		(T1.LEDGERDIMENSION = T2.RECID)
+		AND (T1.PARTITION = T2.PARTITION)
+		)
+LEFT OUTER JOIN [synapse_fo].[PROCPROCUREMENTPRODUCTCATEGORYENTITY_RICS] T3 ON (
+		(T1.CATEGORYRELATION = T3.CATEGORYRECORDID)
+		AND (T1.PARTITION = T3.PARTITION)
+		)
+WHERE (
+		(
+			(
+				(
+					(
+						(
+							(
+								(
+									(
+										(
+											(
+												(
+													(
+														(
+															(
+																(
+																	(T1.INVENTACCOUNTTYPE = 0)
+																	OR (T1.INVENTACCOUNTTYPE = 1)
+																	)
+																OR (T1.INVENTACCOUNTTYPE = 2)
+																)
+															OR (T1.INVENTACCOUNTTYPE = 3)
+															)
+														OR (T1.INVENTACCOUNTTYPE = 4)
+														)
+													OR (T1.INVENTACCOUNTTYPE = 27)
+													)
+												OR (T1.INVENTACCOUNTTYPE = 28)
+												)
+											OR (T1.INVENTACCOUNTTYPE = 29)
+											)
+										OR (T1.INVENTACCOUNTTYPE = 32)
+										)
+									OR (T1.INVENTACCOUNTTYPE = 33)
+									)
+								OR (T1.INVENTACCOUNTTYPE = 34)
+								)
+							OR (T1.INVENTACCOUNTTYPE = 35)
+							)
+						OR (T1.INVENTACCOUNTTYPE = 51)
+						)
+					OR (T1.INVENTACCOUNTTYPE = 63)
+					)
+				OR (T1.INVENTACCOUNTTYPE = 62)
+				)
+			OR (T1.INVENTACCOUNTTYPE = 110)
+			)
+		OR (T1.INVENTACCOUNTTYPE = 250)
+		)

@@ -1,0 +1,32 @@
+CREATE   VIEW [CE].[vwCasefitandproper]
+AS
+SELECT
+	[apuk_casefitandproperid],
+	[apuk_name],
+	[createdon],
+	[createdby],
+	[CreatedByName],
+	[modifiedon],
+	[modifiedby],
+	[ModifiedByName],
+	[ownerid],
+	[OwnerIdName],
+	[owningbusinessunit],
+	[owningbusinessunitName],
+	[apuk_tribunal],
+	[apuk_subject],
+	[apuk_subjectName],
+	[apuk_showonline],
+	[overriddencreatedon],
+	[apuk_readmissionapplication],
+	[apuk_readmissionapplicationName],
+	[apuk_outcome],
+	[apuk_outcome_Description],
+	[apuk_description],
+	[apuk_memberid],
+	[apuk_casegroupreference],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description]
+FROM [synapse_ce].[vwCasefitandproper]

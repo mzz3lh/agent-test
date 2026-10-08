@@ -1,0 +1,37 @@
+CREATE VIEW [dbo].[vwRics_cpdactivity]
+AS
+
+SELECT
+	[Rics_cpdactivityId],
+	[Rics_name],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[cclevent_eventid],
+	[rics_cpdannualsummaryid],
+	[rics_activitytypeid],
+	[rics_activitytypeidName],
+	[rics_contactid],
+	[OwnerId],
+	[OwnerIdName],
+	[Rics_Date],
+	[Rics_Description],
+	[OverriddenCreatedOn],
+	[Rics_Reflection],
+	[Rics_Hours],
+	[Rics_OtherDescription],
+	[Rics_Formal],
+	[Rics_Ethics],
+	[Rics_EthicsDescription],
+	[ricsv1_EligibleFlag],
+	[Rics_Attachments],
+	[Rics_Status],
+	[Rics_Source],
+	[StateCode],
+	[StateCode_Description],
+	[StatusCode],
+	[StatusCode_Description]
+FROM [Ext].[PBI02_dbo_vwRics_cpdactivity]

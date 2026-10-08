@@ -1,0 +1,40 @@
+CREATE   VIEW [Subs].[vwSubsMemberStatuses] AS
+	SELECT 
+	 [Contact No.]
+	,[Campaign Year]
+	,[Movement]
+	,[Quote Count]
+	,[Quote Active Count]
+	,[Quote Won Count]
+	,[Quote Draft Count]
+	,[Quote Closed Count]
+	,[Quote Won Amount]
+	,[Quote Fully Credited Amount]
+	,[Member Quote Position]
+	,[Has Quote]
+	,[Has Won Quote]
+	,[Invoice Count]
+	,[Inv Full Concession Count]
+	,[Inv Fully Paid Count]
+	,[Inv Partially Paid Count]
+	,[Inv No Payment Count]
+	,[Inv Fully Credited Count]
+	,[Inv Zero Value Invoice Count]
+	,[Inv Total Amount]
+	,[Inv Paid Amount]
+	,[Inv Fully Paid Amount]
+	,[Inv Partially Paid Amount]
+	,[Inv Balance Amount]
+	,[Member Invoice Position]
+	,[Has Concession]
+	,[Retired Concession]
+	,[Retired Concession True]
+	,[Renewal Date]
+	,[Renewal Date Adj]
+	,[First Retired Year]
+	,[Lapsed Date] AS 'Lapsed Date (In Campaign)'
+	,CASE WHEN [Lapsed Date] IS NOT NULL THEN 'Y' ELSE 'N' END AS 'Is Lapsed (MS)'
+	FROM [Subs].[tblSubsMemberStatuses] MS
+		LEFT JOIN Subs.vwSubsContact CON
+			ON CON.[Contact No] = MS.[Contact No.]
+				AND MS.[Campaign Year] = Lapsed_Campaign_Year

@@ -1,0 +1,22 @@
+CREATE TABLE [synapse_fo].[DIRPARTYLOCATION](
+	[LastProcessedChange_DateTime] [datetime] NULL,
+	[DataLakeModified_DateTime] [datetime] NULL,
+	[ATTENTIONTOADDRESSLINE] [nvarchar](255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[ISLOCATIONOWNER] [int] NULL,
+	[ISPOSTALADDRESS] [int] NULL,
+	[ISPRIMARY] [int] NULL,
+	[ISPRIMARYTAXREGISTRATION] [int] NULL,
+	[ISPRIVATE] [int] NULL,
+	[ISROLEBUSINESS] [int] NULL,
+	[ISROLEDELIVERY] [int] NULL,
+	[ISROLEHOME] [int] NULL,
+	[ISROLEINVOICE] [int] NULL,
+	[LOCATION] [bigint] NULL,
+	[PARTY] [bigint] NULL,
+	[POSTALADDRESSROLES] [nvarchar](1000) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[RECVERSION] [int] NULL,
+	[MODIFIEDBY] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[ASSIGNMENTDATE] [datetime] NULL
+) ON [PRIMARY]

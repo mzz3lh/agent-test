@@ -1,0 +1,32 @@
+CREATE VIEW [dbo].[vwRics_assessoravailability]
+AS
+SELECT
+	[Rics_assessoravailabilityId],
+	[Rics_name],
+	[rics_assessorid],
+	[rics_sessionid],
+	[rics_sessionidName],
+	[OrganizationId],
+	[Rics_DayOne],
+	[Rics_DayTwo],
+	[Rics_DayThree],
+	[Rics_DayFour],
+	[Rics_DayFive],
+	[Rics_DaySix],
+	[Rics_DateOne],
+	[Rics_DateTwo],
+	[Rics_DateThree],
+	[Rics_DateFour],
+	[Rics_DateFive],
+	[Rics_DateSix],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[StateCode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description]
+FROM [Ext].[PBI02_CRM_vwRics_assessoravailability]

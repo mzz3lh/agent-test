@@ -1,0 +1,37 @@
+CREATE VIEW [BI].[vwOpenOpps]
+AS
+
+SELECT
+	[Opportunity_Key],
+	[SalesCycleStage],
+	[Product Group Description],
+	[ProductGroupId],
+	[Product Group],
+	[Product],
+	[Marketing Source],
+	[Marketing Team],
+	[Transaction Date],
+	[Estimated Close Date],
+	[Actual Close Date],
+	[Topic],
+	[SalesTeamId],
+	[Owner],
+	[SalesTeam],
+	[Potential_Customer],
+	[Commercial_Account],
+	[Potential Customer],
+	[Close_Probability],
+	[Created_By],
+	[Created_On],
+	[Modified_On],
+	[Modified_By],
+	[Description],
+	[Territory],
+	[rics_grading],
+	[Opportunity_State],
+	[Opportunity_Status],
+	[ricsv1_OpportunitySource],
+	[OpportunitySource_Description],
+	[Actual Revenue],
+	[Estimated Revenue]
+FROM [Ext].[PBI02_BI_vwOpenOpps]

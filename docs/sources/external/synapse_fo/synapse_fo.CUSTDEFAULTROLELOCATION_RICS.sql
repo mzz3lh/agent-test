@@ -1,0 +1,14 @@
+CREATE TABLE [synapse_fo].[CUSTDEFAULTROLELOCATION_RICS](
+	[ACCOUNTNUM] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[DATAAREAID] [nvarchar](4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[PARTYLOCATION] [bigint] NULL,
+	[PARTITION#2] [bigint] NOT NULL,
+	[TYPE] [int] NULL,
+	[PARTITION#3] [bigint] NOT NULL,
+	[PARTY] [bigint] NULL,
+	[PARTITION#4] [bigint] NOT NULL,
+	[LOGISTICSLOCATION] [bigint] NOT NULL,
+	[PARTITION#5] [bigint] NOT NULL
+) ON [PRIMARY]

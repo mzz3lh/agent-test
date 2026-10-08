@@ -15,6 +15,7 @@ IF SCHEMA_ID(N'core')  IS NULL EXEC (N'CREATE SCHEMA core AUTHORIZATION dbo;');
 IF SCHEMA_ID(N'pres')  IS NULL EXEC (N'CREATE SCHEMA pres AUTHORIZATION dbo;');
 IF SCHEMA_ID(N'audit') IS NULL EXEC (N'CREATE SCHEMA audit AUTHORIZATION dbo;');
 IF SCHEMA_ID(N'etl')   IS NULL EXEC (N'CREATE SCHEMA etl AUTHORIZATION dbo;');
+IF SCHEMA_ID(N'Layercake') IS NULL EXEC (N'CREATE SCHEMA Layercake AUTHORIZATION dbo;');   -- existing solution (baseline)
 GO
 IF OBJECT_ID(N'etl.MigrationHistory', N'U') IS NULL
 CREATE TABLE etl.MigrationHistory (

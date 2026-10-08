@@ -1,0 +1,33 @@
+CREATE   VIEW [CE].[vwRics_Panel]
+AS
+SELECT
+	[Rics_panelId],
+	[Rics_name],
+	[CreatedBy],
+	[CreatedByName],
+	[Created_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Modified_On],
+	[rics_centreid],
+	[rics_centreidName],
+	[rics_venueid],
+	[rics_venueidName],
+	[OwnerId],
+	[OwnerIdName],
+	[Rics_Date],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[apuk_tribunalvenue],
+	[apuk_tribunalmember],
+	[apuk_tribunallegalassessor],
+	[apuk_tribunallaymember],
+	[apuk_tribunalchair],
+	[overriddencreatedon],
+	[apuk_paneltype],
+	[apuk_paneltype_description],
+	[owningbusinessunit],
+	[owningbusinessunitName]
+FROM [synapse_ce].[vwRics_Panel]

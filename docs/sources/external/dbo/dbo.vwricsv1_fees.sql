@@ -1,0 +1,32 @@
+CREATE VIEW [dbo].[vwricsv1_fees]
+AS
+SELECT
+	[ricsv1_feesId],
+	[ricsv1_name],
+	[ricsv1_Contact],
+	[ricsv1_ContactName],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[ricsv1_amount],
+	[ricsv1_amount_Base],
+	[ricsv1_amountdecimal],
+	[ExchangeRate],
+	[TransactionCurrencyId],
+	[TransactionCurrencyIdName],
+	[OwnerId],
+	[OwnerIdName],
+	[OwningBusinessUnit],
+	[OwningTeam],
+	[OwningUser],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[ricsv1_datetoax],
+	[ricsv1_feetype],
+	[ricsv1_feetype_Description]
+FROM [Ext].[PBI02_CRM_vwricsv1_fees]

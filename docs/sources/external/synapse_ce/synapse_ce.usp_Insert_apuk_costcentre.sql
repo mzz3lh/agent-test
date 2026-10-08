@@ -1,0 +1,78 @@
+CREATE   PROCEDURE [synapse_ce].[usp_Insert_apuk_costcentre]
+AS
+BEGIN
+	INSERT INTO [synapse_ce].[apuk_costcentre]
+	(
+		[Id],
+		[SinkCreatedOn],
+		[SinkModifiedOn],
+		[statecode],
+		[statuscode],
+		[modifiedonbehalfby],
+		[modifiedonbehalfby_entitytype],
+		[createdonbehalfby],
+		[createdonbehalfby_entitytype],
+		[modifiedby],
+		[modifiedby_entitytype],
+		[createdby],
+		[createdby_entitytype],
+		[organizationid],
+		[organizationid_entitytype],
+		[createdonbehalfbyyominame],
+		[importsequencenumber],
+		[apuk_name],
+		[utcconversiontimezonecode],
+		[createdbyyominame],
+		[modifiedbyname],
+		[versionnumber],
+		[modifiedbyyominame],
+		[timezoneruleversionnumber],
+		[organizationidname],
+		[modifiedon],
+		[modifiedonbehalfbyyominame],
+		[createdbyname],
+		[createdon],
+		[createdonbehalfbyname],
+		[modifiedonbehalfbyname],
+		[overriddencreatedon],
+		[apuk_costcentreid]
+	)
+	SELECT 
+		stg.[Id],
+		stg.[SinkCreatedOn],
+		stg.[SinkModifiedOn],
+		stg.[statecode],
+		stg.[statuscode],
+		stg.[modifiedonbehalfby],
+		stg.[modifiedonbehalfby_entitytype],
+		stg.[createdonbehalfby],
+		stg.[createdonbehalfby_entitytype],
+		stg.[modifiedby],
+		stg.[modifiedby_entitytype],
+		stg.[createdby],
+		stg.[createdby_entitytype],
+		stg.[organizationid],
+		stg.[organizationid_entitytype],
+		stg.[createdonbehalfbyyominame],
+		stg.[importsequencenumber],
+		stg.[apuk_name],
+		stg.[utcconversiontimezonecode],
+		stg.[createdbyyominame],
+		stg.[modifiedbyname],
+		stg.[versionnumber],
+		stg.[modifiedbyyominame],
+		stg.[timezoneruleversionnumber],
+		stg.[organizationidname],
+		stg.[modifiedon],
+		stg.[modifiedonbehalfbyyominame],
+		stg.[createdbyname],
+		stg.[createdon],
+		stg.[createdonbehalfbyname],
+		stg.[modifiedonbehalfbyname],
+		stg.[overriddencreatedon],
+		stg.[apuk_costcentreid]	
+	FROM [staging].[apuk_costcentre] stg
+		LEFT JOIN [synapse_ce].[apuk_costcentre] tgt
+			ON tgt.[id] = stg.[id]
+	WHERE tgt.[id] IS NULL
+END

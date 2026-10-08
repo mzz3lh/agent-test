@@ -1,0 +1,33 @@
+CREATE VIEW [AX].[vwSubsDDForecast]
+AS
+SELECT 
+	[RecID],
+	[DataAreaID],
+	[AccountNum],
+	[TransDate],
+	[Voucher],
+	[Invoice],
+	[TXT],
+	[AmountCur],
+	[SettleAmountCur],
+	[AmountMST],
+	[SettleAmountMST],
+	[CurrencyCode],
+	[DueDate],
+	[Closed],
+	[Dimension],
+	[Dimension2_],
+	[Dimension3_],
+	[ExchRate],
+	[ExchAdjustment],
+	[PaymMode],
+	[PaymReference],
+	[PaymMethod],
+	[RicRecalculation],
+	[RicRecalReference],
+	[RicCustInterfaceRef],
+	[RicInvoiceType],
+	[OffsetRecID],
+	[RicExternalInvoiceRef],
+	[LastSettleVoucher]
+FROM [Ext].[PBI02_AX_vwSubsDDForecast]

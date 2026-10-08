@@ -1,0 +1,105 @@
+CREATE   PROCEDURE [synapse_fo].[usp_Populate_DIMENSIONCOMBINATIONENTITY_RICS]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-19 09:40
+	Description: Stored procedure to populate DIMENSIONCOMBINATIONENTITY_RICS BI table
+*/
+BEGIN
+
+	--BEGIN TRY
+
+	--	BEGIN TRANSACTION
+
+			--Truncate target table
+			TRUNCATE TABLE  [synapse_fo].[DIMENSIONCOMBINATIONENTITY_RICS]
+
+			--Load target table
+			INSERT INTO [synapse_fo].[DIMENSIONCOMBINATIONENTITY_RICS]
+			(
+				[RECORDID],
+				[MAINACCOUNT],
+				[MODIFIEDDATETIME],
+				[MODIFIEDBY],
+				[CREATEDDATETIME],
+				[CREATEDBY],
+				[RECVERSION],
+				[PARTITION],
+				[RECID],
+				[ACCOUNTSTRUCTURE],
+				[RECVERSION#2],
+				[PARTITION#2],
+				[RECID#2],
+				--[DISPLAYVALUE],
+				[ACCOUNTVALUE],
+				[CAMPAIGNYEAR],
+				[CHANNEL],
+				[COSTCENTER],
+				[COUNTRY],
+				[CUSTOMER],
+				[ENTITY],
+				[FIXEDASSETGROUP],
+				[FUNCTION_],
+				[INTERCOMPANY],
+				[INTERIMREPORTINGENTITY],
+				[LOCATION],
+				[NEW_RENEWAL],
+				[PRODUCTCODE],
+				[PRODUCTGROUP],
+				[PROJECT]
+			)
+			SELECT
+				[RECORDID],
+				[MAINACCOUNT],
+				[MODIFIEDDATETIME],
+				[MODIFIEDBY],
+				[CREATEDDATETIME],
+				[CREATEDBY],
+				[RECVERSION],
+				[PARTITION],
+				[RECID],
+				[ACCOUNTSTRUCTURE],
+				[RECVERSION#2],
+				[PARTITION#2],
+				[RECID#2],
+				--[DISPLAYVALUE],
+				[ACCOUNTVALUE],
+				[CAMPAIGNYEAR],
+				[CHANNEL],
+				[COSTCENTER],
+				[COUNTRY],
+				[CUSTOMER],
+				[ENTITY],
+				[FIXEDASSETGROUP],
+				[FUNCTION_],
+				[INTERCOMPANY],
+				[INTERIMREPORTINGENTITY],
+				[LOCATION],
+				[NEW_RENEWAL],
+				[PRODUCTCODE],
+				[PRODUCTGROUP],
+				[PROJECT]
+			FROM [synapse_fo].[vwDIMENSIONCOMBINATIONENTITY]
+/*		
+		COMMIT TRANSACTION
+
+	END TRY
+	BEGIN CATCH
+		DECLARE @Error_Message NVARCHAR(4000)
+		SET @Error_Message = 'synapse_fo.usp_Populate_DIMENSIONCOMBINATIONENTITY_RICS procedure failed: ' + ERROR_MESSAGE()
+		
+
+		-- Transaction uncommittable
+		IF (XACT_STATE()) = -1
+		  ROLLBACK TRANSACTION
+ 
+		-- Transaction committable
+		IF (XACT_STATE()) = 1
+		  COMMIT TRANSACTION
+
+		--Fail the procedure
+		RAISERROR (15600, 20, -1, @Error_Message);
+
+	END CATCH
+*/
+END

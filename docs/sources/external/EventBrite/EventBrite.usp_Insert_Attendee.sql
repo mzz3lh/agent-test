@@ -1,0 +1,91 @@
+CREATE   PROCEDURE [EventBrite].[usp_Insert_Attendee]
+AS
+BEGIN
+	
+	INSERT INTO [EventBrite].[tblAttendee]
+	(
+		[Attendee_Id],
+		[Link_Id],
+		[CreatedOn],
+		[ModifiedOn],
+		[Status],
+		[IsCanceleld],
+		[IsCheckedIn],
+		[Delivery_Method],
+		[Event_Id],
+		[Order_Id],
+		[Profile_Company],
+		[Profile_Email],
+		[Profile_FirstName],
+		[Profile_LastName],
+		[Profile_Gender],
+		[Profile_Age],
+		[Profile_Cellphone],
+		[Profile_JobTitle],
+		[Profile_Name],
+		[Profile_Prefix],
+		[Profile_Suffix],
+		[IsRefunded],
+		[Team_EventId],
+		[Team_Id],
+		[Team_Name],
+		[TicketClass_Id],
+		[TicketClass_Name],
+		[Organization_Id],
+		[Cost_Base_CurrencyCode],
+		[Cost_Base_Fee],
+		[Cost_EventBrite_CurrencyCode],
+		[Cost_EventBrite_Fee],
+		[Cost_Gross_CurrencyCode],
+		[Cost_Gross_Fee],
+		[Cost_Payment_CurrencyCode],
+		[Cost_Payment_Fee],
+		[Cost_Tax_CurrencyCode],
+		[Cost_Tax_Fee]
+	)
+	SELECT
+		src.[Attendee_Id],
+		src.[Link_Id],
+		src.[CreatedOn],
+		src.[ModifiedOn],
+		src.[Status],
+		src.[IsCanceleld],
+		src.[IsCheckedIn],
+		src.[Delivery_Method],
+		src.[Event_Id],
+		src.[Order_Id],
+		src.[Profile_Company],
+		src.[Profile_Email],
+		src.[Profile_FirstName],
+		src.[Profile_LastName],
+		src.[Profile_Gender],
+		src.[Profile_Age],
+		src.[Profile_Cellphone],
+		src.[Profile_JobTitle],
+		src.[Profile_Name],
+		src.[Profile_Prefix],
+		src.[Profile_Suffix],
+		src.[IsRefunded],
+		src.[Team_EventId],
+		src.[Team_Id],
+		src.[Team_Name],
+		src.[TicketClass_Id],
+		src.[TicketClass_Name],
+		src.[Organization_Id],
+		src.[Cost_Base_CurrencyCode],
+		src.[Cost_Base_Fee],
+		src.[Cost_EventBrite_CurrencyCode],
+		src.[Cost_EventBrite_Fee],
+		src.[Cost_Gross_CurrencyCode],
+		src.[Cost_Gross_Fee],
+		src.[Cost_Payment_CurrencyCode],
+		src.[Cost_Payment_Fee],
+		src.[Cost_Tax_CurrencyCode],
+		src.[Cost_Tax_Fee]
+	FROM [Work].[tblAttendee_EventBrite] src
+		LEFT JOIN [EventBrite].[tblAttendee] tgt
+			ON src.[Event_Id] = tgt.[Event_Id]
+			AND src.[Attendee_Id] = tgt.[Attendee_Id]
+			AND src.[Organization_Id] = tgt.[Organization_Id]
+	WHERE tgt.[Attendee_Id] IS NULL
+END

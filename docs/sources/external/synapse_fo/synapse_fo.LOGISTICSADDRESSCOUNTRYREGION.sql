@@ -1,0 +1,19 @@
+CREATE TABLE [synapse_fo].[LOGISTICSADDRESSCOUNTRYREGION](
+	[LastProcessedChange_DateTime] [datetime] NULL,
+	[DataLakeModified_DateTime] [datetime] NULL,
+	[ADDRESSUSEZIPPLUS4] [int] NULL,
+	[ADDRFORMAT] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[BACENCODE_BR] [nvarchar](4) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[COUNTRYREGIONID] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[CURRENCYCODE] [nvarchar](3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[ISIMMUTABLE] [int] NULL,
+	[ISOCODE] [nvarchar](2) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[OKSMCODE_RU] [nvarchar](3) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[TIMEZONE] [int] NULL,
+	[MCRIOR_FACILITY_ID] [nvarchar](12) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[RPAYPARENTCOUNTRYREGIONID] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[MEMBEROFCUSTOMSUNION_RU] [int] NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[RECVERSION] [int] NULL
+) ON [PRIMARY]

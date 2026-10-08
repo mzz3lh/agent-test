@@ -1,0 +1,38 @@
+CREATE VIEW [dbo].[vwEventSponsors]
+AS
+
+SELECT
+	[MSA_eventsponsorId],
+	[MSA_name],
+	[msa_campaign_eventsponsorid],
+	[msa_campaign_eventsponsoridName],
+	[CreatedBy],
+	[CreatedByName],
+	[Created_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Modified_On],
+	[cclevent_invoicemessageid],
+	[cclevent_invoicemessageidName],
+	[TransactionCurrencyIdName],
+	[OwnerId],
+	[Owner],
+	[Sales_Team],
+	[CclEvent_ApprovedOn],
+	[CclEvent_TaxValue],
+	[ExchangeRate],
+	[CclEvent_ValueGross],
+	[CclEvent_ValueNET],
+	[MSA_SponsorshipAmount],
+	[MSA_SponsorshipType],
+	[SponsorshipType],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[cclrv2_InvoiceType],
+	[InvoiceType_Description],
+	[BI_Created],
+	[BI_Modified],
+	[BI_Deleted]
+FROM [Ext].[PBI02_dbo_vwEventSponsors]

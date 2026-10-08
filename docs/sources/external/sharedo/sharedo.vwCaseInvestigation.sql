@@ -1,0 +1,70 @@
+CREATE VIEW [sharedo].[vwCaseInvestigation]  --ACTIVE with Custom Fields
+AS
+--Just Active Cases Only
+SELECT
+[apuk_caseinvestigationid]
+,[apuk_areaofbreach]
+,[apuk_areaofbreach2]
+,[apuk_areaofbreach2name]
+,[apuk_areaofbreach3]
+,[apuk_areaofbreach3name]
+,[apuk_areaofbreachname]
+,[apuk_areaofpractice]
+,[apuk_areaofpracticename]
+,[apuk_caseclosuredate]
+,[apuk_caseclosuredatetime]
+,[apuk_casesummarytitle]
+,[apuk_description]
+,[apuk_memberid]
+,[apuk_memberidname]
+,[apuk_memberidyominame]
+,[apuk_name]
+,[apuk_regardingtype]
+,[apuk_regardingtypename]
+,[apuk_regulatedfirm]
+,[apuk_regulatedfirmname]
+,[apuk_regulatedfirmyominame]
+,[apuk_regulatedindividual]
+,[apuk_regulatedindividualname]
+,[apuk_regulatedindividualyominame]
+,[apuk_resolution]
+,[apuk_resolutionname]
+,[apuk_ruleofconduct2]
+,[apuk_ruleofconduct2name]
+,[apuk_status]
+,[apuk_statusname]
+,[apuk_subject]
+,[apuk_subjectname]
+,[statecode]
+,[statecodename]
+,[statuscode]
+,[statuscodename]
+,[createdon]
+,[createdby]
+,[createdbyname]
+,[createdbyyominame]
+,[createdonbehalfby]
+,[createdonbehalfbyname]
+,[createdonbehalfbyyominame]
+,[modifiedon]
+,[modifiedby]
+,[modifiedbyname]
+,[modifiedbyyominame]
+,[modifiedonbehalfby]
+,[modifiedonbehalfbyname]
+,[modifiedonbehalfbyyominame]
+,[ownerid]
+,[owneridname]
+,apuk_recordid
+
+--Custom Fields
+,'Concern' AS [ShareDo Type]
+,'Investigation' AS [ShareDo Phase]
+,'PRC' AS [ShareDo Sub-Type]
+
+FROM sharedo.vwCaseInvestigationORIG
+
+WHERE
+[Statecode] = 0
+AND [apuk_caseclosuredate] IS NULL
+AND [apuk_resolutionname]  IS NULL  --[apuk_resolution_description]

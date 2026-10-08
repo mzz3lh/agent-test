@@ -1,0 +1,33 @@
+CREATE VIEW [dbo].[vwRics_Country]
+AS
+SELECT
+	[Rics_countryId],
+	[Rics_code],
+	[Rics_country],
+	[Created_On],
+	[Modified_On],
+	[OrganizationId],
+	[OrganizationIdName],
+	[OverriddenCreatedOn],
+	[statecode],
+	[Statecode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[rics_currencyid],
+	[rics_currencyidName],
+	[Rics_RequiresPostCode],
+	[Rics_FetchControl],
+	[Rics_RegulatedAreaId],
+	[Rics_RegulatedAreaIdName],
+	[ricsv1_AssessmentMarketId],
+	[ricsv1_AssessmentMarketIdName],
+	[ricsv2_RICSOfficeEmail],
+	[ricsv2_RICSOfficeName],
+	[ricsv2_RICSOfficeNumber],
+	[ricsv1_vrmandatory],
+	[ricsv1_regulatedmandatory],
+	[ricsv1_canapplyforclientmoney],
+	[ricsv1_canapplyforgima],
+	[ricsv1_RegulationMandatoryDate],
+	[ricsv1_VRMandatoryDate]
+FROM [Ext].[PBI02_CRM_vwRics_Country]

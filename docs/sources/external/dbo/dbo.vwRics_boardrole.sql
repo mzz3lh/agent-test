@@ -1,0 +1,30 @@
+CREATE VIEW [dbo].[vwRics_boardrole]
+AS
+SELECT
+	[Rics_boardroleId],
+	[Rics_boardrolenumber],
+	[rics_contactid],
+	[rics_boardid],
+	[Rics_name],
+	[OwnerId],
+	[OwnerIdName],
+	[OwningUser],
+	[OwningBusinessUnit],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Rics_StartDate],
+	[Rics_EndDate],
+	[Rics_Notes],
+	[Rics_SAStartDate],
+	[Rics_SAEndDate],
+	[Rics_RoleType],
+	[rics_roletype_Description],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description]
+FROM [Ext].[PBI02_CRM_vwRics_boardrole]

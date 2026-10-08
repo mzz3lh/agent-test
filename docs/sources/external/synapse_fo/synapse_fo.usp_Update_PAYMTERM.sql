@@ -1,0 +1,49 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Update_PAYMTERM]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:30:48
+	Description: Update stored procedure for PAYMTERM from synapse finops datalake to BI
+*/
+BEGIN
+	UPDATE tgt SET 
+		tgt.[ADDITIONALMONTHS] = stg.[ADDITIONALMONTHS],
+		tgt.[CASH] = stg.[CASH],
+		tgt.[CASHLEDGERDIMENSION] = stg.[CASHLEDGERDIMENSION],
+		tgt.[CFMPAYMENTREQUESTTYPEPAYMENT] = stg.[CFMPAYMENTREQUESTTYPEPAYMENT],
+		tgt.[CFMPAYMENTREQUESTTYPEPREPAYMENT] = stg.[CFMPAYMENTREQUESTTYPEPREPAYMENT],
+		tgt.[CREDITCARDCREDITCHECK] = stg.[CREDITCARDCREDITCHECK],
+		tgt.[CREDITCARDPAYMENTTYPE] = stg.[CREDITCARDPAYMENTTYPE],
+		tgt.[CUSTOMERUPDATEDUEDATE] = stg.[CUSTOMERUPDATEDUEDATE],
+		tgt.[CUTOFFDAY] = stg.[CUTOFFDAY],
+		tgt.[DATAAREAID] = stg.[DATAAREAID],
+		tgt.[DataLakeModified_DateTime] = stg.[DataLakeModified_DateTime],
+		tgt.[DEFAULTPAYMTERM_PSN] = stg.[DEFAULTPAYMTERM_PSN],
+		tgt.[DESCRIPTION] = stg.[DESCRIPTION],
+		tgt.[DUEDATELIMITGROUPID_ES] = stg.[DUEDATELIMITGROUPID_ES],
+		--tgt.[FileName] = stg.[FileName],
+		tgt.[LastProcessedChange_DateTime] = stg.[LastProcessedChange_DateTime],
+		--tgt.[LSN] = stg.[LSN],
+		tgt.[NUMOFDAYS] = stg.[NUMOFDAYS],
+		tgt.[NUMOFMONTHS] = stg.[NUMOFMONTHS],
+		tgt.[PARTITION] = stg.[PARTITION],
+		tgt.[PAYMDAYID] = stg.[PAYMDAYID],
+		tgt.[PAYMMETHOD] = stg.[PAYMMETHOD],
+		tgt.[PAYMSCHED] = stg.[PAYMSCHED],
+		tgt.[PAYMTERMID] = stg.[PAYMTERMID],
+		tgt.[POSTOFFSETTINGAR] = stg.[POSTOFFSETTINGAR],
+		tgt.[RECID] = stg.[RECID],
+		tgt.[RECVERSION] = stg.[RECVERSION],
+		tgt.[SHIPCARRIERANCILLARYCHARGE] = stg.[SHIPCARRIERANCILLARYCHARGE],
+		tgt.[SHIPCARRIERCERTIFIEDCHECK] = stg.[SHIPCARRIERCERTIFIEDCHECK],
+		--tgt.[SysRowId] = stg.[SysRowId],
+		tgt.[USEDELIVERYDATEFORDUEDATE_ES] = stg.[USEDELIVERYDATEFORDUEDATE_ES],
+		tgt.[USEEMPLACCOUNT_RU] = stg.[USEEMPLACCOUNT_RU],
+		tgt.[VENDORUPDATEDUEDATE] = stg.[VENDORUPDATEDUEDATE]
+	 FROM [synapse_fo].[PAYMTERM] tgt
+		INNER JOIN [staging_fo].[PAYMTERM] stg
+			ON  stg.[DataAreaId] = tgt.[DataAreaId] 
+			AND stg.[PARTITION] = tgt.[PARTITION] 
+			AND stg.[PaymTermId] = tgt.[PaymTermId] 
+		
+END

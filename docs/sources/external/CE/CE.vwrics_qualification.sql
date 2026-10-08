@@ -1,0 +1,47 @@
+CREATE    VIEW [CE].[vwrics_qualification]
+AS 
+SELECT 
+	[Rics_QualificationId],
+	[Rics_ContactId],
+	[Created_On],
+	[createdby],
+	[CreatedByName],
+	[Modified_On],
+	[modifiedby],
+	[ModifiedByName],
+	[OrganizationId],
+	[Rics_Comments],
+	[Rics_StartDate],
+	[Rics_EndDate],
+	[Rics_Name],
+	[Rics_Result],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[Rics_CourseId], --apuk_ricsaccreditedcourse
+	[Rics_CourseIdName], --apuk_ricsaccreditedcourseName
+	[Rics_OtherCourse],
+	[Rics_OtherDeliveryMethod],
+	[Rics_OtherInstitution],
+	[Rics_OtherQualification],
+	[apuk_ricsrecordid],
+	[apuk_ricsaccreditedcourse],
+	[apuk_ricsaccreditedcourseName],
+	[apuk_deliverymethod],
+	[apuk_deliverymethod_description],
+	[apuk_departmentid],
+	[apuk_departmentidName],
+	[apuk_level],
+	[apuk_level_description],
+	[apuk_universityid],
+	[apuk_universityidName],
+	[apuk_status],
+	[apuk_status_description],
+	[apuk_startyear],
+	[apuk_endyear],
+	[apuk_startdate],
+	[apuk_enddate],
+	[apuk_completiondate]
+
+FROM [synapse_ce].[vwrics_qualification]

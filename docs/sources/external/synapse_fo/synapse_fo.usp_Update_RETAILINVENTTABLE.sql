@@ -1,0 +1,53 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Update_RETAILINVENTTABLE]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:30:50
+	Description: Update stored procedure for RETAILINVENTTABLE from synapse finops datalake to BI
+*/
+BEGIN
+	UPDATE tgt SET 
+		tgt.[BARCODESETUPID] = stg.[BARCODESETUPID],
+		tgt.[BASECOMPARISONUNITCODE] = stg.[BASECOMPARISONUNITCODE],
+		tgt.[BLOCKEDONPOS] = stg.[BLOCKEDONPOS],
+		tgt.[DATAAREAID] = stg.[DATAAREAID],
+		tgt.[DataLakeModified_DateTime] = stg.[DataLakeModified_DateTime],
+		tgt.[DATEBLOCKED] = stg.[DATEBLOCKED],
+		tgt.[DATETOACTIVATEITEM] = stg.[DATETOACTIVATEITEM],
+		tgt.[DATETOBEBLOCKED] = stg.[DATETOBEBLOCKED],
+		--tgt.[FileName] = stg.[FileName],
+		tgt.[ITEMID] = stg.[ITEMID],
+		tgt.[KEYINGINPRICE] = stg.[KEYINGINPRICE],
+		tgt.[KEYINGINQTY] = stg.[KEYINGINQTY],
+		tgt.[LABELATTRIBUTE1] = stg.[LABELATTRIBUTE1],
+		tgt.[LABELATTRIBUTE2] = stg.[LABELATTRIBUTE2],
+		tgt.[LABELATTRIBUTE3] = stg.[LABELATTRIBUTE3],
+		tgt.[LABELATTRIBUTE4] = stg.[LABELATTRIBUTE4],
+		tgt.[LABELATTRIBUTE5] = stg.[LABELATTRIBUTE5],
+		tgt.[LastProcessedChange_DateTime] = stg.[LastProcessedChange_DateTime],
+		tgt.[LIFEFROM] = stg.[LIFEFROM],
+		tgt.[LIFETO] = stg.[LIFETO],
+		--tgt.[LSN] = stg.[LSN],
+		tgt.[MUSTKEYINCOMMENT] = stg.[MUSTKEYINCOMMENT],
+		tgt.[NODISCOUNTALLOWED] = stg.[NODISCOUNTALLOWED],
+		tgt.[NOMANUALDISCOUNTALLOWED] = stg.[NOMANUALDISCOUNTALLOWED],
+		tgt.[NOPERIODICDISCOUNTALLOWED] = stg.[NOPERIODICDISCOUNTALLOWED],
+		tgt.[NOTENDERDISCOUNTSALLOWED] = stg.[NOTENDERDISCOUNTSALLOWED],
+		tgt.[PARTITION] = stg.[PARTITION],
+		tgt.[PRINTVARIANTSSHELFLABELS] = stg.[PRINTVARIANTSSHELFLABELS],
+		tgt.[PROHIBITRETURN_RU] = stg.[PROHIBITRETURN_RU],
+		tgt.[QTYBECOMESNEGATIVE] = stg.[QTYBECOMESNEGATIVE],
+		tgt.[RECID] = stg.[RECID],
+		tgt.[RECVERSION] = stg.[RECVERSION],
+		tgt.[SCALEITEM] = stg.[SCALEITEM],
+		tgt.[SEASONCODE] = stg.[SEASONCODE],
+		--tgt.[SysRowId] = stg.[SysRowId],
+		tgt.[USEEANSTANDARDBARCODE] = stg.[USEEANSTANDARDBARCODE],
+		tgt.[ZEROPRICEVALID] = stg.[ZEROPRICEVALID]
+	 FROM [synapse_fo].[RETAILINVENTTABLE] tgt
+		INNER JOIN [staging_fo].[RETAILINVENTTABLE] stg
+			ON  stg.[DataAreaId] = tgt.[DataAreaId] 
+			AND stg.[itemId] = tgt.[itemId] 
+			AND stg.[PARTITION] = tgt.[PARTITION] 
+		
+END

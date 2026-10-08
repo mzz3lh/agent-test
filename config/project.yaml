@@ -96,3 +96,27 @@ agents:
     db: { dev: none, test: none, prod: none }
     repo: docs_write
     repo_paths: [docs/handover/]
+
+# Naming and coding conventions (agents/common/conventions.py). This project extends an existing solution
+# (phase1, baseline MIG-0002_bootstrap_phase1-layercake), so new code follows the solution's own conventions
+# where they differ from the base standards. Approved by a human like any project standard.
+conventions:
+  schemas: [Layercake, audit, etl]
+  table_name: ^[a-z][a-z0-9_]*$
+  column_name: ^[a-z][a-z0-9_]*$
+  load_logging: [Layercake.usp_etl_log_start, Layercake.usp_etl_log_end]
+
+# them and never change them (base standards 3.3).
+
+# them and never change them (base standards 3.3).
+
+# Objects this project reads but does not own (agents/product_owner/import_external.py). Agents read
+# them and never change them (base standards 3.3).
+external:
+  schemas: [Adobe, AdobeCampaign, Audit_Log, AX, BI, CCPro, CE, Chattermill, ContractRegister,
+    D365_Exception, DataMigration, DataRep, dbo, DQ, Drupal, EventBrite, Expenses,
+    Ext, Fabric, FAM, FAS, FinBI, FO, FSR, GotoWebinar, InsightsBI, isurv, MondaydotCom,
+    Moodle, OCE, OLA, PBI_API, Product_Portfolio, PurchaseOrder, RegsBI, RX, sharedo,
+    Sharedstore, Snapshots, SOTP, Staging_Adobe, staging_ce, staging_fo, Static, Subs,
+    SurveyMonkey, synapse_ce, synapse_fo, Webpay, Work]
+  catalogue: docs/sources/external_catalogue.json

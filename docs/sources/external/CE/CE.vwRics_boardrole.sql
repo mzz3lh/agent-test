@@ -1,0 +1,29 @@
+CREATE   VIEW [CE].[vwRics_boardrole]
+AS 
+SELECT 
+	[Rics_BoardRoleid],
+	[rics_contactid],
+	[Rics_boardid],
+	[Rics_Name],
+	[ownerid],
+	[OwnerIdName],
+	[owninguser],
+	[OwningUserName],
+	[owningbusinessunit],
+	[OwningBusinessUnitName],
+	[Created_On],
+	[createdby],
+	[CreatedByName],
+	[Modified_On],
+	[modifiedby],
+	[ModifiedByName],
+	[Rics_Notes],
+	[Rics_SAStartDate],
+	[Rics_SAEndDate],
+	[Rics_RoleType],
+	[Rics_RoleType_Description],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description]
+FROM [synapse_ce].[vwRics_boardrole]
