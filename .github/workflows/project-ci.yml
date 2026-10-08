@@ -1,0 +1,62 @@
+# RICS project CI (agent team framework, base standards section 8). Runs on every push and pull
+# request: the offline checks (artefacts validate, migrations.py check, sqlfluff as advisory), then a throwaway
+# SQL Server 2022 container where every migration is applied twice from nothing and every tSQLt suite runs.
+# It never touches the project's real databases.
+#
+# One-time repository setup (a human, in the project repo's Settings > Secrets and variables > Actions):
+#   variable FRAMEWORK_REPO   the framework repository, owner/name
+#   variable FRAMEWORK_REF    its branch or tag to check out (optional, default main)
+#   secret   FRAMEWORK_TOKEN  a fine-grained token with read-only Contents access to that repository
+#   variable TSQLT_URL        where to download the tSQLt release zip (optional, default the latest from tsqlt.org)
+name: project-ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: project
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.FRAMEWORK_REPO }}
+          ref: ${{ vars.FRAMEWORK_REF || 'main' }}
+          token: ${{ secrets.FRAMEWORK_TOKEN }}
+          path: framework
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: framework/requirements.txt
+      - run: pip install -r framework/requirements.txt
+      - name: Offline checks
+        run: python framework/agents/tools/ci.py offline --project project
+      - name: Start a throwaway SQL Server 2022
+        run: |
+          pw="Ci$(openssl rand -hex 16)!"
+          echo "::add-mask::$pw"
+          echo "AGENT_SQL_PASSWORD=$pw" >> "$GITHUB_ENV"
+          docker run -d --name mssql -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=$pw" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          curl -sSL https://github.com/microsoft/go-sqlcmd/releases/latest/download/sqlcmd-linux-amd64.tar.bz2 | sudo tar -xj -C /usr/local/bin sqlcmd
+          for i in $(seq 1 60); do sqlcmd -S localhost -U sa -P "$pw" -C -Q "SELECT 1" >/dev/null 2>&1 && exit 0; sleep 2; done
+          docker logs mssql; exit 1
+      - name: Download tSQLt
+        run: |
+          curl -sSL -o tsqlt.zip "${{ vars.TSQLT_URL || 'https://tsqlt.org/download/tsqlt/' }}"
+          unzip -q tsqlt.zip -d tsqlt
+          test -f tsqlt/tSQLt.class.sql
+      - name: Deploy every migration and run every suite
+        env:
+          AGENT_SQL_SERVER: localhost
+          AGENT_SQL_USER: sa
+        run: python framework/agents/tools/ci.py database --project project --database RICS_CI --tsqlt tsqlt --junit tsqlt-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tsqlt-results
+          path: tsqlt-results.xml
+          if-no-files-found: ignore

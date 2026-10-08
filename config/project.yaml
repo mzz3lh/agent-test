@@ -1,0 +1,98 @@
+# Project configuration, created by the Product Owner with `po_setup.py new-project`.
+# Single source of truth for this project's environments and agent access.
+# Edit this file, then run (from the agent team framework):
+#   python agents/product_owner/po_setup.py render-access --project <path to this project>
+# The generated ACCESS_MATRIX.md and SQL grant script must be reviewed and run by a human.
+
+project:
+  id: RICS          # short code used in artefact IDs, database names and agent logins
+  name: "RICS Phase 2"
+  created: 2026-10-08
+  base_standards_version: "1.6"   # framework standards this project follows
+  login_prefix: rics_agent_
+
+environments:
+  dev:
+    description: Disposable development database. Synthetic or masked data only.
+    platform: Local SQL Server 2016 SP1+ (Docker or installed); Azure deferred (base standards Q-05)
+    database: RICS_Dev
+    data_policy: synthetic_or_masked
+    agents_allowed: true
+  test:
+    description: Clean database rebuilt from the repo for each module test run. Synthetic data only.
+    platform: same as dev
+    database: RICS_Test
+    data_policy: synthetic
+    agents_allowed: true
+  prod:
+    description: Client production. Out of scope for every agent. Deployment is a human action.
+    platform: client-specific
+    database: null
+    data_policy: real
+    agents_allowed: false
+
+# Permission levels, from least to most privileged. Each maps to a database role
+# created by src/sql/setup/01_create_roles.sql. No level includes GRANT, ALTER ANY USER,
+# db_owner, db_securityadmin or any server-level permission.
+permission_levels:
+  none:
+    description: No access.
+    sql: []
+  metadata_read:
+    description: See object definitions (schemas, columns, procedures). Cannot read rows.
+    sql:
+      - GRANT VIEW DEFINITION TO [{role}];
+  data_read:
+    description: Metadata plus SELECT on all tables and views.
+    sql:
+      - GRANT VIEW DEFINITION TO [{role}];
+      - ALTER ROLE [db_datareader] ADD MEMBER [{role}];
+  test_execute:
+    description: Data read plus run tSQLt tests (tSQLt needs to fake tables and create test schemas).
+    sql:
+      - GRANT VIEW DEFINITION TO [{role}];
+      - ALTER ROLE [db_datareader] ADD MEMBER [{role}];
+      - ALTER ROLE [db_datawriter] ADD MEMBER [{role}];
+      - ALTER ROLE [db_ddladmin] ADD MEMBER [{role}];
+      - GRANT EXECUTE TO [{role}];
+  build:
+    description: Create and change objects, read and write data, run tests. Database-scoped only.
+    sql:
+      - GRANT VIEW DEFINITION TO [{role}];
+      - ALTER ROLE [db_datareader] ADD MEMBER [{role}];
+      - ALTER ROLE [db_datawriter] ADD MEMBER [{role}];
+      - ALTER ROLE [db_ddladmin] ADD MEMBER [{role}];
+      - GRANT EXECUTE TO [{role}];
+      - GRANT SHOWPLAN TO [{role}];
+
+# Repository permission levels (enforced by GitHub settings, not SQL).
+repo_levels:
+  read: Read the whole repo.
+  docs_write: Read the repo; commit to docs paths on agent feature branches only.
+  branch_write: Read the repo; commit to agent feature branches only. Never to main.
+
+agents:
+  product_owner:
+    db: { dev: metadata_read, test: metadata_read, prod: none }
+    repo: docs_write
+    repo_paths: [docs/PROJECT_STANDARDS.md, docs/design/backlog/, config/]
+  analyst:
+    db: { dev: metadata_read, test: none, prod: none }
+    repo: docs_write
+    repo_paths: [docs/specs/]
+  technical_architect:
+    db: { dev: metadata_read, test: none, prod: none }
+    repo: docs_write
+    repo_paths: [docs/design/]
+  developer:
+    db: { dev: build, test: none, prod: none }
+    repo: branch_write
+    repo_paths: [src/, tests/, docs/dev/]
+  tester:
+    db: { dev: data_read, test: test_execute, prod: none }
+    repo: branch_write
+    repo_paths: [tests/, docs/test/]
+  technical_writer:
+    db: { dev: none, test: none, prod: none }
+    repo: docs_write
+    repo_paths: [docs/handover/]
