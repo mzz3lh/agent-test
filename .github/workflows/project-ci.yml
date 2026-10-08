@@ -7,7 +7,7 @@
 #   variable FRAMEWORK_REPO   the framework repository, owner/name
 #   variable FRAMEWORK_REF    its branch or tag to check out (optional, default main)
 #   secret   FRAMEWORK_TOKEN  a fine-grained token with read-only Contents access to that repository
-#   variable TSQLT_URL        where to download the tSQLt release zip (optional, default the latest from tsqlt.org)
+#   variable TSQLT_URL        a tSQLt release zip to use instead of the framework's vendor/tSQLt (optional)
 name: project-ci
 on:
   push:
@@ -45,15 +45,16 @@ jobs:
           for i in $(seq 1 60); do sqlcmd -S localhost -U sa -P "$pw" -C -Q "SELECT 1" >/dev/null 2>&1 && exit 0; sleep 2; done
           docker logs mssql; exit 1
       - name: Download tSQLt
+        if: vars.TSQLT_URL != ''
         run: |
-          curl -sSL -o tsqlt.zip "${{ vars.TSQLT_URL || 'https://tsqlt.org/download/tsqlt/' }}"
+          curl -fsSL -o tsqlt.zip "${{ vars.TSQLT_URL }}"
           unzip -q tsqlt.zip -d tsqlt
           test -f tsqlt/tSQLt.class.sql
       - name: Deploy every migration and run every suite
         env:
           AGENT_SQL_SERVER: localhost
           AGENT_SQL_USER: sa
-        run: python framework/agents/tools/ci.py database --project project --database RICS_CI --tsqlt tsqlt --junit tsqlt-results.xml
+        run: python framework/agents/tools/ci.py database --project project --database RICS_CI --tsqlt ${{ vars.TSQLT_URL != '' && 'tsqlt' || 'framework/vendor/tSQLt' }} --junit tsqlt-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
