@@ -1,0 +1,30 @@
+CREATE VIEW [dbo].[vwCMLegacy]
+AS
+SELECT 
+	[rics_firmnumber],
+	[cclregs_accountidName],
+	[AnnualReturn],
+	[completed],
+	[Does your firm hold tenancy deposits in relation to assured shorthold tenancy lettings within England and Wales],
+	[If yes which of the following schemes is your firm Registered with],
+	[Does your firm hold tenancy deposits in relation to assured shorthold tenancy lettings within Scotland],
+	[If yes, which of the following schemes is your firm Registered with],
+	[Does your firm hold clients' money],
+	[If your firm started holding clients' money in the last 12 months, please enter the date],
+	[Maximum amount of money held for all clients' at any one time in the last twelve months],
+	[What was the estimated average amount of clients' money held for all clients at any one time in the past twelve months],
+	[How many clients does your firm hold money for],
+	[How many client bank accounts does your firm operate Please state the number of client accounts held in each category],
+	[General client bank accounts],
+	[Discrete or designated client bank accounts],
+	[Auction or Farm Sale bank accounts],
+	[Bank accounts not wholly controlled by the firm ( such as where the client is a signatory on the account)],
+	[LPA receivership bank accounts],
+	[Livestock Auctioneer bank accounts],
+	[What was the approximate total number of receipts and payments processed through all client accounts in the last twelve months],
+	[Has there been any loss of clients' money as a result of theft, misappropriation or accounting errors in the last twelve months],
+	[If yes, please provide details of the loss],
+	[Has the clients' money been reinstated from the office account or other source],
+	[Is there, or has there been, any surplus money in the client account relating to clients who cannot be traced],
+	[If the firm ceased holding clients' money in the last 12 months, please enter the date]
+FROM [Ext].[PBI02_CRM_vwCMLegacy]

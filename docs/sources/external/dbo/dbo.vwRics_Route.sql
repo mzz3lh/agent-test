@@ -1,0 +1,29 @@
+CREATE VIEW [dbo].[vwRics_Route]
+AS
+SELECT
+	[Rics_routeId],
+	[Rics_name],
+	[CreatedBy],
+	[CreatedByName],
+	[Created_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Modified_On],
+	[ricsv2_EnrolmentTypeIdName],
+	[rics_applicationtypeidName],
+	[OwnerId],
+	[OwnerIdName],
+	[OwnerIdDsc],
+	[OwnerIdType],
+	[OwningUser],
+	[OwningTeam],
+	[ImportSequenceNumber],
+	[OverriddenCreatedOn],
+	[OwningBusinessUnit],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[rics_applicationtypeid],
+	[ricsv2_EnrolmentTypeId]
+FROM [Ext].[PBI02_CRM_vwRics_Route]

@@ -1,0 +1,38 @@
+CREATE    VIEW [FO].[vwSupplier_Table] AS
+
+	SELECT 
+	 VTB.ACCOUNTNUM 'Supplier ID'
+	,T10.NAME AS 'Supplier Name'
+	,VTB.VENDGROUP AS 'Supplier Group ID'
+	,VG.NAME AS 'Supplier Group'
+	,VTB.CURRENCY AS 'Currency'
+	,VTB.INVOICEACCOUNT As 'Invoice Account'
+	,VTB.BANKACCOUNT AS 'Bank Account'
+	,VTB.PAYMMODE AS 'Payment Method'
+	,VTB.PAYMTERMID AS 'Payment Term ID'
+	,PTM.[DESCRIPTION] AS 'Payment Term'
+	--,DIOTCOUNTRYCODE -- Country Needed
+	,VTB.TAXGROUP AS 'Tax Group'
+	--,CREDITLIMIT
+	,CREDITMAX AS 'Credit Limit' --This and CREDITLIMIT both 0 for all rows?
+	,T10.NAMEALIAS AS 'Supplier Search Name'
+	,VTB.DATAAREAID AS 'Data Area ID'
+	,VTB.[BLOCKED] AS 'On Hold Status Code'--This or Blocked?
+	,BLOCKED -- This or ONHOLD?
+	,VHLD.HoldStatusDescription AS 'On Hold Status'
+	,VTB.[BLOCKEDRELEASEDATE] AS VENDORHOLDRELEASEDATE --Valid?
+FROM [synapse_fo].[VENDTABLE] VTB
+	CROSS JOIN [synapse_fo].[DIRPARTYBASEENTITY_RICS] T10
+
+	LEFT JOIN [synapse_fo].[PAYMTERM] PTM
+		ON VTB.PAYMTERMID = PTM.[PAYMTERMID]
+		AND VTB.[DATAAREAID] = PTM.[DATAAREAID]
+	LEFT JOIN [synapse_fo].[VENDGROUP] VG
+		ON VTB.VENDGROUP = VG.VENDGROUP
+		AND VTB.[DATAAREAID] = VG.[DATAAREAID]
+	LEFT JOIN FO.vwVendHoldStatus VHLD
+		ON VTB.BLOCKED = VHLD.HoldStatus
+
+WHERE (
+		(VTB.PARTY = T10.RECID) AND (VTB.PARTITION = T10.PARTITION)
+		)

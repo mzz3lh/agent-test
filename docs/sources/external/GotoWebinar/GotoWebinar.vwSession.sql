@@ -1,0 +1,21 @@
+CREATE   VIEW [GotoWebinar].[vwSession]
+AS
+SELECT 
+	CAST(s.[webinarkey] AS NVARCHAR(20)) + '_' + CAST(s.[SessionKey] AS NVARCHAR(20)) AS [WebinarSessionKey]
+	,s.[sessionKey]
+	,s.[webinarKey]
+	,s.[webinarID]
+	,s.[creatingOrganizerName] AS [Creating Organizer]
+	,s.[startTime] AS [Start Time]
+	,s.[endTime] As [End Time]
+	,s.[experienceType] As [Experience Type]
+	,IIF(s.[IncludeCertificate]=1, 'Yes', 'No') AS [Include Certificate]
+	,s.[numOpenedInvitations] AS [Opened Invitations]
+	,s.[numRegLinkClicks] AS [Reg Link Clicks]
+	,s.[registrantCount] As [Registrant Count]
+	,s.[registrantsAttended] As [Registrants Attended]
+	,s.[startingOrganizerName] AS [Starting Organizer]
+	,s.[totalPollCount] As [Poll Count]
+	,CAST(s.[starttime] AS DATE) AS [Start Date]
+	,CONVERT(VARCHAR(5),DATEDIFF(s, s.[startTime], s.[endTime])/3600)+':'+CONVERT(VARCHAR(5),DATEDIFF(s, s.[startTime], s.[endTime])%3600/60)+':'+CONVERT(VARCHAR(5),(DATEDIFF(S, s.[startTime], s.[endTime])%60)) AS [Actual Duration]
+FROM [GoToWebinar].[tblSessions] s

@@ -1,0 +1,23 @@
+CREATE TABLE [synapse_fo].[DIMENSIONHIERARCHY](
+	[LastProcessedChange_DateTime] [datetime] NULL,
+	[DataLakeModified_DateTime] [datetime] NULL,
+	[DELETEDVERSION] [bigint] NULL,
+	[DESCRIPTION] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[DRAFTDESCRIPTION] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[DRAFTNAME] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[HASHKEY] [uniqueidentifier] NULL,
+	[ISDRAFT] [int] NULL,
+	[ISSYSTEMGENERATED] [int] NULL,
+	[NAME] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[STRUCTURETYPE] [int] NULL,
+	[FOCUSSTATE] [int] NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[RECVERSION] [int] NULL,
+	[MODIFIEDDATETIME] [datetime] NULL,
+	[MODIFIEDBY] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[CREATEDDATETIME] [datetime] NULL,
+	[CREATEDBY] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[FOCUSISAUTOMATICUPDATESIM_IT] [int] NULL,
+	[FOCUSSTATESIM_IT] [int] NULL
+) ON [PRIMARY]

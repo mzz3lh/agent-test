@@ -1,0 +1,103 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Insert_INVENTTABLEMODULE]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:29:52
+	Description: Insert stored procedure for INVENTTABLEMODULE from synapse finops datalake to BI
+*/
+BEGIN
+	INSERT INTO [synapse_fo].[INVENTTABLEMODULE]
+	(
+		[ALLOCATEMARKUP],
+		[BASEPRICEPURCHASE],
+		[CREATEDBY],
+		[CREATEDDATETIME],
+		[DATAAREAID],
+		[DataLakeModified_DateTime],
+		[ENDDISC],
+		--[FileName],
+		[INTERCOMPANYBLOCKED],
+		[ITEMID],
+		[LastProcessedChange_DateTime],
+		[LINEDISC],
+		--[LSN],
+		[MARKUP],
+		[MARKUPGROUPID],
+		[MARKUPSECCUR_RU],
+		[MAXIMUMRETAILPRICE_IN],
+		[MODIFIEDBY],
+		[MODIFIEDDATETIME],
+		[MODULETYPE],
+		[MULTILINEDISC],
+		[OVERDELIVERYPCT],
+		[PARTITION],
+		[PDSPRICINGPRECISION],
+		[PRICE],
+		[PRICEDATE],
+		[PRICEQTY],
+		[PRICESECCUR_RU],
+		[PRICEUNIT],
+		[RECID],
+		[RECVERSION],
+		[RETAILINVENTORYAVAILABILITYBUFFER],
+		[RETAILINVENTORYAVAILABILITYLEVELPROFILE],
+		[SUPPITEMGROUPID],
+		--[SysRowId],
+		[TAXGSTRELIEFCATEGORY_MY],
+		[TAXITEMGROUPID],
+		[TAXWITHHOLDCALCULATE_TH],
+		[TAXWITHHOLDITEMGROUPHEADING_TH],
+		[UNDERDELIVERYPCT],
+		[UNITID]
+	)
+	SELECT 
+		stg.[ALLOCATEMARKUP],
+		stg.[BASEPRICEPURCHASE],
+		stg.[CREATEDBY],
+		stg.[CREATEDDATETIME],
+		stg.[DATAAREAID],
+		stg.[DataLakeModified_DateTime],
+		stg.[ENDDISC],
+		--stg.--[FileName],
+		stg.[INTERCOMPANYBLOCKED],
+		stg.[ITEMID],
+		stg.[LastProcessedChange_DateTime],
+		stg.[LINEDISC],
+		--stg.--[LSN],
+		stg.[MARKUP],
+		stg.[MARKUPGROUPID],
+		stg.[MARKUPSECCUR_RU],
+		stg.[MAXIMUMRETAILPRICE_IN],
+		stg.[MODIFIEDBY],
+		stg.[MODIFIEDDATETIME],
+		stg.[MODULETYPE],
+		stg.[MULTILINEDISC],
+		stg.[OVERDELIVERYPCT],
+		stg.[PARTITION],
+		stg.[PDSPRICINGPRECISION],
+		stg.[PRICE],
+		stg.[PRICEDATE],
+		stg.[PRICEQTY],
+		stg.[PRICESECCUR_RU],
+		stg.[PRICEUNIT],
+		stg.[RECID],
+		stg.[RECVERSION],
+		stg.[RETAILINVENTORYAVAILABILITYBUFFER],
+		stg.[RETAILINVENTORYAVAILABILITYLEVELPROFILE],
+		stg.[SUPPITEMGROUPID],
+		--stg.--[SysRowId],
+		stg.[TAXGSTRELIEFCATEGORY_MY],
+		stg.[TAXITEMGROUPID],
+		stg.[TAXWITHHOLDCALCULATE_TH],
+		stg.[TAXWITHHOLDITEMGROUPHEADING_TH],
+		stg.[UNDERDELIVERYPCT],
+		stg.[UNITID]	
+	FROM [staging_fo].[INVENTTABLEMODULE] stg
+		LEFT JOIN [synapse_fo].[INVENTTABLEMODULE] tgt
+			ON stg.[DataAreaId] = tgt.[DataAreaId] 
+			AND stg.[ItemId] = tgt.[ItemId] 
+			AND stg.[ModuleType] = tgt.[ModuleType] 
+			AND stg.[PARTITION] = tgt.[PARTITION] 
+		
+	WHERE tgt.[RECID] IS NULL
+END

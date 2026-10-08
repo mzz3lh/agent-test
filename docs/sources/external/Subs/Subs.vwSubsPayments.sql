@@ -1,0 +1,23 @@
+CREATE   VIEW [Subs].[vwSubsPayments] AS
+	SELECT 
+	 [Rec_ID] AS 'Rec ID'
+	,[Contact_No] AS 'Contact No'
+	,[Campaign_Year] AS 'Campaign Year'
+	,[Trans_Date] AS 'Trans Date'
+	,Trans_Date_Adj AS 'Trans Date Adj'
+	,[Trans_Rec_ID] AS 'Trans Rec ID'
+	,[Offset_Rec_ID] AS 'Offset Rec ID'
+	,[Invoice] AS 'Invoice'
+	,[Payment_Status] AS 'Payment Status'
+	,[Currency] AS 'Currency'
+	,[Paymode] AS 'Payment Method'
+	,[Exch_Adjustment] AS 'Exch Adj.'
+	,[Settle_Amount_CUR] AS 'Settle Amount CUR'
+	,[Settle_Amount_GBP] AS 'Settle Amount GBP'
+	,[Non_Subs_Amount_CUR] AS 'Non-Subs Amount CUR'
+	,[Non_Subs_Amount_GBP] AS 'Non-Subs Amount GBP'
+	,[Subs_Paid_CUR_Prime] AS 'Subs Paid CUR Prime'
+	,[Subs_Paid_GBP_Prime] AS 'Subs Paid GBP Prime'
+	,[Subs_Paid_CUR] AS 'Subs Paid CUR'
+	,[Subs_Paid_GBP] AS 'Subs Paid GBP'
+	FROM [Subs].[tblSubsPayments]

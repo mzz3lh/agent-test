@@ -1,0 +1,33 @@
+CREATE   VIEW [CE].[vwRics_Question]
+AS
+SELECT 
+	[rics_questionid],
+	[rics_name],
+	[rics_questiontext],
+	[rics_helptext],
+	[rics_questiontitle],
+	[rics_attachedto],
+	[rics_attachedto_Description],
+	[rics_questiontype],
+	[rics_questiontype_Description],
+	[rics_requiresevidence],
+	[rics_requiresheadings],
+	[createdon],
+	[createdby],
+	[CreatedByName],
+	[createdonbehalfby],
+	[CreatedOnbehalfByName],
+	[modifiedon],
+	[modifiedby],
+	[ModifiedByName],
+	[modifiedonbehalfby],
+	[ModifiedOnbehalfByName],
+	[ownerid],
+	[OwnerIdName],
+	[rics_validfrom],
+	[rics_validto],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description]
+FROM [synapse_ce].[vwRics_Question]

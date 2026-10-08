@@ -1,0 +1,22 @@
+CREATE TABLE [synapse_fo].[MCRCUSTTABLE](
+	[LastProcessedChange_DateTime] [datetime] NULL,
+	[DataLakeModified_DateTime] [datetime] NULL,
+	[ALLOWONACCOUNT] [int] NULL,
+	[AUTOCANCEL] [int] NULL,
+	[CHECKHOLDNUMBEROFDAYS] [int] NULL,
+	[CHECKHOLDTHRESHOLDAMT] [numeric](32, 6) NULL,
+	[CUSTSTATUS] [int] NULL,
+	[CUSTTABLE] [bigint] NULL,
+	[ENABLEITEMLIST] [int] NULL,
+	[FTCEXEMPT] [int] NULL,
+	[INSTALLMENTELIGIBLE] [int] NULL,
+	[ORIGSOURCEID] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[POSTAGEGROUPID] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[SOALLOCPRIORITY] [int] NULL,
+	[SOURCEIDLASTORDERED] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[SOURCEIDLASTPROMOTED] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[DATAAREAID] [nvarchar](4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[RECVERSION] [int] NULL
+) ON [PRIMARY]

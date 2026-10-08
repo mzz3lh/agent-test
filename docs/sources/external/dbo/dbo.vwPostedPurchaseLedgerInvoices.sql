@@ -1,0 +1,16 @@
+CREATE VIEW dbo.vwPostedPurchaseLedgerInvoices
+AS
+
+SELECT DISTINCT LT.VOUCHER AS Voucher, VTR.INVOICE AS InvoiceNo, VTR.DOCUMENTDATE AS [Document Date],
+LT.TRANSDATE AS [Transaction Date],LT.ACCOUNTNUM AS [Ledger Account],
+LT.DIMENSION AS [Cost Centre],LT.DOCUMENTNUM AS [PO Number], LT.DIMENSION2_ AS Product, LT.CURRENCYCODE AS Currency,LT.AMOUNTCUR AS [Amount (Currency)],
+LT.AMOUNTMST AS [Amount (GBP)],LT.TXT AS [Transaction Text],LT.AMOUNTMSTSECOND AS [Amount Secondary Currency], VTB.ACCOUNTNUM AS [Vendor AccountNo],
+VTB.[NAME] AS [Vendor Name], VTB.VENDGROUP AS [Vendor Group]
+
+FROM [AX].[vwLedgerTrans] LT
+LEFT JOIN [AX].[vwVendTrans] VTR
+    ON LT.VOUCHER = VTR.VOUCHER
+LEFT JOIN [AX].[vwVendTable] VTB
+    ON VTR.ACCOUNTNUM = VTB.ACCOUNTNUM
+WHERE (LT.VOUCHER LIKE '%PI'
+OR VTR.VOUCHER LIKE 'REV%')

@@ -1,0 +1,18 @@
+CREATE   PROCEDURE [Drupal].[usp_Update_field_data_commerce_product]
+As
+
+BEGIN
+
+	UPDATE tgt SET 
+		tgt.[bundle] = src.[bundle],
+		tgt.[revision_id] = src.[revision_id],
+		tgt.[commerce_product_product_id] = src.[commerce_product_product_id]
+	FROM [Drupal].[field_data_commerce_product] tgt
+		INNER JOIN [Work].[field_data_commerce_product] src
+			ON src.[entity_type] = tgt.[entity_type]
+			AND src.[deleted] = tgt.[deleted]
+			AND src.[entity_id] = tgt.[entity_id]
+			AND src.[language] = tgt.[language]
+			AND src.[delta] = tgt.[delta]
+
+END

@@ -48,3 +48,11 @@ Overrides of the base standards, so that new code matches the solution and nothi
 - Changing an existing object: the Developer changes it in place (a table through its change scripts); the
   module's down script restores the previous definition (base standards 3.1).
 - The baseline is not rolled back: a database goes back to before its baseline by restoring a backup.
+
+## Objects owned by other systems (external)
+
+The project reads objects it does not own: other systems load or maintain them. They are listed in
+`docs/sources/external_catalogue.json` with their columns, and their definitions (identifying literals masked) are under
+`docs/sources/external/`. Agents use them as sources and to understand the existing data, and never create, alter, drop
+or write to them (base standards 3.3). A change one would need goes to its owner through a human. In CI and on
+the local dev and test databases they exist only as the stand-ins in `src/sql/ci/external_standins.sql`.

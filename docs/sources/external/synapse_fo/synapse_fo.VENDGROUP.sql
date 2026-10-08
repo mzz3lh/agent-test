@@ -1,0 +1,20 @@
+CREATE TABLE [synapse_fo].[VENDGROUP](
+	[LastProcessedChange_DateTime] [datetime] NULL,
+	[DataLakeModified_DateTime] [datetime] NULL,
+	[CLEARINGPERIOD] [nvarchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[NAME] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[PAYMTERMID] [nvarchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[TAXGROUPID] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[TAXPERIODPAYMENTCODE_PL] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[VENDGROUP] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[EXCLUDEFROMSIGNUP_PSN] [int] NULL,
+	[VENDACCOUNTNUMSEQ] [bigint] NULL,
+	[DATAAREAID] [nvarchar](4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[RECVERSION] [int] NULL,
+	[CREATEDDATETIME] [datetime] NULL,
+	[CREATEDBY] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[ISPUBLICSECTOR_IT] [int] NULL,
+	[DEFAULTDIMENSION] [bigint] NULL
+) ON [PRIMARY]

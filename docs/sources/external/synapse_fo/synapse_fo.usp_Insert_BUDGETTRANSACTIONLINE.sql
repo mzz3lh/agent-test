@@ -1,0 +1,93 @@
+CREATE   PROCEDURE [synapse_fo].[usp_Insert_BUDGETTRANSACTIONLINE]
+AS
+BEGIN
+	--Raj Maddala, 2025-02-06, Insert stored procedure for Budgettransactionline
+
+	INSERT INTO [synapse_fo].[BUDGETTRANSACTIONLINE]
+	(
+		[Id],
+		[SinkCreatedOn],
+		[SinkModifiedOn],
+		[budgettype],
+		[includeincashflowforecast],
+		[workflowstatus],
+		[sysdatastatecode],
+		[accountingcurrencyamount],
+		[assetbudget],
+		[budgettransactionheader],
+		[comment],
+		[date],
+		[generaljournalentry],
+		[ledgerdimension],
+		[linenumber],
+		[price],
+		[projtransbudgettransid],
+		[quantity],
+		[taxgroup],
+		[transactioncurrency],
+		[transactioncurrencyamount],
+		[assetbudget_ru],
+		[modifieddatetime],
+		[modifiedby],
+		[modifiedtransactionid],
+		[createddatetime],
+		[createdby],
+		[createdtransactionid],
+		[dataareaid],
+		[recversion],
+		[partition],
+		[sysrowversion],
+		[recid],
+		[tableid],
+		[versionnumber],
+		[createdon],
+		[modifiedon],
+		[IsDelete],
+		[PartitionId]
+	)
+	SELECT
+		src.[Id],
+		src.[SinkCreatedOn],
+		src.[SinkModifiedOn],
+		src.[budgettype],
+		src.[includeincashflowforecast],
+		src.[workflowstatus],
+		src.[sysdatastatecode],
+		src.[accountingcurrencyamount],
+		src.[assetbudget],
+		src.[budgettransactionheader],
+		src.[comment],
+		src.[date],
+		src.[generaljournalentry],
+		src.[ledgerdimension],
+		src.[linenumber],
+		src.[price],
+		src.[projtransbudgettransid],
+		src.[quantity],
+		src.[taxgroup],
+		src.[transactioncurrency],
+		src.[transactioncurrencyamount],
+		src.[assetbudget_ru],
+		src.[modifieddatetime],
+		src.[modifiedby],
+		src.[modifiedtransactionid],
+		src.[createddatetime],
+		src.[createdby],
+		src.[createdtransactionid],
+		src.[dataareaid],
+		src.[recversion],
+		src.[partition],
+		src.[sysrowversion],
+		src.[recid],
+		src.[tableid],
+		src.[versionnumber],
+		src.[createdon],
+		src.[modifiedon],
+		src.[IsDelete],
+		src.[PartitionId]
+	FROM [staging_fo].[BUDGETTRANSACTIONLINE] src
+		LEFT JOIN [synapse_fo].[BUDGETTRANSACTIONLINE] tgt
+			ON src.[recid] = tgt.[recid]
+	WHERE tgt.[recid] IS NULL
+
+END

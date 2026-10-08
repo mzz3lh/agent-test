@@ -1,0 +1,88 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Insert_PROJFUNDINGSOURCE]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:29:56
+	Description: Insert stored procedure for PROJFUNDINGSOURCE from synapse finops datalake to BI
+*/
+BEGIN
+	INSERT INTO [synapse_fo].[PROJFUNDINGSOURCE]
+	(
+		[CASHDISCOUNTID],
+		[CONTACTPERSONID],
+		[CONTRACTID],
+		[CUSTACCOUNT],
+		[CUSTPURCHASEORDER],
+		[CUSTREF],
+		[DATAAREAID],
+		[DataLakeModified_DateTime],
+		[DEFAULTDIMENSION],
+		[EINVOICEACCOUNTCODE],
+		[EINVOICELINESPEC],
+		--[FileName],
+		[FUNDINGSOURCEID],
+		[FUNDINGTYPE],
+		[GIROTYPE],
+		[INDIVIDUALBUFFER],
+		[INVOICELOCATION],
+		[INVOICENAME],
+		[LANGUAGEID],
+		[LastProcessedChange_DateTime],
+		--[LSN],
+		[NUMBERSEQUENCEGROUPID],
+		[PARTITION],
+		[PARTY],
+		[PAYMENTSCHEDULEID],
+		[PAYMENTTERMSID],
+		[POSTINGPROFILE],
+		[PROJECTMANAGER],
+		[PROJGRANT],
+		[PSACUSTRETENTIONTERMID],
+		[PSAINVOICEFORMATS],
+		[RECID],
+		[RECVERSION],
+		--[SysRowId],
+		[TAXPERIODPAYMENTCODE_PL]
+	)
+	SELECT 
+		stg.[CASHDISCOUNTID],
+		stg.[CONTACTPERSONID],
+		stg.[CONTRACTID],
+		stg.[CUSTACCOUNT],
+		stg.[CUSTPURCHASEORDER],
+		stg.[CUSTREF],
+		stg.[DATAAREAID],
+		stg.[DataLakeModified_DateTime],
+		stg.[DEFAULTDIMENSION],
+		stg.[EINVOICEACCOUNTCODE],
+		stg.[EINVOICELINESPEC],
+		--stg.--[FileName],
+		stg.[FUNDINGSOURCEID],
+		stg.[FUNDINGTYPE],
+		stg.[GIROTYPE],
+		stg.[INDIVIDUALBUFFER],
+		stg.[INVOICELOCATION],
+		stg.[INVOICENAME],
+		stg.[LANGUAGEID],
+		stg.[LastProcessedChange_DateTime],
+		--stg.--[LSN],
+		stg.[NUMBERSEQUENCEGROUPID],
+		stg.[PARTITION],
+		stg.[PARTY],
+		stg.[PAYMENTSCHEDULEID],
+		stg.[PAYMENTTERMSID],
+		stg.[POSTINGPROFILE],
+		stg.[PROJECTMANAGER],
+		stg.[PROJGRANT],
+		stg.[PSACUSTRETENTIONTERMID],
+		stg.[PSAINVOICEFORMATS],
+		stg.[RECID],
+		stg.[RECVERSION],
+		--stg.--[SysRowId],
+		stg.[TAXPERIODPAYMENTCODE_PL]	
+	FROM [staging_fo].[PROJFUNDINGSOURCE] stg
+		LEFT JOIN [synapse_fo].[PROJFUNDINGSOURCE] tgt
+			ON stg.[RECID] = tgt.[RECID] 
+		
+	WHERE tgt.[RECID] IS NULL
+END

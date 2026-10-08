@@ -1,0 +1,33 @@
+CREATE   VIEW [RegsBI].[vwRics_ContactRelationship_CE]
+AS 
+SELECT 
+	[Rics_contactrelationshipId],
+	[Rics_name],
+	[rics_contactid],
+	[ContactIdName],
+	[rics_accountid],
+	[AccountIdName],
+	[Rics_FirmNumber],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Rics_RelationshipType],
+	[Rics_RelationshipType_Description],
+	[Rics_PublishinDirectory],
+	[Rics_PublishinDirectory_Description],
+	[Rics_StartDate],
+	[Rics_EndDate],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[Rics_IsParentAccount],
+	[Rics_BusinessPhone],
+	[Rics_BusinessEmail],
+	[Rics_JobTitle],
+	[apuk_primaryemployment],
+	[apuk_primaryemployment_description]
+FROM [synapse_ce].[vwRics_ContactRelationship]

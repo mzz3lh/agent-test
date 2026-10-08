@@ -1,0 +1,42 @@
+CREATE   VIEW [RegsBI].[vwCPDActivities_CE]
+AS
+SELECT 
+	cpd.[Rics_cpdactivityId],
+	cpd.[Rics_name],
+	cpd.[Created_On],
+	cpd.[CreatedBy],
+	cpd.[CreatedByName],
+	cpd.[Modified_On],
+	cpd.[ModifiedBy],
+	cpd.[ModifiedByName],
+	cpd.[rics_cpdannualsummaryid],
+	cpd.[rics_activitytypeid],
+	cpd.[rics_activitytypeidName],
+	cpd.[rics_contactid],
+	cpd.[OwnerId],
+	cpd.[OwnerIdName],
+	cpd.[Rics_Date],
+	cpd.[Rics_Description],
+	cpd.[OverriddenCreatedOn],
+	cpd.[Rics_Reflection],
+	cpd.[Rics_Hours],
+	cpd.[Rics_OtherDescription],
+	cpd.[Rics_Formal],
+	cpd.[Rics_Formal_Description],
+	cpd.[Rics_Ethics],
+	cpd.[Rics_EthicsDescription],
+	cpd.[ricsv1_EligibleFlag],
+	cpd.[Rics_Status],
+	cpd.[Rics_Source],
+	cpd.[Rics_Source_Description],
+	cpd.[StateCode],
+	cpd.[StateCode_Description],
+	cpd.[StatusCode],
+	cpd.[StatusCode_Description],
+	cpd.[apuk_eventregistrationid],
+	cr.[Event_Id],
+	cr.[Event_Name],
+	cr.[Event_Type]
+FROM [synapse_ce].[tblcpdactivity_BI] cpd
+	LEFT JOIN [synapse_ce].[vwCampaignResponse] cr
+		ON cpd.[apuk_eventregistrationid] = cr.[CampaignResponse_Key]

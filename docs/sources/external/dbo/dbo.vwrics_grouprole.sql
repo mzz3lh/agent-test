@@ -1,0 +1,32 @@
+CREATE VIEW [dbo].[vwrics_grouprole]
+AS
+SELECT
+	[Rics_grouproleId],
+	[rics_groupid],
+	[rics_contactid],
+	[OwnerId],
+	[OwnerIdName],
+	[OwningUser],
+	[Created_On],
+	[CreatedBy],
+	[CreatedByName],
+	[Modified_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Rics_DerivedLocalGroup],
+	[Rics_DerivedLocalGroup_Description],
+	[Rics_StartDate],
+	[Rics_EndDate],
+	[Rics_FromCDB],
+	[Rics_FromCDB_Description],
+	[Rics_JournalPreference],
+	[Rics_name],
+	[Rics_RoleType],
+	[Rics_RoleType_Description],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[Rics_BenefitsPlusCategory],
+	[Rics_BenefitsPlusCompany]
+FROM [Ext].[PBI02_CRM_vwrics_grouprole]

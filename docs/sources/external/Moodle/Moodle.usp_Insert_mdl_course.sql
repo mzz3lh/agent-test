@@ -1,0 +1,88 @@
+CREATE   PROCEDURE [Moodle].[usp_Insert_mdl_course]
+AS
+BEGIN
+
+	INSERT INTO [Moodle].[mdl_course]
+	(
+		[id],
+		[category],
+		[sortorder],
+		[fullname],
+		[shortname],
+		[idnumber],
+		[summary],
+		[summaryformat],
+		[format],
+		[showgrades],
+		[newsitems],
+		[startdate],
+		[enddate],
+		[relativedatesmode],
+		[marker],
+		[maxbytes],
+		[legacyfiles],
+		[showreports],
+		[visible],
+		[visibleold],
+		[downloadcontent],
+		[groupmode],
+		[groupmodeforce],
+		[defaultgroupingid],
+		[lang],
+		[calendartype],
+		[theme],
+		[timecreated],
+		[timemodified],
+		[welcomemessage],
+		[requested],
+		[enablecompletion],
+		[completionnotify],
+		[defaultgroupid],
+		[originalcourseid],
+		[showactivitydates],
+		[showcompletionconditions]
+	)
+	SELECT
+		src.[id],
+		src.[category],
+		src.[sortorder],
+		src.[fullname],
+		src.[shortname],
+		src.[idnumber],
+		src.[summary],
+		src.[summaryformat],
+		src.[format],
+		src.[showgrades],
+		src.[newsitems],
+		src.[startdate],
+		src.[enddate],
+		src.[relativedatesmode],
+		src.[marker],
+		src.[maxbytes],
+		src.[legacyfiles],
+		src.[showreports],
+		src.[visible],
+		src.[visibleold],
+		src.[downloadcontent],
+		src.[groupmode],
+		src.[groupmodeforce],
+		src.[defaultgroupingid],
+		src.[lang],
+		src.[calendartype],
+		src.[theme],
+		src.[timecreated],
+		src.[timemodified],
+		src.[welcomemessage],
+		src.[requested],
+		src.[enablecompletion],
+		src.[completionnotify],
+		src.[defaultgroupid],
+		src.[originalcourseid],
+		src.[showactivitydates],
+		src.[showcompletionconditions]
+	FROM [work].[mdl_course] src
+		LEFT JOIN [Moodle].[mdl_course] tgt
+			ON src.[id] = tgt.[id]
+	WHERE tgt.[id] IS NULL
+
+END

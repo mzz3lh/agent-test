@@ -1,0 +1,47 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Update_BUDGETRESERVATIONLINE_PSN]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:30:32
+	Description: Update stored procedure for BUDGETRESERVATIONLINE_PSN from synapse finops datalake to BI
+*/
+BEGIN
+	UPDATE tgt SET 
+		tgt.[ACCOUNTINGDISTRIBUTIONTEMPLATE] = stg.[ACCOUNTINGDISTRIBUTIONTEMPLATE],
+		tgt.[ACTIVITYNUMBER] = stg.[ACTIVITYNUMBER],
+		tgt.[BUDGETRESERVATIONHEADER_PSN] = stg.[BUDGETRESERVATIONHEADER_PSN],
+		tgt.[CREATEDDATETIME] = stg.[CREATEDDATETIME],
+		tgt.[CURRENCY] = stg.[CURRENCY],
+		tgt.[DATAAREAID] = stg.[DATAAREAID],
+		tgt.[DataLakeModified_DateTime] = stg.[DataLakeModified_DateTime],
+		tgt.[FileName] = stg.[FileName],
+		tgt.[LastProcessedChange_DateTime] = stg.[LastProcessedChange_DateTime],
+		tgt.[LEDGERDIMENSION] = stg.[LEDGERDIMENSION],
+		tgt.[LINEAMOUNT] = stg.[LINEAMOUNT],
+		tgt.[LINENUMBER] = stg.[LINENUMBER],
+		tgt.[LSN] = stg.[LSN],
+		tgt.[PARTITION] = stg.[PARTITION],
+		tgt.[PROCUREMENTCATEGORY] = stg.[PROCUREMENTCATEGORY],
+		tgt.[PROJCATEGORYID] = stg.[PROJCATEGORYID],
+		tgt.[PROJID] = stg.[PROJID],
+		tgt.[PROJLINEPROPERTYID] = stg.[PROJLINEPROPERTYID],
+		tgt.[PROJSALESCURRENCYID] = stg.[PROJSALESCURRENCYID],
+		tgt.[PROJSALESPRICE] = stg.[PROJSALESPRICE],
+		tgt.[PROJSALESUNITID] = stg.[PROJSALESUNITID],
+		tgt.[PROJTAXGROUPID] = stg.[PROJTAXGROUPID],
+		tgt.[PROJTAXITEMGROUPID] = stg.[PROJTAXITEMGROUPID],
+		tgt.[PROJTRANSID] = stg.[PROJTRANSID],
+		tgt.[PROJWORKER] = stg.[PROJWORKER],
+		tgt.[PURCHREQLINE] = stg.[PURCHREQLINE],
+		tgt.[QUANTITY] = stg.[QUANTITY],
+		tgt.[RECID] = stg.[RECID],
+		tgt.[RECVERSION] = stg.[RECVERSION],
+		tgt.[SOURCEDOCUMENTLINE] = stg.[SOURCEDOCUMENTLINE],
+		tgt.[SysRowId] = stg.[SysRowId],
+		tgt.[TRANSACTIONTEXT] = stg.[TRANSACTIONTEXT],
+		tgt.[UNITPRICE] = stg.[UNITPRICE]
+	 FROM [synapse_fo].[BUDGETRESERVATIONLINE_PSN] tgt
+		INNER JOIN [staging_fo].[BUDGETRESERVATIONLINE_PSN] stg
+			ON  stg.[RECID] = tgt.[RECID] 
+		
+END

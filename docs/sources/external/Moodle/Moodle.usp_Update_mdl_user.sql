@@ -1,0 +1,61 @@
+CREATE   PROCEDURE [Moodle].[usp_Update_mdl_user]
+AS
+BEGIN
+
+	UPDATE tgt SET
+		tgt.[auth] = src.[auth],
+		tgt.[confirmed] = src.[confirmed],
+		tgt.[policyagreed] = src.[policyagreed],
+		tgt.[deleted] = src.[deleted],
+		tgt.[suspended] = src.[suspended],
+		tgt.[mnethostid] = src.[mnethostid],
+		tgt.[username] = src.[username],
+		tgt.[aclogin] = src.[aclogin],
+		tgt.[location_id] = src.[location_id],
+		tgt.[manager_id] = src.[manager_id],
+		tgt.[idnumber] = src.[idnumber],
+		tgt.[firstname] = src.[firstname],
+		tgt.[lastname] = src.[lastname],
+		tgt.[gender] = src.[gender],
+		tgt.[email] = src.[email],
+		tgt.[emailstop] = src.[emailstop],
+		tgt.[phone1] = src.[phone1],
+		tgt.[phone2] = src.[phone2],
+		tgt.[institution] = src.[institution],
+		tgt.[department] = src.[department],
+		tgt.[address] = src.[address],
+		tgt.[city] = src.[city],
+		tgt.[country] = src.[country],
+		tgt.[lang] = src.[lang],
+		tgt.[calendartype] = src.[calendartype],
+		tgt.[theme] = src.[theme],
+		tgt.[timezone] = src.[timezone],
+		tgt.[firstaccess] = src.[firstaccess],
+		tgt.[lastaccess] = src.[lastaccess],
+		tgt.[lastlogin] = src.[lastlogin],
+		tgt.[currentlogin] = src.[currentlogin],
+		tgt.[lastip] = src.[lastip],
+		tgt.[secret] = src.[secret],
+		tgt.[picture] = src.[picture],
+		tgt.[description] = src.[description],
+		tgt.[descriptionformat] = src.[descriptionformat],
+		tgt.[mailformat] = src.[mailformat],
+		tgt.[maildigest] = src.[maildigest],
+		tgt.[maildisplay] = src.[maildisplay],
+		tgt.[autosubscribe] = src.[autosubscribe],
+		tgt.[trackforums] = src.[trackforums],
+		tgt.[timecreated] = src.[timecreated],
+		tgt.[timemodified] = src.[timemodified],
+		tgt.[trustbitmask] = src.[trustbitmask],
+		tgt.[imagealt] = src.[imagealt],
+		tgt.[lastnamephonetic] = src.[lastnamephonetic],
+		tgt.[firstnamephonetic] = src.[firstnamephonetic],
+		tgt.[middlename] = src.[middlename],
+		tgt.[alternatename] = src.[alternatename],
+		tgt.[moodlenetprofile] = src.[moodlenetprofile],
+		tgt.[updatedinrs] = src.[updatedinrs]
+	FROM [Moodle].[mdl_user] tgt
+		INNER JOIN [work].[mdl_user] src
+			ON src.[id] = tgt.[id]
+
+END

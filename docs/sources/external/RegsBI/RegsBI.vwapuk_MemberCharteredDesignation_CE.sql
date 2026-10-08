@@ -1,0 +1,37 @@
+CREATE VIEW RegsBI.vwapuk_MemberCharteredDesignation_CE
+AS
+
+SELECT 
+	cd.[id],
+	cd.[apuk_memberchartereddesignationid],
+	cd.[apuk_name],
+	cd.[createdon],
+	cd.[createdby],
+	cd.[createdbyname],
+	cd.[modifiedon],
+	cd.[modifiedby],
+	cd.[modifiedbyname],
+	cd.[ownerid],
+	cd.[owneridname],
+	cd.[createdonbehalfby],
+	cd.[createdonbehalfbyname],
+	cd.[modifiedonbehalfby],
+	cd.[modifiedonbehalfbyname],
+	cd.[owningteam],
+	cd.[owningteamname],
+	cd.[owninguser],
+	cd.[owningusername], 
+	cd.[apuk_chartereddesignationid],
+	cd.[apuk_chartereddesignationidname],
+	cd.[owningbusinessunit],
+	cd.[owningbusinessunitname],
+	cd.[apuk_ricsrecordid],
+	cd.[apuk_ricsrecordidname],
+	cd.[apuk_startdate],
+	cd.[apuk_enddate],
+	cd.[overriddencreatedon],
+	cd.[statecode], 
+	cd.[StateCode_Description],
+	cd.[statuscode],
+	cd.[StatusCode_Description]
+FROM [synapse_ce].[vwapuk_memberchartereddesignation] cd

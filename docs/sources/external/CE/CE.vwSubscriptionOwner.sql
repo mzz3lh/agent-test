@@ -1,0 +1,33 @@
+CREATE   VIEW [CE].[vwSubscriptionOwner]
+AS 
+SELECT 
+	[SubscriptionOwnerId],
+	[ricsv2_name],
+	[CreatedBy],
+	[CreatedByName],
+	[Created_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Modified_On],
+	[ricsv2_Organisation],
+	[ricsv2_OrganisationName],
+	[ricsv2_SubscriptionProduct],
+	[ricsv2_Contact],
+	[ownerid],
+	[OwnerIdName],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[ricsv2_Channel],
+	[Channel_Description],
+	[ricsv2_DoNotAutoRenew],
+	[ricsv2_StartDate],
+	[ricsv2_EndDate],
+	[ricsv1_TotalLicences],
+	[ricsv1_section],
+	[Section_Description],
+	[ricsv1_paymentmethod],
+	[PaymentMethod_Description],
+	[apuk_corporate]
+FROM [synapse_ce].[vwSubscriptionOwner]

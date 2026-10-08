@@ -1,0 +1,32 @@
+CREATE VIEW [AX].[vwCompanyInfo]
+AS
+SELECT 
+	[Name],
+	[Address],
+	[Phone],
+	[TeleFax],
+	[Bank],
+	[CoreGNum],
+	[CurrencyCode],
+	[ZipCode],
+	[State],
+	[Country],
+	[CountryRegionId],
+	[Email],
+	[KEY_],
+	[Street],
+	[City],
+	[ConversionDate],
+	[PlanningCompany],
+	[FallBackInventLocationId],
+	[ModifiedOn],
+	[ModifiedBy],
+	[DataAreaId],
+	[RECVERSION],
+	[RECID],
+	[HITFinanceMasterCompany],
+	[SecondaryCurrencyCode],
+	[BI_Created],
+	[BI_Modified],
+	[BI_Deleted]
+FROM [Ext].[PBI02_AX_vwCompanyInfo]

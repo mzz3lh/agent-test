@@ -1,0 +1,22 @@
+CREATE TABLE [synapse_fo].[LEDGERVOUCHERTYPE_CN](
+	[FileName] [nvarchar](100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[SysRowId] [bigint] NULL,
+	[LSN] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[LastProcessedChange_DateTime] [datetime] NULL,
+	[DataLakeModified_DateTime] [datetime] NULL,
+	[DEFAULTAPPROVER] [bigint] NULL,
+	[DEFAULTJOURNAL] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[DEFAULTPREPAREDBYWORKER] [bigint] NULL,
+	[DEFAULTTYPE] [int] NULL,
+	[DESCRIPTION] [nvarchar](60) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[ID] [nvarchar](10) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[LEDGERPRINTLAYOUTGROUP] [bigint] NULL,
+	[NUM] [nvarchar](20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[NUMBERSEQUENCETABLE] [bigint] NULL,
+	[PRIORITY] [int] NULL,
+	[RESTRICTIONTYPE] [int] NULL,
+	[DATAAREAID] [nvarchar](4) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+	[PARTITION] [bigint] NOT NULL,
+	[RECID] [bigint] NOT NULL,
+	[RECVERSION] [int] NULL
+) ON [PRIMARY]

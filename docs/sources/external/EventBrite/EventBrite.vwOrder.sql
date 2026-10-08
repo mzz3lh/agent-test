@@ -1,0 +1,16 @@
+CREATE   VIEW [Eventbrite].[vwOrder]
+AS
+SELECT 
+	[Order_Id]
+	,CAST([Order_Id] AS NVARCHAR(20)) + '_' + CAST([Event_Id] AS NVARCHAR(20)) + '_' + CAST([Organization_Id] AS NVARCHAR(20)) AS [OrderKey]
+	,CAST([Event_Id] AS NVARCHAR(20)) + '_' + CAST([Organization_Id] AS NVARCHAR(20)) AS [EventKey]
+	,[Link_Id]
+	,CAST([createdon] AS DATE) AS [Createdon]
+	,CAST([modifiedon] AS DATE) AS [Modifiedon]
+	,[FirstName]
+	,[LastName]
+	,[email]
+	,[Status] AS [Order Status]
+	,[event_id]
+	,[Organization_Id]
+FROM [EventBrite].[tblOrder]

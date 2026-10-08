@@ -1,0 +1,38 @@
+CREATE VIEW [dbo].[vwBookingRecord]
+AS
+
+SELECT
+	[Cclevent_bookingrecordId],
+	[Cclevent_name],
+	[CreatedBy],
+	[CreatedByName],
+	[Created_On],
+	[ModifiedBy],
+	[ModifiedByName],
+	[Modified_On],
+	[OwnerId],
+	[Owner],
+	[Sales_Team],
+	[Cclevent_BookerID],
+	[Cclevent_BookerName],
+	[Cclevent_OrganisationID],
+	[Cclevent_OrganisationName],
+	[Cclevent_Reference],
+	[ExchangeRate],
+	[cclevent_valuegross],
+	[Cclevent_valuenet],
+	[statecode],
+	[StateCode_Description],
+	[statuscode],
+	[StatusCode_Description],
+	[cclevent_bookercontactid],
+	[cclevent_bookercontactidName],
+	[Cclevent_TransactionId],
+	[Cclevent_PaymentMethod],
+	[Cclevent_PaymentAmount],
+	[cclevent_bookinguserid],
+	[cclevent_bookinguseridName],
+	[BI_Created],
+	[BI_Modified],
+	[BI_Deleted]
+FROM [Ext].[PBI02_dbo_vwBookingRecord]

@@ -1,0 +1,88 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Insert_ECORESCATEGORY]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:29:46
+	Description: Insert stored procedure for ECORESCATEGORY from synapse finops datalake to BI
+*/
+BEGIN
+	INSERT INTO [synapse_fo].[ECORESCATEGORY]
+	(
+		[CATEGORYHIERARCHY],
+		[CHANGESTATUS],
+		[CODE],
+		[CREATEDBY],
+		[CREATEDDATETIME],
+		[DataLakeModified_DateTime],
+		[DEFAULTPROJECTGLOBALCATEGORY],
+		[DEFAULTTHRESHOLD_PSN],
+		[DISPLAYORDER],
+		[EXEMPT_IN],
+		[EXTERNALID],
+		--[FileName],
+		[HSNCODETABLE_IN],
+		[INSTANCERELATIONTYPE],
+		[ISACTIVE],
+		[ISCATEGORYATTRIBUTESINHERITED],
+		[ISTANGIBLE],
+		[LastProcessedChange_DateTime],
+		--[LEVEL_],
+		--[LSN],
+		[MODIFIEDBY],
+		[MODIFIEDDATETIME],
+		[NAME],
+		[NESTEDSETLEFT],
+		[NESTEDSETRIGHT],
+		[NONGST_IN],
+		[PARENTCATEGORY],
+		[PARTITION],
+		[PKWIUCODE],
+		[RECID],
+		[RECVERSION],
+		--[RELATIONTYPE],
+		--[REUSEENABLED],
+		[SERVICEACCOUNTINGCODETABLE_IN]
+		--[SysRowId]
+	)
+	SELECT 
+		stg.[CATEGORYHIERARCHY],
+		stg.[CHANGESTATUS],
+		stg.[CODE],
+		stg.[CREATEDBY],
+		stg.[CREATEDDATETIME],
+		stg.[DataLakeModified_DateTime],
+		stg.[DEFAULTPROJECTGLOBALCATEGORY],
+		stg.[DEFAULTTHRESHOLD_PSN],
+		stg.[DISPLAYORDER],
+		stg.[EXEMPT_IN],
+		stg.[EXTERNALID],
+		--stg.--[FileName],
+		stg.[HSNCODETABLE_IN],
+		stg.[INSTANCERELATIONTYPE],
+		stg.[ISACTIVE],
+		stg.[ISCATEGORYATTRIBUTESINHERITED],
+		stg.[ISTANGIBLE],
+		stg.[LastProcessedChange_DateTime],
+		--stg.[LEVEL_],
+		--stg.--[LSN],
+		stg.[MODIFIEDBY],
+		stg.[MODIFIEDDATETIME],
+		stg.[NAME],
+		stg.[NESTEDSETLEFT],
+		stg.[NESTEDSETRIGHT],
+		stg.[NONGST_IN],
+		stg.[PARENTCATEGORY],
+		stg.[PARTITION],
+		stg.[PKWIUCODE],
+		stg.[RECID],
+		stg.[RECVERSION],
+		--stg.[RELATIONTYPE],
+		--stg.[REUSEENABLED],
+		stg.[SERVICEACCOUNTINGCODETABLE_IN]
+		--stg.--[SysRowId]	
+	FROM [staging_fo].[ECORESCATEGORY] stg
+		LEFT JOIN [synapse_fo].[ECORESCATEGORY] tgt
+			ON stg.[RECID] = tgt.[RECID] 
+		
+	WHERE tgt.[RECID] IS NULL
+END

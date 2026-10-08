@@ -1,0 +1,8 @@
+CREATE    VIEW [FO].[vwDirPartyTable]
+AS
+SELECT 
+	[RECID],
+	[NAME],
+	[NAMEALIAS],
+	[PARTYNUMBER]
+FROM [synapse_fo].[DIRPARTYTABLE]

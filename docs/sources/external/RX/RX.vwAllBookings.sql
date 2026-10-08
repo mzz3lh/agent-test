@@ -1,0 +1,26 @@
+CREATE   VIEW [RX].[vwAllBookings]
+AS
+SELECT 
+	bd.[BookingId]
+	,bd.[Subject]
+	,bd.[ResourceId]
+	,bd.[ResourceName] AS [Room]
+	,bd.[Organizer]
+	,bd.[OrganizerEmail]
+	,bd.[Country]
+	,bd.[City]
+	,bd.[Building]
+	,bd.[Floor]
+	,bd.[BookedFrom]
+	,bd.[BookingSystemName]
+	,bd.[SpaceTypeName]
+	,CAST(bd.[StartTimeOriginal] AS DATE) AS [StartDate]
+	,CAST(bd.[EndTimeOriginal] AS DATE) AS [EndDate]
+
+	,CAST(bd.[StartTimeOriginal] AS TIME) AS [StartTime]
+	,CAST(bd.[EndTimeOriginal] AS TIME) AS [EndTime]
+	,bd.[BookingAttendees]
+	,bd.[Occupancy] AS [Capacity]
+	,bd.[CheckedInBy]
+	,bd.[BookingSystem]
+FROM RX.BookingData bd

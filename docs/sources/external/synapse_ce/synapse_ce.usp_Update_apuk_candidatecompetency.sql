@@ -1,0 +1,68 @@
+CREATE   PROCEDURE [synapse_ce].[usp_Update_apuk_candidatecompetency]
+AS
+BEGIN
+	UPDATE tgt SET 
+		--tgt.[apuk_candidatecompetencyid] = stg.[apuk_candidatecompetencyid],
+		tgt.[apuk_competencyid] = stg.[apuk_competencyid],
+		tgt.[apuk_competencyid_entitytype] = stg.[apuk_competencyid_entitytype],
+		tgt.[apuk_competencyidname] = stg.[apuk_competencyidname],
+		tgt.[apuk_counsellorfeedback] = stg.[apuk_counsellorfeedback],
+		tgt.[apuk_daysspent] = stg.[apuk_daysspent],
+		tgt.[apuk_daysspentdecimal] = stg.[apuk_daysspentdecimal],
+		tgt.[apuk_enrolmentid] = stg.[apuk_enrolmentid],
+		tgt.[apuk_enrolmentid_entitytype] = stg.[apuk_enrolmentid_entitytype],
+		tgt.[apuk_enrolmentidname] = stg.[apuk_enrolmentidname],
+		tgt.[apuk_level] = stg.[apuk_level],
+		tgt.[apuk_name] = stg.[apuk_name],
+		tgt.[apuk_ricsrecordid] = stg.[apuk_ricsrecordid],
+		tgt.[apuk_ricsrecordid_entitytype] = stg.[apuk_ricsrecordid_entitytype],
+		tgt.[apuk_ricsrecordidname] = stg.[apuk_ricsrecordidname],
+		tgt.[apuk_selected] = stg.[apuk_selected],
+		tgt.[apuk_status] = stg.[apuk_status],
+		tgt.[apuk_summaryofexperience] = stg.[apuk_summaryofexperience],
+		tgt.[createdby] = stg.[createdby],
+		tgt.[createdby_entitytype] = stg.[createdby_entitytype],
+		tgt.[createdbyname] = stg.[createdbyname],
+		tgt.[createdbyyominame] = stg.[createdbyyominame],
+		tgt.[createdon] = stg.[createdon],
+		tgt.[createdonbehalfby] = stg.[createdonbehalfby],
+		tgt.[createdonbehalfby_entitytype] = stg.[createdonbehalfby_entitytype],
+		tgt.[createdonbehalfbyname] = stg.[createdonbehalfbyname],
+		tgt.[createdonbehalfbyyominame] = stg.[createdonbehalfbyyominame],
+		tgt.[importsequencenumber] = stg.[importsequencenumber],
+		tgt.[modifiedby] = stg.[modifiedby],
+		tgt.[modifiedby_entitytype] = stg.[modifiedby_entitytype],
+		tgt.[modifiedbyname] = stg.[modifiedbyname],
+		tgt.[modifiedbyyominame] = stg.[modifiedbyyominame],
+		tgt.[modifiedon] = stg.[modifiedon],
+		tgt.[modifiedonbehalfby] = stg.[modifiedonbehalfby],
+		tgt.[modifiedonbehalfby_entitytype] = stg.[modifiedonbehalfby_entitytype],
+		tgt.[modifiedonbehalfbyname] = stg.[modifiedonbehalfbyname],
+		tgt.[modifiedonbehalfbyyominame] = stg.[modifiedonbehalfbyyominame],
+		tgt.[overriddencreatedon] = stg.[overriddencreatedon],
+		tgt.[ownerid] = stg.[ownerid],
+		tgt.[ownerid_entitytype] = stg.[ownerid_entitytype],
+		tgt.[owneridname] = stg.[owneridname],
+		--tgt.[owneridtype] = stg.[owneridtype],
+		tgt.[owneridyominame] = stg.[owneridyominame],
+		tgt.[owningbusinessunit] = stg.[owningbusinessunit],
+		tgt.[owningbusinessunit_entitytype] = stg.[owningbusinessunit_entitytype],
+		tgt.[owningbusinessunitname] = stg.[owningbusinessunitname],
+		tgt.[owningteam] = stg.[owningteam],
+		tgt.[owningteam_entitytype] = stg.[owningteam_entitytype],
+		tgt.[owninguser] = stg.[owninguser],
+		tgt.[owninguser_entitytype] = stg.[owninguser_entitytype],
+		tgt.[SinkCreatedOn] = stg.[SinkCreatedOn],
+		tgt.[SinkModifiedOn] = stg.[SinkModifiedOn],
+		tgt.[statecode] = stg.[statecode],
+		tgt.[statuscode] = stg.[statuscode],
+		tgt.[timezoneruleversionnumber] = stg.[timezoneruleversionnumber],
+		tgt.[utcconversiontimezonecode] = stg.[utcconversiontimezonecode],
+		tgt.[versionnumber] = stg.[versionnumber]
+	 FROM [synapse_ce].[apuk_candidatecompetency] tgt
+		INNER JOIN [staging_ce].[apuk_candidatecompetency] stg
+			ON tgt.[id] = stg.[id]
+
+--apuk_summaryofexperience
+--apuk_counsellorfeedback
+END

@@ -105,3 +105,13 @@ conventions:
   table_name: ^[a-z][a-z0-9_]*$
   column_name: ^[a-z][a-z0-9_]*$
   load_logging: [Layercake.usp_etl_log_start, Layercake.usp_etl_log_end]
+
+# Objects this project reads but does not own (agents/product_owner/import_external.py). Agents read
+# them and never change them (base standards 3.3).
+external:
+  schemas: [Adobe, AdobeCampaign, Audit_Log, AX, BI, CCPro, CE, Chattermill, ContractRegister,
+    D365_Exception, DataRep, dbo, DQ, Drupal, EventBrite, Expenses, FAM, FAS, FinBI,
+    FO, GotoWebinar, InsightsBI, isurv, MondaydotCom, Moodle, OCE, OLA, PBI_API, Product_Portfolio,
+    PurchaseOrder, RegsBI, RX, sharedo, Sharedstore, Snapshots, SOTP, staging_ce,
+    Static, Subs, SurveyMonkey, synapse_ce, synapse_fo, Webpay, Work]
+  catalogue: docs/sources/external_catalogue.json

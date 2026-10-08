@@ -1,0 +1,48 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Insert_DIMENSIONATTRIBUTEVALUEGROUPCOMBINATION]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:29:43
+	Description: Insert stored procedure for DIMENSIONATTRIBUTEVALUEGROUPCOMBINATION from synapse finops datalake to BI
+*/
+BEGIN
+	INSERT INTO [synapse_fo].[DIMENSIONATTRIBUTEVALUEGROUPCOMBINATION]
+	(
+		[CREATEDBY],
+		[CREATEDDATETIME],
+		[DataLakeModified_DateTime],
+		[DIMENSIONATTRIBUTEVALUECOMBINATION],
+		[DIMENSIONATTRIBUTEVALUEGROUP],
+		--[FileName],
+		[LastProcessedChange_DateTime],
+		--[LSN],
+		[MODIFIEDDATETIME],
+		[MODIFIEDTRANSACTIONID],
+		[ORDINAL],
+		[PARTITION],
+		[RECID],
+		[RECVERSION]
+		--[SysRowId]
+	)
+	SELECT 
+		stg.[CREATEDBY],
+		stg.[CREATEDDATETIME],
+		stg.[DataLakeModified_DateTime],
+		stg.[DIMENSIONATTRIBUTEVALUECOMBINATION],
+		stg.[DIMENSIONATTRIBUTEVALUEGROUP],
+		--stg.--[FileName],
+		stg.[LastProcessedChange_DateTime],
+		--stg.--[LSN],
+		stg.[MODIFIEDDATETIME],
+		stg.[MODIFIEDTRANSACTIONID],
+		stg.[ORDINAL],
+		stg.[PARTITION],
+		stg.[RECID],
+		stg.[RECVERSION]
+		--stg.--[SysRowId]	
+	FROM [staging_fo].[DIMENSIONATTRIBUTEVALUEGROUPCOMBINATION] stg
+		LEFT JOIN [synapse_fo].[DIMENSIONATTRIBUTEVALUEGROUPCOMBINATION] tgt
+			ON stg.[RECID] = tgt.[RECID] 
+		
+	WHERE tgt.[RECID] IS NULL
+END

@@ -1,0 +1,108 @@
+CREATE     PROCEDURE [synapse_fo].[usp_Insert_INVENTDIM]
+AS
+/*
+	Created by: Raj Maddala
+	Created on: 2023-05-15 10:29:50
+	Description: Insert stored procedure for INVENTDIM from synapse finops datalake to BI
+*/
+BEGIN
+	INSERT INTO [synapse_fo].[INVENTDIM]
+	(
+		[CONFIGID],
+		[CREATEDDATETIME],
+		[DATAAREAID],
+		[DataLakeModified_DateTime],
+		--[FileName],
+		[INVENTBATCHID],
+		[INVENTCOLORID],
+		[INVENTDIMENSION1],
+		[INVENTDIMENSION10],
+		[INVENTDIMENSION11],
+		[INVENTDIMENSION12],
+		[INVENTDIMENSION2],
+		[INVENTDIMENSION3],
+		[INVENTDIMENSION4],
+		[INVENTDIMENSION5],
+		[INVENTDIMENSION6],
+		[INVENTDIMENSION7],
+		[INVENTDIMENSION8],
+		[INVENTDIMENSION9],
+		--[INVENTDIMENSION9TZID],
+		[INVENTDIMID],
+		[INVENTGTDID_RU],
+		[INVENTLOCATIONID],
+		[INVENTOWNERID_RU],
+		[INVENTPROFILEID_RU],
+		[INVENTSERIALID],
+		[INVENTSITEID],
+		[INVENTSIZEID],
+		[INVENTSTATUSID],
+		[INVENTSTYLEID],
+		[INVENTVERSIONID],
+		[LastProcessedChange_DateTime],
+		[LICENSEPLATEID],
+		--[LSN],
+		[MODIFIEDBY],
+		[MODIFIEDDATETIME],
+		[PARTITION],
+		[RECID],
+		[RECVERSION],
+		[SHA1HASHHEX],
+		[SHA3HASHHEX],
+		--[SysRowId],
+		[WMSLOCATIONID],
+		[WMSPALLETID]
+	)
+	SELECT 
+		stg.[CONFIGID],
+		stg.[CREATEDDATETIME],
+		stg.[DATAAREAID],
+		stg.[DataLakeModified_DateTime],
+		--stg.--[FileName],
+		stg.[INVENTBATCHID],
+		stg.[INVENTCOLORID],
+		stg.[INVENTDIMENSION1],
+		stg.[INVENTDIMENSION10],
+		stg.[INVENTDIMENSION11],
+		stg.[INVENTDIMENSION12],
+		stg.[INVENTDIMENSION2],
+		stg.[INVENTDIMENSION3],
+		stg.[INVENTDIMENSION4],
+		stg.[INVENTDIMENSION5],
+		stg.[INVENTDIMENSION6],
+		stg.[INVENTDIMENSION7],
+		stg.[INVENTDIMENSION8],
+		stg.[INVENTDIMENSION9],
+		--stg.[INVENTDIMENSION9TZID],
+		stg.[INVENTDIMID],
+		stg.[INVENTGTDID_RU],
+		stg.[INVENTLOCATIONID],
+		stg.[INVENTOWNERID_RU],
+		stg.[INVENTPROFILEID_RU],
+		stg.[INVENTSERIALID],
+		stg.[INVENTSITEID],
+		stg.[INVENTSIZEID],
+		stg.[INVENTSTATUSID],
+		stg.[INVENTSTYLEID],
+		stg.[INVENTVERSIONID],
+		stg.[LastProcessedChange_DateTime],
+		stg.[LICENSEPLATEID],
+		--stg.--[LSN],
+		stg.[MODIFIEDBY],
+		stg.[MODIFIEDDATETIME],
+		stg.[PARTITION],
+		stg.[RECID],
+		stg.[RECVERSION],
+		stg.[SHA1HASHHEX],
+		stg.[SHA3HASHHEX],
+		--stg.--[SysRowId],
+		stg.[WMSLOCATIONID],
+		stg.[WMSPALLETID]	
+	FROM [staging_fo].[INVENTDIM] stg
+		LEFT JOIN [synapse_fo].[INVENTDIM] tgt
+			ON stg.[DataAreaId] = tgt.[DataAreaId] 
+			AND stg.[inventDimId] = tgt.[inventDimId] 
+			AND stg.[PARTITION] = tgt.[PARTITION] 
+		
+	WHERE tgt.[RECID] IS NULL
+END
