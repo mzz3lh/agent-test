@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Inherits | Agent team base standards v1.6 (`standards/BASE_STANDARDS.md` in the framework) |
+| Inherits | Agent team base standards v1.7 (`standards/BASE_STANDARDS.md` in the framework) |
 | Owner | Product Owner agent; changes approved by a named human |
 | Created | 2026-10-08 |
 
@@ -33,3 +33,18 @@ Only for things the base standards leave open or that the client requires differ
 | Date | Change | Approved by |
 |---|---|---|
 | 2026-10-08 | Project created from base standards v1.6 | pending |
+| 2026-10-08 | Moved to base standards v1.7; Phase 1 imported as baseline `MIG-0002`, Phase 1 conventions kept (see below) | pending (Mike, by merging the PR) |
+
+## Existing solution (baseline)
+
+This project extends an existing solution. Its deployable scripts were imported as the baseline migration
+`MIG-0002_bootstrap_phase1-layercake` (object files under `src/sql/<schema>/`, other scripts under `src/sql/baseline/`).
+Overrides of the base standards, so that new code matches the solution and nothing that reads it breaks:
+
+- Schemas (2.1): `Layercake`, `audit`, `etl`; new objects go in `Layercake`. `MIG-0000` still creates `stg`, `core` and `pres`, but they are not used.
+- Table names (2.1): `^[a-z][a-z0-9_]*$`.
+- Column names (2.1): `^[a-z][a-z0-9_]*$`.
+- Load logging (3): load procedures call `Layercake.usp_etl_log_start`, `Layercake.usp_etl_log_end` instead of the `audit` procedures.
+- Changing an existing object: the Developer changes it in place (a table through its change scripts); the
+  module's down script restores the previous definition (base standards 3.1).
+- The baseline is not rolled back: a database goes back to before its baseline by restoring a backup.
