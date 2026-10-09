@@ -1,0 +1,681 @@
+{
+  "meta": {
+    "artefact_type": "spec",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "SPEC-001",
+    "version": 1,
+    "produced_by": "analyst",
+    "produced_at": "2026-10-09T13:50:36Z",
+    "status": "approved",
+    "source_artefacts": [
+      "docs/requirements/BR-001-contact-financials.md"
+    ],
+    "approval": {
+      "approved_by": "Mike",
+      "approved_at": "2026-10-09T14:13:37Z",
+      "gate": "spec_signoff",
+      "comments": "Q-022 Unknown; Q-023 keep FO precision"
+    }
+  },
+  "summary": "A queryable dataset in the Layercake schema showing what contacts have paid, with one row per payment transaction in Finance & Operations (FO). The dataset covers every payment transaction (transaction type 15) on customer accounts in all FO legal entities and all history. Each row shows the amount paid as a positive figure in the currency paid (with its currency code) and in GBP, the payment method recorded on the transaction, the payment date with its calendar month and year, and the contact's current CRM country, region and market reporting region. Accounts that match a current CRM contact number are contacts. Every other account is reported unsplit as a corporate payment, so the dataset's totals match FO. Test accounts are left out. How company payments are split across the memberships they cover is out of scope until the business defines it. The dataset refreshes with the existing Layercake load schedule.",
+  "glossary": {
+    "FO": "Dynamics 365 Finance & Operations, the finance system. Its customer transactions are read from the external table synapse_fo.CUSTTRANS.",
+    "CRM": "Dynamics 365 Customer Engagement, the contact system. Contacts are read from Layercake.brnz_contact, which is loaded from CE.vwContact.",
+    "Payment transaction": "A row in synapse_fo.CUSTTRANS with TRANSTYPE = 15 ('Payment'). Refunds and reversals recorded as TRANSTYPE 15 with the opposite sign are included and net off.",
+    "Legal entity": "The FO company that holds the transaction (synapse_fo.CUSTTRANS.DATAAREAID).",
+    "Contact account": "An FO customer account whose account number (ACCOUNTNUM) equals the contact number (Rics_contactno) of at least one CRM contact in Layercake.brnz_contact that is not deleted (_is_deleted = 0).",
+    "Corporate payment": "A payment on any FO customer account that is not a contact account and not a test account. It is reported unsplit against the account it was posted to.",
+    "Test account": "An FO customer account whose account number equals a contact number in CE.tblContact_Test_Records.apuk_contactnumber. Its payments are left out.",
+    "Payment date": "The adjusted FO date used by the existing FO reporting: DOCUMENTDATE when it is on or before 2021-08-23 and not in 1900, otherwise TRANSDATE.",
+    "Accounting currency amount": "The FO amount in the legal entity's accounting currency (AMOUNTMST). Taken to be GBP in every legal entity (working assumption, Q-014)."
+  },
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "title": "Payment transactions in scope and grain",
+      "type": "data",
+      "description": "The dataset holds one row per FO payment transaction: each synapse_fo.CUSTTRANS row with TRANSTYPE = 15, from every legal entity and with no date limit. Payments on test accounts are left out. All other payments are included, whether they are on a contact account or a corporate account. Rows are reported as recorded in FO, with no de-duplication.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-001",
+          "rule": "A payment transaction is a synapse_fo.CUSTTRANS row with TRANSTYPE = 15. No other transaction type is included (Q-001, Q-015)."
+        },
+        {
+          "id": "RULE-002",
+          "rule": "Payments from all FO legal entities and all dates in FO are included, with no date filter (Q-004, Q-007)."
+        },
+        {
+          "id": "RULE-003",
+          "rule": "Refunds, reversals and cancelled payments recorded as TRANSTYPE 15 are included and net off through their sign. Rows with CANCELLEDPAYMENT set are not removed (Q-001, Q-015)."
+        },
+        {
+          "id": "RULE-004",
+          "rule": "Each FO payment transaction appears exactly once, identified by its legal entity (DATAAREAID) and record ID (RECID). Possible duplicate payments are reported as recorded in FO and are not de-duplicated (Q-009, Q-017, Q-018)."
+        },
+        {
+          "id": "RULE-005",
+          "rule": "A payment whose ACCOUNTNUM equals any CE.tblContact_Test_Records.apuk_contactnumber is a test-account payment. It is left out of the dataset entirely and is never reported as a corporate payment (BR-001 second round of answers, test records correction; Q-010)."
+        }
+      ],
+      "mappings": [
+        {
+          "source": "synapse_fo.CUSTTRANS.DATAAREAID",
+          "target": "Layercake.fact_contact_payment.legal_entity",
+          "transformation": "Copied as is. The target object name is proposed; the Technical Architect sets the final name and object type within the Layercake naming convention.",
+          "nullable": false
+        },
+        {
+          "source": "synapse_fo.CUSTTRANS.RECID",
+          "target": "Layercake.fact_contact_payment.fo_transaction_recid",
+          "transformation": "Copied as is. With legal_entity, it identifies the FO payment transaction.",
+          "nullable": false
+        },
+        {
+          "source": "synapse_fo.CUSTTRANS.TRANSTYPE",
+          "target": "derived",
+          "transformation": "Filter only: keep rows where TRANSTYPE = 15."
+        },
+        {
+          "source": "CE.tblContact_Test_Records.apuk_contactnumber",
+          "target": "derived",
+          "transformation": "Filter only: drop rows where synapse_fo.CUSTTRANS.ACCOUNTNUM equals any apuk_contactnumber."
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-001-01",
+          "criterion": "Given three CUSTTRANS rows for non-test account 'C100001' in legal entity 'gb01' with TRANSTYPE 15, 8 and 24, the dataset holds exactly one row for that account: the TRANSTYPE 15 row."
+        },
+        {
+          "id": "AC-001-02",
+          "criterion": "For each legal entity, the dataset's row count equals the number of synapse_fo.CUSTTRANS rows with TRANSTYPE = 15 whose ACCOUNTNUM is not in CE.tblContact_Test_Records.apuk_contactnumber. Example: 'gb01' has 4 TRANSTYPE 15 rows, 1 of them on test account 'T900001', so the dataset holds 3 rows for 'gb01'."
+        },
+        {
+          "id": "AC-001-03",
+          "criterion": "No (legal_entity, fo_transaction_recid) pair appears more than once in the dataset. This also holds when the payment's account number matches two non-deleted rows in Layercake.brnz_contact."
+        },
+        {
+          "id": "AC-001-04",
+          "criterion": "A TRANSTYPE 15 row on account 'T900001', which is listed in CE.tblContact_Test_Records.apuk_contactnumber, does not appear in the dataset, either as a contact payment or as a corporate payment."
+        },
+        {
+          "id": "AC-001-05",
+          "criterion": "A TRANSTYPE 15 row with CANCELLEDPAYMENT = 1 appears in the dataset (assumes Q-015)."
+        },
+        {
+          "id": "AC-001-06",
+          "criterion": "Two TRANSTYPE 15 rows on the same account with the same amount, date and payment mode but different RECIDs both appear in the dataset."
+        },
+        {
+          "id": "AC-001-07",
+          "criterion": "TRANSTYPE 15 rows from legal entities 'gb01' and 'us01', and a row dated 2012-03-01, all appear in the dataset."
+        }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "title": "Amount paid in the currency paid and in GBP",
+      "type": "data",
+      "description": "Each row shows the amount paid as a positive figure, both in the currency paid (with its currency code) and in the accounting currency, taken to be GBP. Refunds and reversals recorded with the opposite sign show as negative figures, so they net off against the payments.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-006",
+          "rule": "Amounts show as positive figures for money received. FO records payments received as negative amounts on the customer account, so each amount is multiplied by -1. A refund or reversal recorded with the opposite sign therefore shows as a negative figure and nets off (Q-001; sign convention assumes Q-015)."
+        },
+        {
+          "id": "RULE-007",
+          "rule": "The amount in the currency paid comes from AMOUNTCUR with its CURRENCYCODE. The GBP amount comes from AMOUNTMST, the accounting-currency amount (Q-003; GBP assumes Q-014)."
+        }
+      ],
+      "mappings": [
+        {
+          "source": "synapse_fo.CUSTTRANS.AMOUNTCUR",
+          "target": "Layercake.fact_contact_payment.amount_paid_currency",
+          "transformation": "-1 * AMOUNTCUR. No other change."
+        },
+        {
+          "source": "synapse_fo.CUSTTRANS.CURRENCYCODE",
+          "target": "Layercake.fact_contact_payment.currency_code",
+          "transformation": "Copied as is."
+        },
+        {
+          "source": "synapse_fo.CUSTTRANS.AMOUNTMST",
+          "target": "Layercake.fact_contact_payment.amount_paid_gbp",
+          "transformation": "-1 * AMOUNTMST. No other change. (GBP assumes Q-014.)"
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-002-01",
+          "criterion": "A TRANSTYPE 15 row with AMOUNTCUR -100.00, CURRENCYCODE 'EUR' and AMOUNTMST -85.00 gives amount_paid_currency 100.00, currency_code 'EUR' and amount_paid_gbp 85.00 (assumes Q-014)."
+        },
+        {
+          "id": "AC-002-02",
+          "criterion": "A refund recorded as TRANSTYPE 15 with AMOUNTCUR +30.00 and AMOUNTMST +30.00 in 'GBP' gives amount_paid_currency -30.00 and amount_paid_gbp -30.00. With a payment of AMOUNTCUR -100.00 / AMOUNTMST -100.00 on the same account, the account totals 70.00 in both amount columns (assumes Q-015)."
+        },
+        {
+          "id": "AC-002-03",
+          "criterion": "A GBP payment with AMOUNTCUR -250.00 and AMOUNTMST -250.00 gives amount_paid_currency 250.00, currency_code 'GBP' and amount_paid_gbp 250.00."
+        }
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "title": "Payment method",
+      "type": "data",
+      "description": "Each row shows the payment method recorded on the FO payment transaction (PAYMMODE), with its name from the FO payment-mode table. This is the most important attribute for the business. The contact's preferred payment method in CRM is not used.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-008",
+          "rule": "The payment method name is synapse_fo.CUSTPAYMMODETABLE.NAME for the same PAYMMODE in the same legal entity (DATAAREAID) as the transaction (Q-002)."
+        },
+        {
+          "id": "RULE-009",
+          "rule": "A transaction with no payment method (PAYMMODE null or blank) shows 'Unknown' (Q-008)."
+        },
+        {
+          "id": "RULE-010",
+          "rule": "A payment mode code with no matching row in the payment-mode table for its legal entity, or whose NAME is null or blank, shows the code itself as the name (Q-019)."
+        }
+      ],
+      "mappings": [
+        {
+          "source": "synapse_fo.CUSTTRANS.PAYMMODE",
+          "target": "Layercake.fact_contact_payment.payment_method_code",
+          "transformation": "PAYMMODE as recorded. 'Unknown' when PAYMMODE is null or blank.",
+          "nullable": false
+        },
+        {
+          "source": "synapse_fo.CUSTPAYMMODETABLE.NAME",
+          "target": "Layercake.fact_contact_payment.payment_method",
+          "transformation": "Look up CUSTPAYMMODETABLE on PAYMMODE = CUSTTRANS.PAYMMODE and DATAAREAID = CUSTTRANS.DATAAREAID and take NAME. If PAYMMODE is null or blank: 'Unknown'. If there is no matching row, or NAME is null or blank: the PAYMMODE code.",
+          "nullable": false
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-003-01",
+          "criterion": "A 'gb01' payment with PAYMMODE 'DD', where CUSTPAYMMODETABLE has 'gb01'/'DD' with NAME 'Direct Debit', gives payment_method_code 'DD' and payment_method 'Direct Debit'."
+        },
+        {
+          "id": "AC-003-02",
+          "criterion": "Payments with PAYMMODE NULL and with PAYMMODE '' both give payment_method 'Unknown'."
+        },
+        {
+          "id": "AC-003-03",
+          "criterion": "A 'gb01' payment with PAYMMODE 'XYZ', which has no row in CUSTPAYMMODETABLE for 'gb01', gives payment_method 'XYZ'. A payment with PAYMMODE 'CHQ', whose 'gb01' row has a blank NAME, gives payment_method 'CHQ'."
+        },
+        {
+          "id": "AC-003-04",
+          "criterion": "Where CUSTPAYMMODETABLE has 'DD' named 'Direct Debit' in 'gb01' and 'ACH Debit' in 'us01', a 'gb01' payment shows 'Direct Debit' and a 'us01' payment shows 'ACH Debit'. Each payment still appears exactly once."
+        }
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "title": "Payment date by calendar month and year",
+      "type": "data",
+      "description": "Each row carries the FO payment date, using the same adjusted date as the existing FO reporting (synapse_fo.vwCustTrans), and that date's calendar year and calendar month, so payments can be reported by month and year.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-011",
+          "rule": "The payment date is DOCUMENTDATE when DOCUMENTDATE is on or before 2021-08-23 and its year is not 1900. Otherwise it is TRANSDATE (Q-004, Q-013)."
+        },
+        {
+          "id": "RULE-012",
+          "rule": "Payments are reported by calendar month and calendar year of the payment date, not by fiscal period (Q-004)."
+        }
+      ],
+      "mappings": [
+        {
+          "source": "synapse_fo.CUSTTRANS.DOCUMENTDATE",
+          "target": "Layercake.fact_contact_payment.payment_date",
+          "transformation": "CASE WHEN DOCUMENTDATE <= '2021-08-23' AND YEAR(DOCUMENTDATE) <> 1900 THEN DOCUMENTDATE ELSE TRANSDATE END. This is the same expression as synapse_fo.vwCustTrans."
+        },
+        {
+          "source": "synapse_fo.CUSTTRANS.TRANSDATE",
+          "target": "Layercake.fact_contact_payment.payment_date",
+          "transformation": "Used when the DOCUMENTDATE condition above is not met, including when DOCUMENTDATE is null."
+        },
+        {
+          "source": "Layercake.fact_contact_payment.payment_date",
+          "target": "Layercake.fact_contact_payment.payment_year",
+          "transformation": "Calendar year of payment_date."
+        },
+        {
+          "source": "Layercake.fact_contact_payment.payment_date",
+          "target": "Layercake.fact_contact_payment.payment_month",
+          "transformation": "Calendar month number (1-12) of payment_date."
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-004-01",
+          "criterion": "DOCUMENTDATE 2021-08-20 with TRANSDATE 2021-09-02 gives payment_date 2021-08-20, payment_year 2021 and payment_month 8."
+        },
+        {
+          "id": "AC-004-02",
+          "criterion": "DOCUMENTDATE 2021-08-23 with TRANSDATE 2021-09-01 gives payment_date 2021-08-23 (the boundary date is included)."
+        },
+        {
+          "id": "AC-004-03",
+          "criterion": "DOCUMENTDATE 2021-08-24 with TRANSDATE 2021-08-30 gives payment_date 2021-08-30."
+        },
+        {
+          "id": "AC-004-04",
+          "criterion": "DOCUMENTDATE 1900-01-01 with TRANSDATE 2020-05-05 gives payment_date 2020-05-05. DOCUMENTDATE NULL with TRANSDATE 2019-12-31 gives payment_date 2019-12-31, payment_year 2019 and payment_month 12."
+        },
+        {
+          "id": "AC-004-05",
+          "criterion": "TRANSDATE 2024-03-31 with DOCUMENTDATE 2024-03-28 gives payment_date 2024-03-31, payment_year 2024 and payment_month 3 (calendar month, not fiscal period)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "title": "Contact and corporate payments",
+      "type": "data",
+      "description": "Each payment is attributed to a contact or flagged as corporate. A payment on an account that matches a current CRM contact number is the contact's payment. Every other payment, except test-account payments, is a corporate payment. Corporate payments are shown unsplit against the FO account they were posted to, so the dataset's totals match FO. The split of company payments across the memberships they cover is not defined yet and is out of scope.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-013",
+          "rule": "A payment is a contact payment when its ACCOUNTNUM equals Rics_contactno on at least one Layercake.brnz_contact row with _is_deleted = 0, in any legal entity (Q-007)."
+        },
+        {
+          "id": "RULE-014",
+          "rule": "Every other payment that is not a test-account payment is a corporate payment. It is flagged as corporate and reported in full against its FO account number, not split and not left out (Q-006, Q-007)."
+        },
+        {
+          "id": "RULE-015",
+          "rule": "When an account number matches several non-deleted contacts, the payment is still counted once (Q-018)."
+        }
+      ],
+      "mappings": [
+        {
+          "source": "synapse_fo.CUSTTRANS.ACCOUNTNUM",
+          "target": "Layercake.fact_contact_payment.account_number",
+          "transformation": "Copied as is for every row."
+        },
+        {
+          "source": "Layercake.brnz_contact.Rics_contactno",
+          "target": "Layercake.fact_contact_payment.contact_number",
+          "transformation": "The matched contact number (equal to ACCOUNTNUM) for contact payments. Null for corporate payments.",
+          "nullable": true
+        },
+        {
+          "source": "Layercake.brnz_contact._is_deleted",
+          "target": "Layercake.fact_contact_payment.is_corporate",
+          "transformation": "No (0) when ACCOUNTNUM matches Rics_contactno on any brnz_contact row with _is_deleted = 0. Otherwise yes (1).",
+          "nullable": false
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-005-01",
+          "criterion": "A payment on account 'C100001', where brnz_contact has Rics_contactno 'C100001' with _is_deleted = 0, gives is_corporate 0, contact_number 'C100001' and account_number 'C100001'."
+        },
+        {
+          "id": "AC-005-02",
+          "criterion": "A payment of AMOUNTMST -1200.00 on account 'ACME01', which matches no brnz_contact row and no test record, gives is_corporate 1, contact_number NULL, account_number 'ACME01' and amount_paid_gbp 1200.00 in a single row (not split)."
+        },
+        {
+          "id": "AC-005-03",
+          "criterion": "A payment on account 'C100002', whose only brnz_contact row has _is_deleted = 1, gives is_corporate 1."
+        },
+        {
+          "id": "AC-005-04",
+          "criterion": "A payment in legal entity 'us01' on account 'C100001' (a non-deleted contact) gives is_corporate 0."
+        },
+        {
+          "id": "AC-005-05",
+          "criterion": "Per legal entity, the sum of amount_paid_gbp for is_corporate 0 plus the sum for is_corporate 1 equals the legal entity's total amount_paid_gbp."
+        }
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "title": "Country, region and market reporting region",
+      "type": "data",
+      "description": "Each payment carries the contact's current CRM country, with the region and market reporting region from the existing country dimension (Layercake.dim_country), so the figures can be split by them. No other split fields are included. Contacts with no country, and corporate payments, show the country as 'Unknown'.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-016",
+          "rule": "The country is the contact's current CRM country: Layercake.brnz_contact.rics_countryid matched to Layercake.dim_country.country_id, giving country_name, region_name and market_reporting_region as at the latest load (Q-005)."
+        },
+        {
+          "id": "RULE-017",
+          "rule": "A contact payment whose contact has no country (rics_countryid null, or no matching dim_country row) shows country 'Unknown' (Q-005)."
+        },
+        {
+          "id": "RULE-018",
+          "rule": "A corporate payment shows country 'Unknown' (Q-016)."
+        },
+        {
+          "id": "RULE-019",
+          "rule": "When an account number matches several non-deleted contacts, the country of any one of them may be used (Q-018)."
+        }
+      ],
+      "mappings": [
+        {
+          "source": "Layercake.dim_country.country_name",
+          "target": "Layercake.fact_contact_payment.country_name",
+          "transformation": "Via brnz_contact.rics_countryid = dim_country.country_id for the matched contact. 'Unknown' when the payment is corporate, rics_countryid is null or there is no matching dim_country row.",
+          "nullable": false
+        },
+        {
+          "source": "Layercake.dim_country.region_name",
+          "target": "Layercake.fact_contact_payment.region_name",
+          "transformation": "Same lookup. 'Unknown' wherever country_name is 'Unknown' (assumes Q-022).",
+          "nullable": false
+        },
+        {
+          "source": "Layercake.dim_country.market_reporting_region",
+          "target": "Layercake.fact_contact_payment.market_reporting_region",
+          "transformation": "Same lookup. 'Unknown' wherever country_name is 'Unknown' (assumes Q-022).",
+          "nullable": false
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-006-01",
+          "criterion": "A contact payment whose contact's rics_countryid matches a dim_country row with country_name 'France', region_name 'Europe' and market_reporting_region 'EMEA' shows those three values."
+        },
+        {
+          "id": "AC-006-02",
+          "criterion": "A contact payment whose contact has rics_countryid NULL shows country_name 'Unknown'. So does one whose rics_countryid has no dim_country row. Both show region_name 'Unknown' and market_reporting_region 'Unknown' (assumes Q-022)."
+        },
+        {
+          "id": "AC-006-03",
+          "criterion": "A corporate payment shows country_name 'Unknown', region_name 'Unknown' and market_reporting_region 'Unknown' (region and market assume Q-022)."
+        },
+        {
+          "id": "AC-006-04",
+          "criterion": "A payment on account 'C100003', which matches two non-deleted contacts with countries 'France' and 'Germany', appears once, with country_name either 'France' or 'Germany'."
+        },
+        {
+          "id": "AC-006-05",
+          "criterion": "When contact 'C100001' changes country from 'France' to 'Germany' in brnz_contact and the load runs again, all of that contact's payments, including those dated before the change, show 'Germany'."
+        }
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "title": "Delivery and refresh",
+      "type": "reporting",
+      "description": "The dataset is delivered as a queryable object in the Layercake schema for the existing reporting tool. It refreshes with the existing Layercake load schedule. The report layout is not part of this requirement.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-020",
+          "rule": "The dataset is an object in the Layercake schema, with object and column names matching ^[a-z][a-z0-9_]*$ (Q-012; project conventions)."
+        },
+        {
+          "id": "RULE-021",
+          "rule": "The dataset refreshes as part of the existing Layercake load schedule (Q-020). Any load procedure logs through Layercake.usp_etl_log_start and Layercake.usp_etl_log_end (project standards)."
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-007-01",
+          "criterion": "The dataset exists in the Layercake schema and returns rows to a SELECT naming its columns. Its object and column names match ^[a-z][a-z0-9_]*$."
+        },
+        {
+          "id": "AC-007-02",
+          "criterion": "After a TRANSTYPE 15 row for a non-test account is added to synapse_fo.CUSTTRANS, running the existing Layercake load makes the payment appear in the dataset."
+        },
+        {
+          "id": "AC-007-03",
+          "criterion": "Running the load twice with unchanged sources leaves the dataset's row count and its amount_paid_currency and amount_paid_gbp totals per legal entity unchanged after the second run."
+        },
+        {
+          "id": "AC-007-04",
+          "criterion": "If the dataset is loaded by a procedure, each run writes a start entry through Layercake.usp_etl_log_start and an end entry through Layercake.usp_etl_log_end."
+        }
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "title": "Reconciliation to FO per legal entity",
+      "type": "data",
+      "description": "The dataset's figures reconcile to FO for each legal entity, so the business can confirm that the totals match FO and can check the working assumption that the accounting-currency amount is GBP in every legal entity.",
+      "source_br_ids": [
+        "BR-001"
+      ],
+      "priority": "must",
+      "business_rules": [
+        {
+          "id": "RULE-022",
+          "rule": "For each legal entity, the dataset's row count and amount totals equal the FO totals for TRANSTYPE 15 rows not on test accounts, with the sign reversed (Q-006, Q-014)."
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-008-01",
+          "criterion": "Legal entity 'gb01' has TRANSTYPE 15 rows with AMOUNTMST -100.00, -50.00 and +30.00 on non-test accounts (one of them corporate), plus -999.00 on test account 'T900001'. The dataset holds 3 rows for 'gb01' with total amount_paid_gbp 120.00."
+        },
+        {
+          "id": "AC-008-02",
+          "criterion": "For each legal entity and currency code, the sum of amount_paid_currency equals -1 times the sum of synapse_fo.CUSTTRANS.AMOUNTCUR for TRANSTYPE 15 rows not on test accounts. Example: 'us01' USD rows -200.00 and -40.00 give 240.00."
+        },
+        {
+          "id": "AC-008-03",
+          "criterion": "A reconciliation query can list, per legal entity, the dataset's row count and total amount_paid_gbp next to the FO count and -1 times the FO AMOUNTMST total, and the two sides are equal for every legal entity (GBP labelling assumes Q-014)."
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    "Q-014: AMOUNTMST is in GBP in every FO legal entity. Business working assumption, to be checked against the real data through the per-legal-entity reconciliation in REQ-008.",
+    "Q-015: Refunds, reversals and cancellations are recorded as TRANSTYPE 15 with the opposite sign, and FO records payments received as negative amounts on the customer account, so reversing the sign shows payments as positive figures. No other transaction type is included, and CANCELLEDPAYMENT rows are not removed. Business working assumption, to be checked against the real data.",
+    "Q-021: Layercake.brnz_contact holds every CRM contact with a contact number. If one were missing, its payments would be reported as corporate. Business working assumption, to be checked against the real data.",
+    "Q-022: Where the country is 'Unknown' (contacts with no country or no matching country dimension row, and all corporate payments), region_name and market_reporting_region also show 'Unknown'.",
+    "Q-023: Amounts are held at FO's precision without rounding, so per-legal-entity totals reconcile to FO exactly. Acceptance criteria use values with two decimal places, which pass whatever precision is chosen."
+  ],
+  "out_of_scope": [
+    "Splitting company payments across the memberships they cover, and deciding whose payment a company payment is (Q-006). Company payments are reported unsplit as corporate payments until this is defined.",
+    "Payments recorded outside FO, for example international payments recorded only in CRM (Q-011).",
+    "The contact's preferred payment method in CRM (Q-002).",
+    "Split fields other than country, region and market reporting region (Q-005).",
+    "The report layout in the reporting tool (Q-012).",
+    "FO transaction types other than 15 'Payment', such as invoices, settlements and FX revaluations (Q-001, Q-015).",
+    "De-duplicating possible duplicate payments (Q-009).",
+    "Payments on test accounts (Q-010 and the test records correction).",
+    "Any change to objects owned by other systems (synapse_fo, CE). They are read only."
+  ],
+  "open_questions": [
+    {
+      "id": "Q-001",
+      "question": "What counts as an amount paid?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Payment transactions received on the contact's account in FO (transaction type 15 'Payment'). Refunds, reversals and cancelled payments net off. Amounts show as positive figures. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-002",
+      "question": "Which payment method is reported?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "The method recorded on each FO payment transaction (PAYMMODE), named from the FO payment-mode table. Not the contact's preferred method in CRM. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-003",
+      "question": "Which currency are amounts shown in?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Both the currency paid in (with its currency code) and the GBP accounting-currency amount. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-004",
+      "question": "Which date basis and period are used, and how much history is included?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "The FO transaction date, reported by calendar month and year. All payment history in FO. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-005",
+      "question": "Which country and other split fields are used?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "The contact's current CRM country, with the region and market reporting region of the existing country dimension. No other split fields for now. Contacts with no country show as unknown. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-006",
+      "question": "How are company payments for several memberships reported?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Until the split is defined, they are shown unsplit against the account they were posted to, flagged as corporate, so totals match FO. They are not left out. Defining the split stays out of scope. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-007",
+      "question": "Which FO accounts are contacts, and which legal entities are included?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Accounts that match a CRM contact number (not deleted) are contacts. Every other customer account is reported as a company account under Q-006. All FO legal entities. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-008",
+      "question": "How is a payment with no payment method shown?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "As 'Unknown'. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-009",
+      "question": "Are possible duplicate payments de-duplicated?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "No. They are reported as recorded in FO. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-010",
+      "question": "Are test records excluded?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Yes, as in the existing membership reporting. Corrected 2026-10-09: identify test accounts by matching the FO account number to CE.tblContact_Test_Records.apuk_contactnumber and leave their payments out. They are not reported as corporate payments. (Mike)"
+    },
+    {
+      "id": "Q-011",
+      "question": "Are payments recorded outside FO included?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "No, they are out of scope (for example international payments recorded only in CRM). (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-012",
+      "question": "In what form is the output delivered?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "A queryable dataset in the Layercake schema for the existing reporting tool. The report layout is not part of this requirement. (Mike, 2026-10-08)"
+    },
+    {
+      "id": "Q-013",
+      "question": "Which date is used for history migrated into FO?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "The same adjusted date as the existing FO reporting (synapse_fo.vwCustTrans): DOCUMENTDATE for transactions dated on or before 2021-08-23 where DOCUMENTDATE is a real date (not 1900), otherwise TRANSDATE. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-014",
+      "question": "Is AMOUNTMST GBP in every legal entity?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Working assumption: yes, to be checked against the real data. The reconciliation shows totals per legal entity so this can be checked. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-015",
+      "question": "How are refunds and cancellations recorded?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Working assumption: as TRANSTYPE 15 with the opposite sign, netting off. No other transaction type is included. Cancelled payments (CANCELLEDPAYMENT) are not removed. To be checked against the real data. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-016",
+      "question": "What country do corporate payments show?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "'Unknown'. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-017",
+      "question": "What is the grain of the dataset?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "One row per FO payment transaction. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-018",
+      "question": "How are contact numbers shared by several contacts handled?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Each payment is counted once. Any one of the matching contacts' countries may be used. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-019",
+      "question": "How is a payment mode with no name shown?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "As the code itself. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-020",
+      "question": "How often is the dataset refreshed?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "With the existing Layercake load schedule. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-021",
+      "question": "Does Layercake.brnz_contact hold every CRM contact with a contact number?",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "Working assumption: yes, to be checked against the real data. (Mike, 2026-10-09)"
+    },
+    {
+      "id": "Q-022",
+      "question": "Where the country shows as 'Unknown' (contacts with no CRM country or a country missing from the country dimension, and all corporate payments), should region and market reporting region also show 'Unknown', or be left blank?",
+      "raised_by": "analyst",
+      "status": "open",
+      "blocks": [
+        "REQ-006"
+      ]
+    },
+    {
+      "id": "Q-023",
+      "question": "FO amounts have six decimal places, while the base standards hold money as decimal(19,4). Should the dataset keep FO's precision so totals reconcile to FO exactly, or follow the standard four decimal places and accept rounding differences in the reconciliation? Recommendation: keep FO's precision.",
+      "raised_by": "analyst",
+      "status": "open",
+      "blocks": [
+        "REQ-002",
+        "REQ-008"
+      ]
+    }
+  ]
+}
