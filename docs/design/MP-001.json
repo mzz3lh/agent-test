@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "artefact_type": "module_plan",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "MP-001",
+    "version": 1,
+    "produced_by": "technical_architect",
+    "produced_at": "2026-10-09T14:13:54Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/design/DES-001.json"
+    ]
+  },
+  "design_ref": "docs/design/DES-001.json",
+  "max_test_loops": 3,
+  "modules": [
+    {
+      "id": "MOD-001",
+      "title": "Contact payment rules view",
+      "sequence": 1,
+      "scope": "Builds Layercake.vw_fact_contact_payment_source with the columns and rules in DES-001: TRANSTYPE 15 scope, test-account exclusion, sign-reversed amounts at FO precision, payment method code and name with their fallbacks, adjusted payment date with calendar year and month, contact or corporate attribution with a stable single-contact choice, and current country, region and market with 'Unknown' fallbacks. It reads synapse_fo.CUSTTRANS, synapse_fo.CUSTPAYMMODETABLE, CE.tblContact_Test_Records, Layercake.brnz_contact and Layercake.dim_country without changing them. It does not build the table, the load procedure, grants for report users or the reconciliation view.",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "depends_on": [],
+      "acceptance_criteria": [
+        "AC-001-01",
+        "AC-001-02",
+        "AC-001-03",
+        "AC-001-04",
+        "AC-001-05",
+        "AC-001-06",
+        "AC-001-07",
+        "AC-002-01",
+        "AC-002-02",
+        "AC-002-03",
+        "AC-003-01",
+        "AC-003-02",
+        "AC-003-03",
+        "AC-003-04",
+        "AC-004-01",
+        "AC-004-02",
+        "AC-004-03",
+        "AC-004-04",
+        "AC-004-05",
+        "AC-005-01",
+        "AC-005-02",
+        "AC-005-03",
+        "AC-005-04",
+        "AC-005-05",
+        "AC-006-01",
+        "AC-006-02",
+        "AC-006-03",
+        "AC-006-04"
+      ],
+      "objects": [
+        "Layercake.vw_fact_contact_payment_source"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "MOD-002",
+      "title": "Contact payment table, full-rebuild load and schedule hook",
+      "sequence": 2,
+      "scope": "Builds the table Layercake.fact_contact_payment (columns, primary key and audit columns per DES-001) and Layercake.usp_load_fact_contact_payment, which rebuilds the table in full from Layercake.vw_fact_contact_payment_source in one transaction, logs start and end through Layercake.usp_etl_log_start and Layercake.usp_etl_log_end, and follows the standard error handling. It adds a call to the procedure, passing @run_id, in the existing Layercake.usp_load_gold after the dimension steps (Q-024). That changes an existing object, with a down script that restores it. It also scripts the read grant on the table for the reporting role, for a human to run. It does not change the rules view or build the reconciliation view.",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "depends_on": [
+        "MOD-001"
+      ],
+      "acceptance_criteria": [
+        "AC-006-05",
+        "AC-007-01",
+        "AC-007-02",
+        "AC-007-03",
+        "AC-007-04",
+        "AC-008-01",
+        "AC-008-02"
+      ],
+      "objects": [
+        "Layercake.fact_contact_payment",
+        "Layercake.usp_load_fact_contact_payment",
+        "Layercake.usp_load_gold"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "MOD-003",
+      "title": "Per-legal-entity reconciliation view",
+      "sequence": 3,
+      "scope": "Builds Layercake.vw_contact_payment_reconciliation: one row per legal entity, with the dataset's row count and amount_paid_gbp total from Layercake.fact_contact_payment next to the FO count and -1 times the FO AMOUNTMST total. The FO side is computed directly from synapse_fo.CUSTTRANS (TRANSTYPE 15, test accounts excluded via CE.tblContact_Test_Records), and an is_reconciled flag shows whether both sides agree. It also scripts the read grant for the reporting role, for a human to run. It does not change the table, the load or the rules view.",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "depends_on": [
+        "MOD-002"
+      ],
+      "acceptance_criteria": [
+        "AC-008-03"
+      ],
+      "objects": [
+        "Layercake.vw_contact_payment_reconciliation"
+      ],
+      "status": "planned"
+    }
+  ]
+}

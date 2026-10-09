@@ -1,0 +1,512 @@
+{
+  "meta": {
+    "artefact_type": "design",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "DES-001",
+    "version": 1,
+    "produced_by": "technical_architect",
+    "produced_at": "2026-10-09T14:13:54Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json"
+    ]
+  },
+  "spec_ref": "docs/specs/SPEC-001.json",
+  "overview": "Adds a contact payment dataset to the existing Layercake solution: one row per FO payment transaction (CUSTTRANS TRANSTYPE 15) in every legal entity and across all history, excluding test accounts. Each row shows the amount paid as a positive figure in the currency paid and in GBP, the payment method, the payment date with its calendar year and month, whether it is a contact or corporate payment, and the contact's current country, region and market reporting region. The business rules are defined once, in a view (Layercake.vw_fact_contact_payment_source). A load procedure persists the view's output in the table Layercake.fact_contact_payment, rebuilding it in full on each run of the existing Layercake load schedule (ADR-001). A reconciliation view lists, for each legal entity, the dataset's row count and GBP total next to the FO figures, so the business can confirm the totals and the GBP working assumption (ADR-002). All FO and CE objects are read only. The design follows the Layercake conventions recorded in PROJECT_STANDARDS.md: Layercake schema, lower-case snake_case names, and load logging through Layercake.usp_etl_log_start and Layercake.usp_etl_log_end.",
+  "layers": [
+    {
+      "name": "Sources (external, read-only)",
+      "schema": "synapse_fo, CE",
+      "purpose": "Objects owned by other systems: synapse_fo.CUSTTRANS (FO customer transactions), synapse_fo.CUSTPAYMMODETABLE (FO payment modes) and CE.tblContact_Test_Records (CRM test contacts). Read as sources, never changed."
+    },
+    {
+      "name": "Layercake bronze and dimensions (existing)",
+      "schema": "Layercake",
+      "purpose": "Existing Phase 1 objects read by this design without change: brnz_contact (CRM contacts with contact number, country and deleted flag) and dim_country (country, region and market reporting region)."
+    },
+    {
+      "name": "Layercake dataset (new)",
+      "schema": "Layercake",
+      "purpose": "The new objects: the rules view vw_fact_contact_payment_source, the reporting table fact_contact_payment, its load procedure usp_load_fact_contact_payment, and the reconciliation view vw_contact_payment_reconciliation. Per project conventions, Layercake takes the place of the base stg, core and pres layers, which are not used."
+    },
+    {
+      "name": "Load logging",
+      "schema": "Layercake, audit",
+      "purpose": "Run start and end are logged through the existing Layercake.usp_etl_log_start and Layercake.usp_etl_log_end (Layercake.etl_run_log), per project conventions. Errors are also written to audit.ErrorLog through audit.usp_LogError, per the base error-handling standard. No changes to either."
+    },
+    {
+      "name": "Control",
+      "schema": "etl",
+      "purpose": "Framework migration history only. No changes."
+    }
+  ],
+  "entities": [
+    {
+      "name": "Layercake.vw_fact_contact_payment_source",
+      "kind": "view",
+      "description": "Defines every business rule of the dataset in one place, at the grain of one row per FO payment transaction. It is the only input to the load procedure and is not granted to report users. Scope: synapse_fo.CUSTTRANS rows with TRANSTYPE 15, from all legal entities and all dates, including rows with CANCELLEDPAYMENT set, excluding rows whose ACCOUNTNUM equals any CE.tblContact_Test_Records.apuk_contactnumber. Joins never multiply rows: when an account number matches several non-deleted contacts, exactly one contact is used, chosen deterministically (the matching contact with the lowest ContactId), so reruns give the same result. Column rules are given on each column.",
+      "load_pattern": "n/a",
+      "columns": [
+        {
+          "name": "legal_entity",
+          "data_type": "nvarchar(4)",
+          "nullable": false,
+          "key": "bk",
+          "description": "CUSTTRANS.DATAAREAID as recorded."
+        },
+        {
+          "name": "fo_transaction_recid",
+          "data_type": "bigint",
+          "nullable": false,
+          "key": "bk",
+          "description": "CUSTTRANS.RECID as recorded. With legal_entity, identifies the payment."
+        },
+        {
+          "name": "account_number",
+          "data_type": "nvarchar(20)",
+          "nullable": true,
+          "key": "none",
+          "description": "CUSTTRANS.ACCOUNTNUM as recorded, for every row."
+        },
+        {
+          "name": "contact_number",
+          "data_type": "nvarchar(100)",
+          "nullable": true,
+          "key": "none",
+          "description": "Rics_contactno of the matched non-deleted brnz_contact row (in any legal entity) for contact payments. Null for corporate payments."
+        },
+        {
+          "name": "is_corporate",
+          "data_type": "bit",
+          "nullable": false,
+          "key": "none",
+          "description": "0 when ACCOUNTNUM equals Rics_contactno on at least one brnz_contact row with _is_deleted = 0; otherwise 1."
+        },
+        {
+          "name": "payment_date",
+          "data_type": "date",
+          "nullable": true,
+          "key": "none",
+          "description": "DOCUMENTDATE when DOCUMENTDATE is on or before 2021-08-23 and its year is not 1900; otherwise TRANSDATE (including when DOCUMENTDATE is null). Same rule as synapse_fo.vwCustTrans. Held as a date."
+        },
+        {
+          "name": "payment_year",
+          "data_type": "int",
+          "nullable": true,
+          "key": "none",
+          "description": "Calendar year of payment_date."
+        },
+        {
+          "name": "payment_month",
+          "data_type": "tinyint",
+          "nullable": true,
+          "key": "none",
+          "description": "Calendar month number (1-12) of payment_date, not the fiscal period."
+        },
+        {
+          "name": "amount_paid_currency",
+          "data_type": "decimal(32,6)",
+          "nullable": true,
+          "key": "none",
+          "description": "AMOUNTCUR with its sign reversed (multiplied by -1), with no rounding. Payments received show positive; refunds and reversals show negative."
+        },
+        {
+          "name": "currency_code",
+          "data_type": "nvarchar(3)",
+          "nullable": true,
+          "key": "none",
+          "description": "CUSTTRANS.CURRENCYCODE as recorded."
+        },
+        {
+          "name": "amount_paid_gbp",
+          "data_type": "decimal(32,6)",
+          "nullable": true,
+          "key": "none",
+          "description": "AMOUNTMST with its sign reversed (multiplied by -1), with no rounding. Labelled GBP under working assumption Q-014."
+        },
+        {
+          "name": "payment_method_code",
+          "data_type": "nvarchar(10)",
+          "nullable": false,
+          "key": "none",
+          "description": "PAYMMODE as recorded; 'Unknown' when PAYMMODE is null, empty or only spaces."
+        },
+        {
+          "name": "payment_method",
+          "data_type": "nvarchar(60)",
+          "nullable": false,
+          "key": "none",
+          "description": "CUSTPAYMMODETABLE.NAME for the same PAYMMODE and the same DATAAREAID as the transaction. 'Unknown' when PAYMMODE is null or blank. The PAYMMODE code itself when there is no matching row for that legal entity, or its NAME is null or blank."
+        },
+        {
+          "name": "country_name",
+          "data_type": "nvarchar(200)",
+          "nullable": false,
+          "key": "none",
+          "description": "dim_country.country_name for the matched contact's rics_countryid (matched to dim_country.country_id). 'Unknown' for corporate payments, for contacts with no rics_countryid, and where no dim_country row matches."
+        },
+        {
+          "name": "region_name",
+          "data_type": "nvarchar(200)",
+          "nullable": false,
+          "key": "none",
+          "description": "dim_country.region_name from the same lookup. 'Unknown' wherever country_name is 'Unknown' (Q-022)."
+        },
+        {
+          "name": "market_reporting_region",
+          "data_type": "varchar(15)",
+          "nullable": false,
+          "key": "none",
+          "description": "dim_country.market_reporting_region from the same lookup. 'Unknown' wherever country_name is 'Unknown' (Q-022)."
+        }
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ]
+    },
+    {
+      "name": "Layercake.fact_contact_payment",
+      "kind": "table",
+      "description": "The delivered dataset for the reporting tool: one row per FO payment transaction, with the columns of Layercake.vw_fact_contact_payment_source plus run and audit columns. Primary key (clustered) on legal_entity and fo_transaction_recid. No foreign keys: country, region and market are held as names, as the spec maps them.",
+      "load_pattern": "full",
+      "columns": [
+        {
+          "name": "legal_entity",
+          "data_type": "nvarchar(4)",
+          "nullable": false,
+          "key": "pk",
+          "description": "FO legal entity (DATAAREAID). Part of the primary key."
+        },
+        {
+          "name": "fo_transaction_recid",
+          "data_type": "bigint",
+          "nullable": false,
+          "key": "pk",
+          "description": "FO CUSTTRANS RECID. Part of the primary key."
+        },
+        {
+          "name": "account_number",
+          "data_type": "nvarchar(20)",
+          "nullable": true,
+          "key": "none",
+          "description": "FO account the payment was posted to."
+        },
+        {
+          "name": "contact_number",
+          "data_type": "nvarchar(100)",
+          "nullable": true,
+          "key": "none",
+          "description": "Matched CRM contact number; null for corporate payments."
+        },
+        {
+          "name": "is_corporate",
+          "data_type": "bit",
+          "nullable": false,
+          "key": "none",
+          "description": "1 for corporate payments, 0 for contact payments."
+        },
+        {
+          "name": "payment_date",
+          "data_type": "date",
+          "nullable": true,
+          "key": "none",
+          "description": "Adjusted FO payment date."
+        },
+        {
+          "name": "payment_year",
+          "data_type": "int",
+          "nullable": true,
+          "key": "none",
+          "description": "Calendar year of payment_date."
+        },
+        {
+          "name": "payment_month",
+          "data_type": "tinyint",
+          "nullable": true,
+          "key": "none",
+          "description": "Calendar month (1-12) of payment_date."
+        },
+        {
+          "name": "amount_paid_currency",
+          "data_type": "decimal(32,6)",
+          "nullable": true,
+          "key": "none",
+          "description": "Amount paid in the currency paid, positive for money received. FO precision kept (Q-023)."
+        },
+        {
+          "name": "currency_code",
+          "data_type": "nvarchar(3)",
+          "nullable": true,
+          "key": "none",
+          "description": "Currency paid."
+        },
+        {
+          "name": "amount_paid_gbp",
+          "data_type": "decimal(32,6)",
+          "nullable": true,
+          "key": "none",
+          "description": "Accounting-currency amount (GBP, assumes Q-014), positive for money received. FO precision kept (Q-023)."
+        },
+        {
+          "name": "payment_method_code",
+          "data_type": "nvarchar(10)",
+          "nullable": false,
+          "key": "none",
+          "description": "FO payment mode code, or 'Unknown'."
+        },
+        {
+          "name": "payment_method",
+          "data_type": "nvarchar(60)",
+          "nullable": false,
+          "key": "none",
+          "description": "FO payment mode name, the code, or 'Unknown'."
+        },
+        {
+          "name": "country_name",
+          "data_type": "nvarchar(200)",
+          "nullable": false,
+          "key": "none",
+          "description": "Contact's current CRM country, or 'Unknown'."
+        },
+        {
+          "name": "region_name",
+          "data_type": "nvarchar(200)",
+          "nullable": false,
+          "key": "none",
+          "description": "Region of that country, or 'Unknown'."
+        },
+        {
+          "name": "market_reporting_region",
+          "data_type": "varchar(15)",
+          "nullable": false,
+          "key": "none",
+          "description": "Market reporting region of that country, or 'Unknown'."
+        },
+        {
+          "name": "run_id",
+          "data_type": "uniqueidentifier",
+          "nullable": false,
+          "key": "none",
+          "description": "The @run_id passed in by the orchestrator for the daily run that wrote the row (as recorded in Layercake.etl_run_log)."
+        },
+        {
+          "name": "created_at",
+          "data_type": "datetime2(3)",
+          "nullable": false,
+          "key": "none",
+          "description": "UTC time the row was written."
+        },
+        {
+          "name": "updated_at",
+          "data_type": "datetime2(3)",
+          "nullable": false,
+          "key": "none",
+          "description": "UTC time the row was last written. Equals created_at under a full rebuild."
+        }
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "name": "Layercake.usp_load_fact_contact_payment",
+      "kind": "procedure",
+      "description": "Loads Layercake.fact_contact_payment from Layercake.vw_fact_contact_payment_source by full rebuild (ADR-001). Logs a start entry through Layercake.usp_etl_log_start before its transaction. In one transaction, it replaces the table's whole content with the view's current output, stamping run_id, created_at and updated_at. It then logs an end entry through Layercake.usp_etl_log_end with status and row counts (rows deleted and rows inserted). On failure, the transaction rolls back, the previous content stays in place, the error goes to audit.ErrorLog, the run is logged as failed through Layercake.usp_etl_log_end, and the error is re-raised. Like every other Layercake module, it takes the run identifier (@run_id) from the orchestrator and logs under it, so the whole daily run is traced under one run_id. It is called from Layercake.usp_load_gold after the dimension steps (which include usp_load_dim_country), so it runs after bronze has refreshed brnz_contact (Q-024).",
+      "load_pattern": "full",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "name": "Layercake.vw_contact_payment_reconciliation",
+      "kind": "view",
+      "description": "Per-legal-entity reconciliation of the dataset to FO (ADR-002). One row per legal entity found on either side, so a legal entity missing from one side still shows. The FO side is computed directly from synapse_fo.CUSTTRANS (TRANSTYPE 15, ACCOUNTNUM not in CE.tblContact_Test_Records.apuk_contactnumber), independently of the rules view. The dataset side reads Layercake.fact_contact_payment.",
+      "load_pattern": "n/a",
+      "columns": [
+        {
+          "name": "legal_entity",
+          "data_type": "nvarchar(4)",
+          "nullable": false,
+          "key": "bk",
+          "description": "FO legal entity."
+        },
+        {
+          "name": "dataset_row_count",
+          "data_type": "int",
+          "nullable": false,
+          "key": "none",
+          "description": "Rows in fact_contact_payment for the legal entity; 0 when none."
+        },
+        {
+          "name": "fo_row_count",
+          "data_type": "int",
+          "nullable": false,
+          "key": "none",
+          "description": "In-scope FO rows for the legal entity; 0 when none."
+        },
+        {
+          "name": "dataset_amount_paid_gbp",
+          "data_type": "decimal(38,6)",
+          "nullable": false,
+          "key": "none",
+          "description": "Sum of amount_paid_gbp in the dataset; 0 when none."
+        },
+        {
+          "name": "fo_amount_paid_gbp",
+          "data_type": "decimal(38,6)",
+          "nullable": false,
+          "key": "none",
+          "description": "-1 times the sum of FO AMOUNTMST for in-scope rows; 0 when none."
+        },
+        {
+          "name": "is_reconciled",
+          "data_type": "bit",
+          "nullable": false,
+          "key": "none",
+          "description": "1 when both row counts and both GBP totals are equal, otherwise 0."
+        }
+      ],
+      "requirement_ids": [
+        "REQ-008"
+      ]
+    }
+  ],
+  "patterns": [
+    "Project conventions: all new objects are in the Layercake schema, with object and column names matching ^[a-z][a-z0-9_]*$ (RULE-020). Load logging goes through Layercake.usp_etl_log_start and Layercake.usp_etl_log_end. Error handling follows the base standard: the load runs in a try/catch with abort-on-error, logs to audit.ErrorLog and re-raises, so errors are never swallowed.",
+    "External objects (synapse_fo.CUSTTRANS, synapse_fo.CUSTPAYMMODETABLE, CE.tblContact_Test_Records) are read only. Nothing is added to them, and tests use their stand-ins faked per the standards.",
+    "Rules in one place: every scope and derivation rule of SPEC-001 (RULE-001 to RULE-019) lives in Layercake.vw_fact_contact_payment_source. The load procedure only persists that output, and the reconciliation view computes the FO side on its own as a cross-check.",
+    "Scope and grain: one row per synapse_fo.CUSTTRANS row with TRANSTYPE 15, from all legal entities and all dates. Rows with CANCELLEDPAYMENT set are kept. Rows on test accounts (ACCOUNTNUM equal to any CE.tblContact_Test_Records.apuk_contactnumber) are left out entirely and never shown as corporate. No de-duplication: two payments with identical values but different RECIDs are both kept. Account and contact numbers are matched for equality under the database's collation.",
+    "Contact or corporate: a payment is a contact payment when its ACCOUNTNUM matches Rics_contactno on any non-deleted brnz_contact row, in any legal entity. Every other in-scope payment is corporate, reported in full against its account, with contact_number null and country, region and market 'Unknown'. When several non-deleted contacts share the number, the payment still appears once, and the contact with the lowest ContactId supplies the country, so the choice is stable between runs (RULE-015, RULE-019).",
+    "Unknowns: a payment with no payment mode shows 'Unknown' for both code and name. A mode with no named row for its legal entity shows its code as the name. A contact with no country, or a country missing from dim_country, shows 'Unknown' for country, region and market (region and market per Q-022).",
+    "Amounts: the sign of both FO amounts is reversed so money received is positive, and refunds and reversals recorded with the opposite sign net off (RULE-006). Amounts keep FO's six decimal places, with no rounding, so per-legal-entity totals reconcile exactly (Q-023, recorded at spec sign-off). This differs from the base standard's money type decimal(19,4).",
+    "Refresh (ADR-001, recommended option B): full rebuild on every scheduled run. The table's content is replaced in one transaction, so readers see either the previous or the new dataset. Rerunning with unchanged sources gives the same rows and totals (idempotent). Late-arriving FO payments appear on the next run. FO corrections and removals are reflected on the next run. A contact's country change restates all of that contact's payments, including past ones (AC-006-05).",
+    "History: none is kept. The dataset always shows each contact's current country, as at the latest load (RULE-016). No slowly changing dimension and no snapshots, as the spec asks.",
+    "Invalid and duplicate rows: no source row is rejected. Nulls in amounts, currency, dates or account number are carried through as recorded, so totals still match FO. If the source ever held the same legal entity and RECID twice, the primary key makes the load fail, log the error and leave the previous content in place, rather than silently dropping a payment (RULE-004).",
+    "Scheduling (Q-024): the existing schedule runs Layercake.usp_run_daily_load, which calls usp_load_bronze, usp_load_silver and usp_load_gold under one run_id. The payment load is added as a call in Layercake.usp_load_gold after the dimension steps, passing @run_id. That is a change to an existing Phase 1 object, so it ships with a down script that restores the previous definition. No scheduler change is needed.",
+    "Reconciliation (ADR-002, recommended option A): Layercake.vw_contact_payment_reconciliation lists, for each legal entity, the dataset's row count and GBP total next to the FO count and -1 times the FO AMOUNTMST total, with an is_reconciled flag, so the business can check the totals and the GBP assumption (Q-014) on real data."
+  ],
+  "security": "Agents hold no grant rights. The Developer scripts the grants, and a human reviews and runs them. Read permission on Layercake.fact_contact_payment and Layercake.vw_contact_payment_reconciliation is granted to the database role that the existing reporting tool uses to read Layercake (the same role as the existing fact tables). Nothing is granted on Layercake.vw_fact_contact_payment_source, and execute on Layercake.usp_load_fact_contact_payment goes only to the identity that runs the Layercake load schedule. The reconciliation view reads synapse_fo and CE objects: readers rely on the existing ownership chain (all dbo-owned). If that does not hold in production, it is raised with the objects' owners, not worked around. The dataset holds account and contact numbers with payment amounts. The spec asks for no masking, so none is applied, and access is controlled by the reporting role alone. Dev and test hold synthetic data only.",
+  "performance": "The spec gives no volumes (Q-025). Each load run reads all TRANSTYPE 15 rows from the external synapse_fo.CUSTTRANS table, which cannot be indexed by this project, and rewrites the dataset in one transaction, so run time and log use grow with FO payment history. If that is too slow for the schedule's window, ADR-001 option C (synchronise by key) changes only the procedure. The table is clustered on its primary key (legal_entity, fo_transaction_recid). Reporting indexes (for example on payment_year and payment_month) are added only once volumes and report query patterns are known. The reconciliation view reads FO directly and is meant for occasional checks, not for every report.",
+  "requirement_coverage": [
+    {
+      "requirement_id": "REQ-001",
+      "design_elements": [
+        "Layercake.vw_fact_contact_payment_source (scope: TRANSTYPE 15, all legal entities and dates, test accounts excluded, no de-duplication)",
+        "Layercake.fact_contact_payment (primary key legal_entity, fo_transaction_recid)",
+        "Pattern: scope and grain"
+      ]
+    },
+    {
+      "requirement_id": "REQ-002",
+      "design_elements": [
+        "Layercake.vw_fact_contact_payment_source (amount_paid_currency, currency_code, amount_paid_gbp)",
+        "Layercake.fact_contact_payment",
+        "Pattern: amounts (sign reversed, FO precision)"
+      ]
+    },
+    {
+      "requirement_id": "REQ-003",
+      "design_elements": [
+        "Layercake.vw_fact_contact_payment_source (payment_method_code, payment_method)",
+        "Layercake.fact_contact_payment",
+        "Pattern: unknowns"
+      ]
+    },
+    {
+      "requirement_id": "REQ-004",
+      "design_elements": [
+        "Layercake.vw_fact_contact_payment_source (payment_date, payment_year, payment_month)",
+        "Layercake.fact_contact_payment"
+      ]
+    },
+    {
+      "requirement_id": "REQ-005",
+      "design_elements": [
+        "Layercake.vw_fact_contact_payment_source (account_number, contact_number, is_corporate)",
+        "Layercake.fact_contact_payment",
+        "Pattern: contact or corporate"
+      ]
+    },
+    {
+      "requirement_id": "REQ-006",
+      "design_elements": [
+        "Layercake.vw_fact_contact_payment_source (country_name, region_name, market_reporting_region)",
+        "Layercake.fact_contact_payment",
+        "Layercake.usp_load_fact_contact_payment (full rebuild restates current country)",
+        "Pattern: history",
+        "Pattern: unknowns"
+      ]
+    },
+    {
+      "requirement_id": "REQ-007",
+      "design_elements": [
+        "Layercake.fact_contact_payment",
+        "Layercake.usp_load_fact_contact_payment",
+        "ADR-001",
+        "Pattern: refresh",
+        "Pattern: scheduling"
+      ]
+    },
+    {
+      "requirement_id": "REQ-008",
+      "design_elements": [
+        "Layercake.fact_contact_payment",
+        "Layercake.usp_load_fact_contact_payment",
+        "Layercake.vw_contact_payment_reconciliation",
+        "ADR-002",
+        "Pattern: reconciliation"
+      ]
+    }
+  ],
+  "adr_ids": [
+    "ADR-001",
+    "ADR-002"
+  ],
+  "open_questions": [
+    {
+      "id": "Q-022",
+      "question": "Spec question, still open in SPEC-001: where country is 'Unknown', do region_name and market_reporting_region also show 'Unknown'? The spec-signoff comment reads 'Q-022 Unknown', and the design follows that and the spec's working assumption. Please confirm and close it in the spec.",
+      "raised_by": "analyst",
+      "status": "answered",
+      "answer": "'Unknown'. Recorded at spec sign-off (Mike, 2026-10-09)."
+    },
+    {
+      "id": "Q-023",
+      "question": "Spec question, still open in SPEC-001: keep FO's six-decimal precision or use the standard decimal(19,4)? The spec-signoff comment reads 'Q-023 keep FO precision', and the design uses decimal(32,6). Please confirm and close it in the spec, and record the deviation from the base money type as a project-standards override in PROJECT_STANDARDS.md.",
+      "raised_by": "technical_architect",
+      "status": "answered",
+      "answer": "Keep FO's six decimal places (decimal(32,6)). Recorded at spec sign-off (Mike, 2026-10-09). A project override of the base money type, to be recorded in PROJECT_STANDARDS.md."
+    },
+    {
+      "id": "Q-024",
+      "question": "How is the existing Layercake load schedule started: a master procedure in the Layercake schema that calls each step, or SQL Agent job steps (or another scheduler)? Working assumption: a Layercake master load procedure, to which MOD-002 adds a call to Layercake.usp_load_fact_contact_payment after the brnz_contact and dim_country steps (a change to an existing object, with a down script that restores it). If it is a job, MOD-002 instead scripts the job step for a human to add.",
+      "raised_by": "technical_architect",
+      "status": "answered",
+      "answer": "Layercake.usp_run_daily_load is the scheduled entry point. It calls usp_load_bronze, usp_load_silver and usp_load_gold with one @run_id. Add the payment load to Layercake.usp_load_gold after the dimension steps, passing @run_id. Found in the Phase 1 code (src/sql/Layercake/Procedures/Layercake.usp_run_daily_load.sql); confirmed when Mike approves this design."
+    },
+    {
+      "id": "Q-025",
+      "question": "How many TRANSTYPE 15 rows does synapse_fo.CUSTTRANS hold across all legal entities and history, how fast does it grow, and how long can the payment load take within the Layercake schedule? This confirms whether the full rebuild recommended in ADR-001 (option B) is acceptable or whether key-based synchronisation (option C) is needed.",
+      "raised_by": "technical_architect",
+      "status": "open",
+      "blocks": [
+        "ADR-001"
+      ]
+    }
+  ]
+}
