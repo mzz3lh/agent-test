@@ -28,3 +28,18 @@ Mike reviewed the first draft of SPEC-001 and answered its open questions.
 - **Q-010 Test records:** contacts flagged as test records are left out, as in the existing membership reporting.
 - **Q-011 Payments outside FO:** out of scope (for example international payments recorded only in CRM).
 - **Q-012 Delivery:** a queryable dataset in the Layercake schema for the existing reporting tool. The report layout is not part of this requirement.
+
+## Second round of answers (Mike, 2026-10-09)
+
+Mike reviewed the second draft of SPEC-001. Items marked **assumption** are working answers to be checked against the real data later. The spec should record them as assumptions, not as facts.
+
+- **Test records (correction):** Layercake.brnz_contact is loaded from CE.vwContact, which already filters out test records. So test contacts can't be found through brnz_contact. Identify test accounts by matching the FO account number to CE.tblContact_Test_Records.apuk_contactnumber, and leave their payments out. They must not be reported as corporate payments.
+- **Q-013 Migrated history:** use the same adjusted date as the existing FO reporting (synapse_fo.vwCustTrans): DOCUMENTDATE for transactions dated on or before 2021-08-23 (where DOCUMENTDATE is a real date, not 1900), and TRANSDATE otherwise.
+- **Q-014 GBP amount (assumption):** AMOUNTMST is GBP in every FO legal entity. The reconciliation should show the totals per legal entity, so this can be checked.
+- **Q-015 Refunds and cancellations (assumption):** they are recorded as TRANSTYPE 15 with the opposite sign and net off. No other transaction type is included. Cancelled payments (CANCELLEDPAYMENT) are not removed.
+- **Q-016 Corporate country:** 'Unknown'.
+- **Q-017 Grain:** one row per FO payment transaction.
+- **Q-018 Shared contact numbers:** each payment is counted once. Any one of the matching contacts' countries may be used.
+- **Q-019 Unnamed payment mode:** show the code itself.
+- **Q-020 Refresh:** with the existing Layercake load schedule.
+- **Q-021 Contact coverage (assumption):** Layercake.brnz_contact holds every CRM contact with a contact number.
