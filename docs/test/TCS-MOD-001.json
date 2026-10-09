@@ -1,0 +1,496 @@
+{
+  "meta": {
+    "artefact_type": "test_conditions",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "TCS-MOD-001",
+    "version": 1,
+    "produced_by": "tester",
+    "produced_at": "2026-10-09T14:48:14Z",
+    "status": "approved",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/MP-001.json",
+      "docs/design/DES-001.json"
+    ],
+    "approval": {
+      "approved_by": "Mike",
+      "approved_at": "2026-10-09T15:11:54Z",
+      "gate": "test_design_review",
+      "comments": "DOCUMENTDATE time of day: follow vwCustTrans literally"
+    }
+  },
+  "module_id": "MOD-001",
+  "designed_from": [
+    "docs/specs/SPEC-001.json",
+    "docs/design/MP-001.json",
+    "docs/design/DES-001.json"
+  ],
+  "conditions": [
+    {
+      "id": "TC-001-001",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-01",
+      "category": "happy_path",
+      "description": "Only TRANSTYPE 15 rows are in scope.",
+      "preconditions": "CUSTTRANS gb01 rows on non-test account C100001: RECID 1001 TRANSTYPE 15, 1002 TRANSTYPE 8, 1003 TRANSTYPE 24.",
+      "expected": "The view returns exactly one row for C100001: gb01 / 1001.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-001 only TRANSTYPE 15 rows are in scope]"
+    },
+    {
+      "id": "TC-001-002",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-02",
+      "category": "reconciliation",
+      "description": "Row count per legal entity equals in-scope FO rows (TRANSTYPE 15, not test accounts).",
+      "preconditions": "Test record T900001. gb01: four TRANSTYPE 15 rows (one on T900001) plus one TRANSTYPE 8 row; us01: two TRANSTYPE 15 rows.",
+      "expected": "gb01 3 rows, us01 2 rows.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-002 row count per legal entity matches in-scope FO rows]"
+    },
+    {
+      "id": "TC-001-003",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005"
+      ],
+      "acceptance_criterion_id": "AC-001-03",
+      "category": "duplicates",
+      "description": "No (legal_entity, fo_transaction_recid) pair repeats when the account matches two non-deleted contacts.",
+      "preconditions": "Two non-deleted brnz_contact rows with Rics_contactno C100003 (France, Germany). Payments gb01 3001, gb01 3002, us01 3003 on C100003.",
+      "expected": "Each of gb01/3001, gb01/3002, us01/3003 appears exactly once.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-003 each payment appears once when account matches two contacts]"
+    },
+    {
+      "id": "TC-001-004",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-04",
+      "category": "negative",
+      "description": "Test-account payments are left out in every legal entity, even when the account also matches a non-deleted contact.",
+      "preconditions": "Test record T900001; brnz_contact T900001 non-deleted. Payments gb01 4001 and us01 4002 on T900001, gb01 4003 on ACME01.",
+      "expected": "The view returns only gb01/4003.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-004 test account payments are left out in every legal entity]"
+    },
+    {
+      "id": "TC-001-005",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-04",
+      "category": "nulls",
+      "description": "A test record with a NULL apuk_contactnumber does not exclude other payments.",
+      "preconditions": "Test records T900001 and one with apuk_contactnumber NULL. Payments gb01 5001 ACME01, 5002 C100001, 5003 T900001.",
+      "expected": "The view returns gb01/5001 and gb01/5002 only.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-005 test record with NULL contact number excludes nothing else]"
+    },
+    {
+      "id": "TC-001-006",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-001-02",
+      "category": "nulls",
+      "description": "A TRANSTYPE 15 row with null account number, amounts, currency, dates and payment mode is carried through, not dropped (design: nulls carried as recorded).",
+      "preconditions": "Test record T900001; a non-deleted brnz_contact with Rics_contactno NULL. Payment gb01 6001 with ACCOUNTNUM, AMOUNTCUR, AMOUNTMST, CURRENCYCODE, PAYMMODE, DOCUMENTDATE, TRANSDATE all NULL.",
+      "expected": "One row: gb01, 6001, account_number NULL, contact_number NULL, is_corporate 1, payment_date/year/month NULL, both amounts NULL, currency_code NULL, payment_method_code 'Unknown', payment_method 'Unknown', country/region/market 'Unknown'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-006 row with null optional values is carried through]"
+    },
+    {
+      "id": "TC-001-007",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-05",
+      "category": "happy_path",
+      "description": "A cancelled payment is kept.",
+      "preconditions": "assumes Q-015: cancelled payments are not removed. Payments gb01 7001 CANCELLEDPAYMENT 1 AMOUNTMST -40.00, 7002 CANCELLEDPAYMENT 0 AMOUNTMST -60.00.",
+      "expected": "Both rows: 7001 amount_paid_gbp 40.000000, 7002 amount_paid_gbp 60.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-007 cancelled payment is kept]"
+    },
+    {
+      "id": "TC-001-008",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-06",
+      "category": "duplicates",
+      "description": "Two identical payments with different RECIDs are both kept (no de-duplication).",
+      "preconditions": "gb01 8001 and 8002 on C100001, -50.00 GBP, PAYMMODE DD, TRANSDATE 2024-02-01.",
+      "expected": "Two rows, 8001 and 8002, each 50.000000 / 50.000000, payment_date 2024-02-01, code DD.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-008 identical payments with different RECIDs are both kept]"
+    },
+    {
+      "id": "TC-001-009",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "acceptance_criterion_id": "AC-001-07",
+      "category": "happy_path",
+      "description": "Payments from gb01 and us01 and an old (2012) payment all appear.",
+      "preconditions": "gb01 9001 TRANSDATE 2024-05-01; us01 9002 TRANSDATE 2024-05-01; gb01 9003 DOCUMENTDATE and TRANSDATE 2012-03-01.",
+      "expected": "Three rows: gb01/9001 2024-05-01, us01/9002 2024-05-01, gb01/9003 2012-03-01.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-009 all legal entities and old dates are included]"
+    },
+    {
+      "id": "TC-001-010",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "acceptance_criterion_id": "AC-002-01",
+      "category": "happy_path",
+      "description": "EUR payment shows sign-reversed currency and GBP amounts.",
+      "preconditions": "assumes Q-014: AMOUNTMST is GBP. Payment 10001 AMOUNTCUR -100.00 EUR, AMOUNTMST -85.00.",
+      "expected": "amount_paid_currency 100.000000, currency_code 'EUR', amount_paid_gbp 85.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-010 EUR payment shows positive currency and GBP amounts]"
+    },
+    {
+      "id": "TC-001-011",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "acceptance_criterion_id": "AC-002-01",
+      "category": "boundary",
+      "description": "Amounts keep FO's six decimal places with no rounding; zero stays zero.",
+      "preconditions": "assumes Q-023: FO precision kept (decimal(32,6)), as recorded at sign-off. Payments 11001 AMOUNTCUR -12.345678 / AMOUNTMST -10.123457; 11002 0.000000 / 0.000000; 11003 -0.000001 / -0.000001.",
+      "expected": "11001: 12.345678 / 10.123457; 11002: 0.000000 / 0.000000; 11003: 0.000001 / 0.000001.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-011 amounts keep six decimal places without rounding]"
+    },
+    {
+      "id": "TC-001-012",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "acceptance_criterion_id": "AC-002-02",
+      "category": "happy_path",
+      "description": "A refund shows negative and nets off against a payment on the same account.",
+      "preconditions": "assumes Q-015: refunds are TRANSTYPE 15 with the opposite sign. ACME01 gb01: 12001 AMOUNTCUR +30.00 / AMOUNTMST +30.00 GBP; 12002 -100.00 / -100.00 GBP.",
+      "expected": "12001: -30.000000 / -30.000000; 12002: 100.000000 / 100.000000; ACME01 totals 70.000000 in both amount columns.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-012 refund shows negative and nets off against payment]"
+    },
+    {
+      "id": "TC-001-013",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "acceptance_criterion_id": "AC-002-03",
+      "category": "happy_path",
+      "description": "GBP payment shows positive amounts.",
+      "preconditions": "Payment 13001 AMOUNTCUR -250.00, AMOUNTMST -250.00, GBP.",
+      "expected": "amount_paid_currency 250.000000, currency_code 'GBP', amount_paid_gbp 250.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-013 GBP payment shows positive amounts]"
+    },
+    {
+      "id": "TC-001-014",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "acceptance_criterion_id": "AC-003-01",
+      "category": "happy_path",
+      "description": "Payment method is named from CUSTPAYMMODETABLE for the same legal entity.",
+      "preconditions": "CUSTPAYMMODETABLE gb01/DD 'Direct Debit'. Payment gb01 14001 PAYMMODE DD.",
+      "expected": "payment_method_code 'DD', payment_method 'Direct Debit'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-014 payment method named from the legal entity mode table]"
+    },
+    {
+      "id": "TC-001-015",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "acceptance_criterion_id": "AC-003-02",
+      "category": "nulls",
+      "description": "Null, empty and space-only PAYMMODE give 'Unknown' for code and name, even if the mode table has a row with an empty code.",
+      "preconditions": "CUSTPAYMMODETABLE gb01 PAYMMODE '' NAME 'Blank mode'. Payments gb01 15001 PAYMMODE NULL, 15002 '', 15003 '   '.",
+      "expected": "All three: payment_method_code 'Unknown', payment_method 'Unknown'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-015 null empty or blank payment mode shows Unknown]"
+    },
+    {
+      "id": "TC-001-016",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "acceptance_criterion_id": "AC-003-03",
+      "category": "negative",
+      "description": "A mode with no row for its legal entity, a blank NAME or a NULL NAME shows the code as the name.",
+      "preconditions": "CUSTPAYMMODETABLE us01/XYZ 'Other', gb01/CHQ NAME '  ', gb01/BAC NAME NULL. Payments gb01 16001 XYZ, 16002 CHQ, 16003 BAC.",
+      "expected": "16001 'XYZ'/'XYZ', 16002 'CHQ'/'CHQ', 16003 'BAC'/'BAC' (code/name).",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-016 unmatched or unnamed payment mode shows its code]"
+    },
+    {
+      "id": "TC-001-017",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "acceptance_criterion_id": "AC-003-04",
+      "category": "duplicates",
+      "description": "The same mode code named differently per legal entity gives each payment its own entity's name, once.",
+      "preconditions": "CUSTPAYMMODETABLE gb01/DD 'Direct Debit', us01/DD 'ACH Debit'. Payments gb01 17001 DD, us01 17002 DD.",
+      "expected": "Exactly two rows: gb01/17001 'Direct Debit', us01/17002 'ACH Debit'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-017 payment method name depends on legal entity]"
+    },
+    {
+      "id": "TC-001-018",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "acceptance_criterion_id": "AC-004-01",
+      "category": "happy_path",
+      "description": "DOCUMENTDATE before the cutoff is the payment date.",
+      "preconditions": "Payment 18001 DOCUMENTDATE 2021-08-20, TRANSDATE 2021-09-02.",
+      "expected": "payment_date 2021-08-20, payment_year 2021, payment_month 8.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-018 document date before cutoff is used]"
+    },
+    {
+      "id": "TC-001-019",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "acceptance_criterion_id": "AC-004-02",
+      "category": "boundary",
+      "description": "DOCUMENTDATE on the cutoff date 2021-08-23 is used.",
+      "preconditions": "Payment 19001 DOCUMENTDATE 2021-08-23 (midnight), TRANSDATE 2021-09-01. Untested: a DOCUMENTDATE on 2021-08-23 with a time of day, where the rule's wording and the vwCustTrans expression disagree; asked of the owner, no answer yet.",
+      "expected": "payment_date 2021-08-23, payment_year 2021, payment_month 8.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-019 document date on cutoff date is used]"
+    },
+    {
+      "id": "TC-001-020",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "acceptance_criterion_id": "AC-004-03",
+      "category": "boundary",
+      "description": "DOCUMENTDATE after the cutoff gives TRANSDATE.",
+      "preconditions": "Payment 20001 DOCUMENTDATE 2021-08-24, TRANSDATE 2021-08-30.",
+      "expected": "payment_date 2021-08-30, payment_year 2021, payment_month 8.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-020 document date after cutoff uses transaction date]"
+    },
+    {
+      "id": "TC-001-021",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "acceptance_criterion_id": "AC-004-04",
+      "category": "nulls",
+      "description": "DOCUMENTDATE 1900-01-01 or NULL gives TRANSDATE.",
+      "preconditions": "Payments 21001 DOCUMENTDATE 1900-01-01 / TRANSDATE 2020-05-05; 21002 DOCUMENTDATE NULL / TRANSDATE 2019-12-31.",
+      "expected": "21001: 2020-05-05, 2020, 5. 21002: 2019-12-31, 2019, 12.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-021 year 1900 or null document date uses transaction date]"
+    },
+    {
+      "id": "TC-001-022",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "acceptance_criterion_id": "AC-004-04",
+      "category": "boundary",
+      "description": "Any DOCUMENTDATE in year 1900 (not just 1 January) is ignored; 1901-01-01 is a real date and used.",
+      "preconditions": "Payments 22001 DOCUMENTDATE 1900-12-31 / TRANSDATE 2018-07-15; 22002 DOCUMENTDATE 1901-01-01 / TRANSDATE 2018-07-16.",
+      "expected": "22001: 2018-07-15, 2018, 7. 22002: 1901-01-01, 1901, 1.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-022 any 1900 document date is ignored but 1901 is used]"
+    },
+    {
+      "id": "TC-001-023",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "acceptance_criterion_id": "AC-004-05",
+      "category": "happy_path",
+      "description": "Year and month are the calendar values of the payment date, not a fiscal period.",
+      "preconditions": "Payment 23001 DOCUMENTDATE 2024-03-28, TRANSDATE 2024-03-31.",
+      "expected": "payment_date 2024-03-31, payment_year 2024, payment_month 3.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-023 year and month are calendar values of payment date]"
+    },
+    {
+      "id": "TC-001-024",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "acceptance_criterion_id": "AC-005-01",
+      "category": "happy_path",
+      "description": "Payment on an account matching a non-deleted contact is a contact payment.",
+      "preconditions": "brnz_contact C100001 _is_deleted 0. Payment gb01 24001 on C100001.",
+      "expected": "is_corporate 0, contact_number 'C100001', account_number 'C100001'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-024 payment on a current contact account is a contact payment]"
+    },
+    {
+      "id": "TC-001-025",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "acceptance_criterion_id": "AC-005-02",
+      "category": "happy_path",
+      "description": "Payment on an unmatched, non-test account is one unsplit corporate payment.",
+      "preconditions": "brnz_contact C100001 only. Payment gb01 25001 on ACME01 AMOUNTMST -1200.00.",
+      "expected": "One row: is_corporate 1, contact_number NULL, account_number 'ACME01', amount_paid_gbp 1200.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-025 unmatched account is one unsplit corporate payment]"
+    },
+    {
+      "id": "TC-001-026",
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-005-03",
+      "category": "negative",
+      "description": "Account matching only a deleted contact is corporate, and the deleted contact's country is not used.",
+      "preconditions": "brnz_contact C100002 _is_deleted 1, country France. Payment gb01 26001 on C100002.",
+      "expected": "is_corporate 1, contact_number NULL, account_number 'C100002', country/region/market 'Unknown'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-026 account matching only a deleted contact is corporate]"
+    },
+    {
+      "id": "TC-001-027",
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-005-03",
+      "category": "negative",
+      "description": "When an account matches a deleted contact (lower ContactId, France) and a non-deleted contact (Germany), only the non-deleted one counts.",
+      "preconditions": "brnz_contact C100004: ContactId ...0271 deleted France; ContactId ...0272 non-deleted Germany. Payment gb01 27001 on C100004.",
+      "expected": "One row: is_corporate 0, contact_number 'C100004', country_name 'Germany'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-027 deleted duplicate contact is ignored for attribution and country]"
+    },
+    {
+      "id": "TC-001-028",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "acceptance_criterion_id": "AC-005-04",
+      "category": "happy_path",
+      "description": "Contact matching is not limited by legal entity.",
+      "preconditions": "brnz_contact C100001 non-deleted. Payment us01 28001 on C100001.",
+      "expected": "us01/28001 is_corporate 0, contact_number 'C100001'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-028 contact match applies in any legal entity]"
+    },
+    {
+      "id": "TC-001-029",
+      "requirement_ids": [
+        "REQ-005"
+      ],
+      "acceptance_criterion_id": "AC-005-05",
+      "category": "reconciliation",
+      "description": "Per legal entity, contact plus corporate GBP totals equal the legal entity total.",
+      "preconditions": "brnz_contact C100001 non-deleted. gb01: C100001 -100.00, ACME01 -1200.00, ACME02 -50.50; us01: C100001 -10.00, ACME03 -20.00 (AMOUNTMST).",
+      "expected": "gb01: contact 100.000000, corporate 1250.500000, total 1350.500000. us01: contact 10.000000, corporate 20.000000, total 30.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-029 contact plus corporate totals equal legal entity total]"
+    },
+    {
+      "id": "TC-001-030",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-01",
+      "category": "happy_path",
+      "description": "Contact payment shows the contact's country, region and market from dim_country.",
+      "preconditions": "dim_country France/Europe/EMEA. brnz_contact C100001 non-deleted with France. Payment gb01 30001 on C100001.",
+      "expected": "country_name 'France', region_name 'Europe', market_reporting_region 'EMEA'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-030 contact payment shows country region and market]"
+    },
+    {
+      "id": "TC-001-031",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-02",
+      "category": "nulls",
+      "description": "Contact with NULL rics_countryid, or one with no dim_country row, shows 'Unknown' for country, region and market.",
+      "preconditions": "assumes Q-022: region and market also 'Unknown' (recorded at sign-off). brnz_contact C100005 rics_countryid NULL; C100006 rics_countryid not in dim_country. Payments 31001 on C100005, 31002 on C100006.",
+      "expected": "Both rows: is_corporate 0, 'Unknown' / 'Unknown' / 'Unknown'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-031 contact without a known country shows Unknown]"
+    },
+    {
+      "id": "TC-001-032",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-03",
+      "category": "happy_path",
+      "description": "Corporate payment shows 'Unknown' country, region and market.",
+      "preconditions": "assumes Q-022: region and market also 'Unknown'. Payment gb01 32001 on ACME01, no brnz_contact rows.",
+      "expected": "country_name 'Unknown', region_name 'Unknown', market_reporting_region 'Unknown'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-032 corporate payment shows Unknown country region and market]"
+    },
+    {
+      "id": "TC-001-033",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-03",
+      "category": "boundary",
+      "description": "The 'Unknown' fallbacks are exactly 'Unknown' (case and no padding), compared as bytes.",
+      "preconditions": "assumes Q-022. Corporate payment gb01 33001 on ACME01 with PAYMMODE NULL.",
+      "expected": "payment_method_code, payment_method, country_name, region_name, market_reporting_region each equal the bytes of N'Unknown' when cast to nvarchar.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-033 Unknown fallbacks have exact case and no padding]"
+    },
+    {
+      "id": "TC-001-034",
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-04",
+      "category": "duplicates",
+      "description": "Account matching two non-deleted contacts (France, Germany) gives one row with one of their countries.",
+      "preconditions": "brnz_contact C100003 twice, non-deleted, France and Germany. Payment gb01 34001 on C100003.",
+      "expected": "One row: is_corporate 0, contact_number 'C100003', country_name 'France' or 'Germany'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-034 shared contact number gives one row with one matching country]"
+    },
+    {
+      "id": "TC-001-035",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-04",
+      "category": "duplicates",
+      "description": "Design rule: with several non-deleted contacts, the lowest ContactId supplies the country, so the choice is stable for all the account's payments.",
+      "preconditions": "brnz_contact C100003: ContactId C0000000-0000-0000-0000-000000000002 France (inserted first) and C0000000-0000-0000-0000-000000000001 Germany. Payments gb01 35001 and us01 35002 on C100003.",
+      "expected": "Both rows: country_name 'Germany', region_name 'Europe', market_reporting_region 'EMEA'.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD001].[test TC-001-035 shared contact number uses lowest ContactId country]"
+    }
+  ]
+}
