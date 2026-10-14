@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "artefact_type": "doc_update",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "DU-MOD-001",
+    "version": 1,
+    "produced_by": "technical_writer",
+    "produced_at": "2026-10-14T07:16:48Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/DES-001.json",
+      "docs/design/MP-001.json",
+      "docs/dev/CN-MOD-001.json",
+      "docs/test/TR-MOD-001-1.json"
+    ]
+  },
+  "scope": "module",
+  "module_id": "MOD-001",
+  "documents": [
+    {
+      "path": "docs/handover/01-solution-overview.md",
+      "section": "Purpose",
+      "change_summary": "Added the purpose of the contact payment dataset and explained the ID prefixes used in the pack.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#summary",
+        "docs/specs/SPEC-001.json#REQ-003",
+        "docs/design/DES-001.json#overview",
+        "BASE_STANDARDS.md#Identifiers and traceability"
+      ]
+    },
+    {
+      "path": "docs/handover/01-solution-overview.md",
+      "section": "Scope",
+      "change_summary": "Added what is in and out of scope, and the three modules the solution is built in.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#RULE-002",
+        "docs/specs/SPEC-001.json#RULE-003",
+        "docs/specs/SPEC-001.json#RULE-005",
+        "docs/specs/SPEC-001.json#Q-006",
+        "docs/specs/SPEC-001.json#Q-011",
+        "docs/specs/SPEC-001.json#REQ-003",
+        "docs/design/MP-001.json#MOD-001",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#MOD-003"
+      ]
+    },
+    {
+      "path": "docs/handover/01-solution-overview.md",
+      "section": "Requirements delivered",
+      "change_summary": "Added REQ-001 to REQ-006 as delivered by MOD-001 and met in testing.",
+      "evidence": [
+        "docs/design/MP-001.json#MOD-001",
+        "docs/test/TR-MOD-001-1.json#requirement_status",
+        "docs/specs/SPEC-001.json#REQ-001",
+        "docs/specs/SPEC-001.json#REQ-002",
+        "docs/specs/SPEC-001.json#REQ-003",
+        "docs/specs/SPEC-001.json#REQ-004",
+        "docs/specs/SPEC-001.json#REQ-005",
+        "docs/specs/SPEC-001.json#REQ-006",
+        "docs/design/DES-001.json#is not granted to report users"
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ]
+    },
+    {
+      "path": "docs/handover/02-architecture.md",
+      "section": "Architecture overview",
+      "change_summary": "Added the source, existing Layercake and new dataset layers, with the rules view as the single home of the business rules.",
+      "evidence": [
+        "docs/design/DES-001.json#layers",
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/MP-001.json#MOD-001",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#MOD-003",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#defined once"
+      ]
+    },
+    {
+      "path": "docs/handover/02-architecture.md",
+      "section": "Data model",
+      "change_summary": "Documented Layercake.vw_fact_contact_payment_source column by column, with its grain, scope and single-contact choice.",
+      "evidence": [
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/DES-001.json#lowest ContactId",
+        "docs/design/DES-001.json#Q-022",
+        "docs/design/DES-001.json#Q-023",
+        "docs/design/DES-001.json#Q-014",
+        "docs/specs/SPEC-001.json#RULE-004",
+        "docs/specs/SPEC-001.json#RULE-009",
+        "docs/specs/SPEC-001.json#RULE-010",
+        "docs/test/TCS-MOD-001.json#TC-001-006",
+        "docs/test/TCS-MOD-001.json#TC-001-015",
+        "docs/dev/CN-MOD-001.json#space-only"
+      ]
+    },
+    {
+      "path": "docs/handover/02-architecture.md",
+      "section": "Design decisions",
+      "change_summary": "Summarised ADR-001 and ADR-002, their recommendations and their proposed status.",
+      "evidence": [
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#Option B",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#In every option",
+        "docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#Option A",
+        "docs/design/DES-001.json#recommended option B",
+        "docs/design/DES-001.json#recommended option A"
+      ]
+    },
+    {
+      "path": "docs/handover/03-data-lineage.md",
+      "section": "Sources",
+      "change_summary": "Listed the FO, CRM and existing Layercake sources the rules view reads, all unchanged.",
+      "evidence": [
+        "docs/design/DES-001.json#Sources (external, read-only)",
+        "docs/design/DES-001.json#Layercake bronze and dimensions (existing)",
+        "docs/specs/SPEC-001.json#CRM",
+        "docs/design/MP-001.json#without changing them"
+      ]
+    },
+    {
+      "path": "docs/handover/03-data-lineage.md",
+      "section": "Source-to-target mappings",
+      "change_summary": "Added the source-to-column mappings and rules for the rules view.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#REQ-001",
+        "docs/specs/SPEC-001.json#RULE-005",
+        "docs/specs/SPEC-001.json#RULE-006",
+        "docs/specs/SPEC-001.json#RULE-007",
+        "docs/specs/SPEC-001.json#RULE-008",
+        "docs/specs/SPEC-001.json#Layercake.fact_contact_payment.payment_date",
+        "docs/specs/SPEC-001.json#Layercake.brnz_contact._is_deleted",
+        "docs/design/DES-001.json#rics_countryid",
+        "docs/design/DES-001.json#lowest ContactId",
+        "docs/design/DES-001.json#Q-022",
+        "docs/design/DES-001.json#Q-023",
+        "docs/design/MP-001.json#MOD-002"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Components and load order",
+      "change_summary": "Added the rules view as a component with no load of its own, read by the load procedure only.",
+      "evidence": [
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/DES-001.json#is the only input to the load procedure",
+        "docs/design/MP-001.json#MOD-001",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#MOD-003"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Deployment and rollback",
+      "change_summary": "Documented migration MIG-0003, how its scripts behave, and its passed rollback test on RICS_Dev.",
+      "evidence": [
+        "docs/dev/CN-MOD-001.json#MIG-0003",
+        "docs/dev/CN-MOD-001.json#rollback_test",
+        "docs/dev/CN-MOD-001.json#RICS_Dev",
+        "BASE_STANDARDS.md#Idempotent",
+        "BASE_STANDARDS.md#Transactional",
+        "BASE_STANDARDS.md#etl.MigrationHistory",
+        "BASE_STANDARDS.md#Rollback for every deployment"
+      ]
+    },
+    {
+      "path": "docs/handover/05-test-summary.md",
+      "section": "Test approach",
+      "change_summary": "Described independent, automated test conditions, the assumptions they rest on, and the five developer unit tests.",
+      "evidence": [
+        "docs/test/TCS-MOD-001.json#designed_from",
+        "docs/test/TCS-MOD-001.json#acceptance_criterion_id",
+        "docs/test/TCS-MOD-001.json#assumes Q-014",
+        "docs/test/TCS-MOD-001.json#assumes Q-015",
+        "docs/test/TCS-MOD-001.json#assumes Q-022",
+        "docs/test/TCS-MOD-001.json#assumes Q-023",
+        "BASE_STANDARDS.md#Separation",
+        "docs/dev/CN-MOD-001.json#unit_tests"
+      ]
+    },
+    {
+      "path": "docs/handover/05-test-summary.md",
+      "section": "Results by module",
+      "change_summary": "Added MOD-001 results: 35 of 35 conditions passed in the test environment, all six requirements met, no defects.",
+      "evidence": [
+        "docs/test/TR-MOD-001-1.json#TR-MOD-001-1",
+        "docs/test/TR-MOD-001-1.json#requirement_status",
+        "docs/test/TR-MOD-001-1.json#verdict"
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-006"
+      ]
+    },
+    {
+      "path": "docs/handover/05-test-summary.md",
+      "section": "Traceability",
+      "change_summary": "Added the traceability table for TC-001-001 to TC-001-035 with requirement, acceptance criterion and result.",
+      "evidence": [
+        "docs/test/TCS-MOD-001.json#TC-001-001",
+        "docs/test/TCS-MOD-001.json#TC-001-035",
+        "docs/test/TR-MOD-001-1.json#TC-001-001",
+        "docs/test/TR-MOD-001-1.json#TC-001-035",
+        "docs/design/MP-001.json#AC-006-04"
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ]
+    },
+    {
+      "path": "docs/handover/06-known-limitations.md",
+      "section": "Assumptions awaiting confirmation",
+      "change_summary": "Listed working assumptions Q-014, Q-015, Q-021, Q-022 and Q-023 awaiting the business's confirmation.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#Q-014",
+        "docs/specs/SPEC-001.json#Q-015",
+        "docs/specs/SPEC-001.json#Q-021",
+        "docs/specs/SPEC-001.json#Q-022",
+        "docs/specs/SPEC-001.json#Q-023",
+        "docs/specs/SPEC-001.json#Q-022 Unknown",
+        "docs/specs/SPEC-001.json#RULE-001",
+        "docs/design/DES-001.json#Q-022",
+        "docs/design/DES-001.json#Q-023"
+      ],
+      "requirement_ids": [
+        "REQ-008"
+      ]
+    },
+    {
+      "path": "docs/handover/06-known-limitations.md",
+      "section": "Known limitations",
+      "change_summary": "Recorded the 23 August 2021 time-of-day date treatment, the duplicate payment-mode and country row choices, and unsplit company payments.",
+      "evidence": [
+        "docs/dev/CN-MOD-001.json#follows synapse_fo.vwCustTrans literally",
+        "docs/test/TCS-MOD-001.json#DOCUMENTDATE time of day: follow vwCustTrans literally",
+        "docs/specs/SPEC-001.json#on or before 2021-08-23",
+        "docs/dev/CN-MOD-001.json#lowest CUSTPAYMMODETABLE.RECID",
+        "docs/dev/CN-MOD-001.json#lowest dim_country.id",
+        "docs/specs/SPEC-001.json#Q-006"
+      ]
+    },
+    {
+      "path": "docs/handover/06-known-limitations.md",
+      "section": "Recommended next steps",
+      "change_summary": "Added confirming assumptions, providing volumes (Q-025) and completing MOD-002 and MOD-003.",
+      "evidence": [
+        "docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#Q-014",
+        "docs/design/DES-001.json#Q-025",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#provisional until Q-025",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#MOD-003"
+      ]
+    },
+    {
+      "path": "docs/handover/07-glossary.md",
+      "section": "Terms",
+      "change_summary": "Added business terms and ID prefixes used across the pack.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#Payment transaction",
+        "docs/specs/SPEC-001.json#Contact account",
+        "docs/specs/SPEC-001.json#Corporate payment",
+        "docs/specs/SPEC-001.json#Test account",
+        "docs/specs/SPEC-001.json#Payment date",
+        "docs/specs/SPEC-001.json#Accounting currency amount",
+        "docs/specs/SPEC-001.json#Legal entity",
+        "docs/specs/SPEC-001.json#RULE-008",
+        "docs/design/DES-001.json#market_reporting_region",
+        "docs/design/DES-001.json#existing Layercake solution",
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/dev/CN-MOD-001.json#MIG-0003",
+        "BASE_STANDARDS.md#Identifiers and traceability"
+      ]
+    }
+  ],
+  "unverified_statements": [
+    {
+      "text": "Which environments MIG-0003 is deployed to (beyond the RICS_Dev rollback test and the test run), and who runs the deployment there.",
+      "reason": "No artefact names the target environments or who deploys module migrations; the runbook says it is still to be confirmed."
+    },
+    {
+      "text": "Account numbers are matched to CRM contact numbers under the database collation (Latin1_General_CI_AS), which would ignore letter case.",
+      "reason": "The change note records the collation, but no artefact states the consequence for the business (case-insensitive matching); left out of the pack until confirmed."
+    }
+  ]
+}

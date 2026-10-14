@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "artefact_type": "test_results",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "version": 1,
+    "produced_by": "tester",
+    "produced_at": "2026-10-13T12:55:28Z",
+    "status": "for_review",
+    "artefact_id": "TR-MOD-001-1",
+    "source_artefacts": [
+      "CN-MOD-001",
+      "TCS-MOD-001",
+      "tests/tsqlt/test_MOD001.sql"
+    ]
+  },
+  "module_id": "MOD-001",
+  "loop_number": 1,
+  "run": {
+    "environment": "test",
+    "commit": "4cd7a338b2c8cb9c28ee327b0c613526f484baf9",
+    "started_at": "2026-10-13T12:55:18Z",
+    "finished_at": "2026-10-13T12:55:24Z"
+  },
+  "results": [
+    {
+      "test_condition_id": "TC-001-001",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-002",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-003",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-004",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-005",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-006",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-007",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-008",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-009",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-010",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-011",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-012",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-013",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-014",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-015",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-016",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-017",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-018",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-019",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-020",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-021",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-022",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-023",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-024",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-025",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-026",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-027",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-028",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-029",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-030",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-031",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-032",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-033",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-034",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-001-035",
+      "outcome": "pass"
+    }
+  ],
+  "requirement_status": [
+    {
+      "requirement_id": "REQ-001",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-002",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-003",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-004",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-005",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-006",
+      "status": "met"
+    }
+  ],
+  "verdict": "pass"
+}

@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "artefact_type": "change_note",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "CN-MOD-001",
+    "version": 1,
+    "produced_by": "developer",
+    "produced_at": "2026-10-09T15:14:24Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/DES-001.json",
+      "docs/design/MP-001.json",
+      "docs/test/TCS-MOD-001.json",
+      "tests/tsqlt/test_MOD001.sql"
+    ]
+  },
+  "module_id": "MOD-001",
+  "branch": "agent/developer/MOD-001-contact-payment-rules-view",
+  "commit": "4cd7a338b2c8cb9c28ee327b0c613526f484baf9",
+  "requirement_ids": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+    "REQ-004",
+    "REQ-005",
+    "REQ-006"
+  ],
+  "objects_changed": [
+    {
+      "path": "src/sql/Layercake/Views/Layercake.vw_fact_contact_payment_source.sql",
+      "object": "Layercake.vw_fact_contact_payment_source",
+      "change": "added",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ]
+    }
+  ],
+  "unit_tests": [
+    "[test_MOD001_dev].[test document date on cutoff day with a time of day uses transaction date]",
+    "[test_MOD001_dev].[test duplicate country_id in dim_country gives one row from the lowest id]",
+    "[test_MOD001_dev].[test duplicate payment mode rows give one row named from the lowest RECID]",
+    "[test_MOD001_dev].[test payment mode with a name of spaces in another entity still uses its own entity name]",
+    "[test_MOD001_dev].[test shared contact number with one deleted and two current contacts uses lowest current ContactId]"
+  ],
+  "migrations": [
+    {
+      "id": "MIG-0003",
+      "up_script": "src/sql/deploy/MIG-0003_MOD-001_contact-payment-rules-view.up.sql",
+      "down_script": "src/sql/deploy/MIG-0003_MOD-001_contact-payment-rules-view.down.sql",
+      "rollback_test": {
+        "commit": "4cd7a338b2c8cb9c28ee327b0c613526f484baf9",
+        "run_at": "2026-10-09T15:14:19.785205+00:00",
+        "result": "pass",
+        "steps": [
+          {
+            "step": "up applies and records 'up'",
+            "ok": true
+          },
+          {
+            "step": "second up changes nothing",
+            "ok": true
+          },
+          {
+            "step": "down restores the pre-migration schema",
+            "ok": true
+          },
+          {
+            "step": "down records 'down'",
+            "ok": true
+          },
+          {
+            "step": "second down changes nothing",
+            "ok": true
+          },
+          {
+            "step": "re-apply after rollback matches first apply",
+            "ok": true
+          }
+        ],
+        "database": "RICS_Dev"
+      }
+    }
+  ],
+  "notes": "Starting point: all 35 test_MOD001 tests failed (view missing). Now 35/35 Tester tests and 5/5 test_MOD001_dev tests pass; round-trip passes; checks pass (sqlfluff advisory only: mostly CP02 on the FO/brnz upper- and mixed-case source column names, left as the sources spell them).\n\nImplementation choices (each covered by a test_MOD001_dev test):\n- Every lookup is OUTER APPLY TOP (1) with a fixed order, so no join can multiply rows: contact = the non-deleted brnz_contact with the lowest ContactId (SQL Server uniqueidentifier ordering), as the design says; payment-mode name = the lowest CUSTPAYMMODETABLE.RECID for the legal entity and code (FO keys that table by PARTITION too, so a code can repeat); country = the lowest dim_country.id for the country_id (dim_country.country_id has no unique constraint in dev).\n- Payment date follows synapse_fo.vwCustTrans literally (DOCUMENTDATE <= '2021-08-23' as a datetime), as decided at test design sign-off: a DOCUMENTDATE of 2021-08-23 with a time of day uses TRANSDATE.\n- Blank PAYMMODE and blank NAME are spotted with NULLIF(x, N''). Because = ignores trailing spaces, this also treats space-only values as blank.\n- ISNULL is the outermost expression on the 'Unknown' fallbacks and is_corporate, so the view reports exactly the designed types and NOT NULL columns (checked with schema_lookup). Amounts are -AMOUNTCUR / -AMOUNTMST cast to decimal(32,6), with no rounding.\n- Account and contact numbers are matched under the database collation (Latin1_General_CI_AS), as the design says. contact_number shows the matched brnz_contact value.\n\nTest-first: the first run had 0 of 35 of the Tester's tests passing; the final run passed 35 of 35 and 5 unit test(s), in 3 run(s)."
+}

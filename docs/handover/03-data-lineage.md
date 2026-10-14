@@ -2,8 +2,41 @@
 
 ## Sources
 
-_Not yet documented._
+| Source | Owner | What is used |
+|---|---|---|
+| synapse_fo.CUSTTRANS | FO (external, read only) | Customer transactions: legal entity, record ID, transaction type, account number, amounts in the currency paid and accounting currency, currency code, payment mode, document and transaction dates. |
+| synapse_fo.CUSTPAYMMODETABLE | FO (external, read only) | Payment mode names, per legal entity and payment mode code. |
+| CE.tblContact_Test_Records | CRM (external, read only) | Contact numbers of test contacts, used only to leave their payments out. |
+| Layercake.brnz_contact | Existing Layercake object, loaded from CRM | Contact number, current country and deleted flag of each CRM contact. |
+| Layercake.dim_country | Existing Layercake object | Country name, region and market reporting region. |
+
+None of these sources is changed by the solution.
+<!-- evidence: docs/design/DES-001.json#Sources (external, read-only); docs/design/DES-001.json#Layercake bronze and dimensions (existing); docs/specs/SPEC-001.json#CRM; docs/design/MP-001.json#without changing them -->
 
 ## Source-to-target mappings
 
-_Not yet documented._
+### Layercake.vw_fact_contact_payment_source (MOD-001)
+
+Rows: every synapse_fo.CUSTTRANS row with transaction type 15, all legal entities and dates, cancelled payments included, except rows whose account number equals a contact number in CE.tblContact_Test_Records.
+
+| Target column | Source | Rule |
+|---|---|---|
+| legal_entity | CUSTTRANS.DATAAREAID | As recorded. |
+| fo_transaction_recid | CUSTTRANS.RECID | As recorded. |
+| account_number | CUSTTRANS.ACCOUNTNUM | As recorded. |
+| contact_number | brnz_contact.Rics_contactno | Contact number of the matched current contact (lowest contact ID where several match); empty for corporate payments. |
+| is_corporate | brnz_contact.Rics_contactno and _is_deleted | 0 when the account number matches a contact that is not deleted; otherwise 1. |
+| payment_date | CUSTTRANS.DOCUMENTDATE, TRANSDATE | Document date when on or before 2021-08-23 and not in 1900; otherwise transaction date. |
+| payment_year | payment_date | Calendar year. |
+| payment_month | payment_date | Calendar month (1 to 12). |
+| amount_paid_currency | CUSTTRANS.AMOUNTCUR | Multiplied by -1; six decimal places, no rounding (assumed, Q-023). |
+| currency_code | CUSTTRANS.CURRENCYCODE | As recorded. |
+| amount_paid_gbp | CUSTTRANS.AMOUNTMST | Multiplied by -1; six decimal places, no rounding. Taken to be GBP (assumed, Q-014). |
+| payment_method_code | CUSTTRANS.PAYMMODE | As recorded; 'Unknown' when missing or blank. |
+| payment_method | CUSTPAYMMODETABLE.NAME | Matched on payment mode code and the transaction's legal entity. 'Unknown' when there is no code; the code itself when there is no match or the name is missing or blank. |
+| country_name | dim_country.country_name | Matched contact's current country (brnz_contact.rics_countryid to dim_country.country_id); 'Unknown' for corporate payments, contacts with no country, or no match. |
+| region_name | dim_country.region_name | Same lookup; 'Unknown' wherever country_name is 'Unknown' (assumed, Q-022). |
+| market_reporting_region | dim_country.market_reporting_region | Same lookup; 'Unknown' wherever country_name is 'Unknown' (assumed, Q-022). |
+
+The approved specification maps these columns to the reporting table Layercake.fact_contact_payment, which takes them from this view (MOD-002).
+<!-- evidence: docs/specs/SPEC-001.json#REQ-001; docs/specs/SPEC-001.json#RULE-005; docs/specs/SPEC-001.json#RULE-006; docs/specs/SPEC-001.json#RULE-007; docs/specs/SPEC-001.json#RULE-008; docs/specs/SPEC-001.json#Layercake.fact_contact_payment.payment_date; docs/specs/SPEC-001.json#Layercake.brnz_contact._is_deleted; docs/design/DES-001.json#rics_countryid; docs/design/DES-001.json#lowest ContactId; docs/design/DES-001.json#Q-022; docs/design/DES-001.json#Q-023; docs/design/MP-001.json#MOD-002 -->
