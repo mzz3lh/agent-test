@@ -1,0 +1,234 @@
+{
+  "meta": {
+    "artefact_type": "test_conditions",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "TCS-MOD-002",
+    "version": 1,
+    "produced_by": "tester",
+    "produced_at": "2026-10-14T09:54:09Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/MP-001.json",
+      "docs/design/DES-001.json"
+    ]
+  },
+  "module_id": "MOD-002",
+  "designed_from": [
+    "docs/specs/SPEC-001.json",
+    "docs/design/MP-001.json",
+    "docs/design/DES-001.json"
+  ],
+  "conditions": [
+    {
+      "id": "TC-002-001",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-01",
+      "category": "happy_path",
+      "description": "The load persists the rules view output in Layercake.fact_contact_payment: a contact payment and a corporate payment, with every business column, the passed @run_id and audit timestamps.",
+      "preconditions": "SetUp fakes synapse_fo.CUSTTRANS, synapse_fo.CUSTPAYMMODETABLE, CE.tblContact_Test_Records, Layercake.brnz_contact, Layercake.dim_country, Layercake.etl_run_log (with identity and defaults, so started_at and status get their table defaults), audit.LoadLog, audit.ErrorLog and inserts: dim_country France/Europe/EMEA and Germany/Central Europe/DACH; brnz_contact C100001 (France, not deleted); CUSTPAYMMODETABLE gb01 DD 'Direct Debit'; test record T900001. Test fakes the target and adds CUSTTRANS gb01 RECID 5001 C100001 TRANSTYPE 15 AMOUNTCUR -100.00 EUR AMOUNTMST -85.00 DOCUMENTDATE NULL TRANSDATE 2024-03-31 PAYMMODE DD, and gb01 RECID 5002 ACME01 -1200.00/-1200.00 GBP DOCUMENTDATE 2019-06-15 TRANSDATE 2019-06-20 PAYMMODE CHQ. Load called with @run_id A0000000-0000-0000-0000-000000000001.",
+      "expected": "Two rows: (gb01, 5001, 'C100001', 'C100001', 0, 2024-03-31, 2024, 3, 100.000000, 'EUR', 85.000000, 'DD', 'Direct Debit', 'France', 'Europe', 'EMEA', run_id A0000000-...-0001) and (gb01, 5002, 'ACME01', NULL, 1, 2019-06-15, 2019, 6, 1200.000000, 'GBP', 1200.000000, 'CHQ', 'CHQ', 'Unknown', 'Unknown', 'Unknown', same run_id). created_at and updated_at are not null on every row.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-001 load persists contact and corporate payments with all columns and the passed run_id]"
+    },
+    {
+      "id": "TC-002-002",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-01",
+      "category": "happy_path",
+      "description": "Layercake.fact_contact_payment has exactly the designed columns, and every column name matches ^[a-z][a-z0-9_]*$ (compared case-sensitively).",
+      "preconditions": "Target faked (keeps its column names). The read grant for the reporting role is a script for a human to run and is not tested here.",
+      "expected": "Columns are exactly: legal_entity, fo_transaction_recid, account_number, contact_number, is_corporate, payment_date, payment_year, payment_month, amount_paid_currency, currency_code, amount_paid_gbp, payment_method_code, payment_method, country_name, region_name, market_reporting_region, run_id, created_at, updated_at; 0 column names fail the lower snake case pattern under a binary collation.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-002 dataset table has the designed columns all named in lower snake case]"
+    },
+    {
+      "id": "TC-002-003",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-02",
+      "category": "happy_path",
+      "description": "A TRANSTYPE 15 row for a non-test account added to CUSTTRANS after a load appears in the dataset after the next load.",
+      "preconditions": "SetUp rows as TC-002-001. Load 1 with CUSTTRANS gb01 11001 C100001 -100.00/-100.00 GBP; then gb01 11002 ACME01 -75.50/-75.50 GBP is added and load 2 runs. The load is called directly; the call from Layercake.usp_load_gold (Q-024) is tested by TC-002-016.",
+      "expected": "Dataset holds (gb01, 11001, 'C100001', 100.000000) and (gb01, 11002, 'ACME01', 75.500000).",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-003 payment added to CUSTTRANS after a load appears on the next load]"
+    },
+    {
+      "id": "TC-002-004",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-02",
+      "category": "happy_path",
+      "description": "Full rebuild: an FO correction to a payment already loaded is restated on the next load.",
+      "preconditions": "SetUp rows as TC-002-001. Load 1 with gb01 12101 C100001 -100.00/-100.00 GBP; CUSTTRANS row is then changed to -110.00/-110.00 and load 2 runs.",
+      "expected": "One row (gb01, 12101) with amount_paid_currency 110.000000 and amount_paid_gbp 110.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-004 FO correction to an already loaded payment is restated on the next load]"
+    },
+    {
+      "id": "TC-002-005",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-02",
+      "category": "negative",
+      "description": "Full rebuild: a payment removed from FO after a load is no longer in the dataset after the next load.",
+      "preconditions": "SetUp rows as TC-002-001. Load 1 with gb01 12001 C100001 and gb01 12002 ACME01; 12002 is deleted from CUSTTRANS and load 2 runs.",
+      "expected": "Only (gb01, 12001) remains.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-005 payment removed from CUSTTRANS disappears from the dataset on the next load]"
+    },
+    {
+      "id": "TC-002-006",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-02",
+      "category": "boundary",
+      "description": "When the view returns no rows, the load replaces the dataset's content with nothing: previous rows are removed.",
+      "preconditions": "SetUp rows as TC-002-001. Target holds a stale row (gb01, 99001). CUSTTRANS holds only gb01 99002 on test account T900001 (out of scope).",
+      "expected": "Layercake.fact_contact_payment is empty after the load.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-006 load with no in-scope source rows leaves the dataset empty]"
+    },
+    {
+      "id": "TC-002-007",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-03",
+      "category": "idempotency",
+      "description": "Running the load twice with unchanged sources leaves per-legal-entity row count and amount totals unchanged.",
+      "preconditions": "SetUp rows as TC-002-001. CUSTTRANS: gb01 7001 C100001 -100.00 EUR/-85.00; gb01 7002 ACME01 -250.00/-250.00 GBP; gb01 7003 C100001 +30.00/+30.00 GBP; us01 7004 C100001 -200.00 USD/-160.00; us01 7005 ACME02 -40.00 USD/-32.00. Loaded twice with different run_ids.",
+      "expected": "After the second run the per-legal-entity figures equal those after the first run and are: gb01 3 rows, amount_paid_currency 320.000000, amount_paid_gbp 305.000000; us01 2 rows, 240.000000, 192.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-007 second load with unchanged sources leaves row counts and totals per legal entity unchanged]"
+    },
+    {
+      "id": "TC-002-008",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-03",
+      "category": "duplicates",
+      "description": "A rerun does not add rows: each payment appears once, and every row carries the run_id of the run that last wrote it.",
+      "preconditions": "SetUp rows as TC-002-001. CUSTTRANS gb01 8101 C100001 and us01 8102 ACME02. Loaded with run_id ...0081 then ...0082.",
+      "expected": "Exactly (gb01, 8101, run_id A0000000-0000-0000-0000-000000000082) and (us01, 8102, same run_id).",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-008 rerun keeps one row per payment, all stamped with the latest run_id]"
+    },
+    {
+      "id": "TC-002-009",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-04",
+      "category": "happy_path",
+      "description": "A successful run logs through usp_etl_log_start and usp_etl_log_end under its @run_id: an ended Layercake.etl_run_log entry with started_at, finished_at and the rows deleted and inserted.",
+      "preconditions": "SetUp rows as TC-002-001; etl_run_log faked with identity and defaults. Target holds 2 stale rows; CUSTTRANS holds 3 in-scope rows (gb01 9201, gb01 9202, us01 9203). Load runs with @run_id ...0091. Layercake.usp_etl_log_end writes 'Success' or 'Failed' (existing Layercake convention, confirmed from the Phase 1 code). layer and step_name are not asserted.",
+      "expected": "Exactly one etl_run_log row for run_id A0000000-0000-0000-0000-000000000091 with finished_at not null: status 'Success', started_at not null, rows_inserted 3, rows_deleted 2.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-009 successful load logs an ended etl_run_log entry under its run_id with rows deleted and inserted]"
+    },
+    {
+      "id": "TC-002-010",
+      "requirement_ids": [
+        "REQ-007",
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-007-04",
+      "category": "negative",
+      "description": "Error path: a source holding the same legal entity and RECID twice makes the load fail on the primary key. The error is re-raised to the caller, written to audit.ErrorLog, and the run is ended in etl_run_log as failed. The previous dataset content stays in place.",
+      "preconditions": "Runs without a tSQLt transaction. SetUp rows as TC-002-001; target faked and its primary key reapplied. Run 1 (...0101) loads gb01 6001 successfully. Then CUSTTRANS gets gb01 RECID 6002 twice and run 2 (...0102) is called.",
+      "expected": "The caller receives error 2627. audit.ErrorLog has 1 row with ErrorNumber 2627. etl_run_log has an ended row (finished_at not null) for run ...0101 with status 'Success' and one for run ...0102 with status 'Failed'. The target equals its snapshot after run 1 (only gb01 6001).",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-010 failing load re-raises, logs the error and a failed run, and leaves the previous dataset in place]"
+    },
+    {
+      "id": "TC-002-011",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "acceptance_criterion_id": "AC-006-05",
+      "category": "happy_path",
+      "description": "When contact C100001 moves from France to Germany in brnz_contact, the next load restates all of the contact's payments, including those dated before the change.",
+      "preconditions": "SetUp rows as TC-002-001. CUSTTRANS gb01 10001 C100001 (payment_date 2019-06-15) and gb01 10002 C100001 (2024-03-31). Load 1, then C100001's rics_countryid is set to Germany, then load 2.",
+      "expected": "Both rows show country_name 'Germany', region_name 'Central Europe' and market_reporting_region 'DACH' (10001 with payment_date 2019-06-15, 10002 with 2024-03-31).",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-011 country change in brnz_contact restates every payment of the contact on the next load]"
+    },
+    {
+      "id": "TC-002-012",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-01",
+      "category": "reconciliation",
+      "description": "Per-legal-entity row count and GBP total reconcile to FO TRANSTYPE 15 rows not on test accounts, with the sign reversed.",
+      "preconditions": "assumes Q-014: AMOUNTMST is GBP. SetUp rows as TC-002-001. gb01 CUSTTRANS: 8001 C100001 AMOUNTMST -100.00; 8002 C100001 -50.00; 8003 ACME01 (corporate) +30.00; 8004 T900001 (test account) -999.00.",
+      "expected": "gb01 has 3 rows with total amount_paid_gbp 120.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-012 gb01 dataset holds 3 rows totalling 120.00 GBP with the test account excluded]"
+    },
+    {
+      "id": "TC-002-013",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-01",
+      "category": "nulls",
+      "description": "No source row is rejected: a payment with null account, amounts, currency, dates and payment mode is loaded with nulls carried through, so counts still match FO.",
+      "preconditions": "SetUp rows as TC-002-001. CUSTTRANS gb01 13001 TRANSTYPE 15 with ACCOUNTNUM, AMOUNTCUR, AMOUNTMST, CURRENCYCODE, DOCUMENTDATE, TRANSDATE, PAYMMODE and CANCELLEDPAYMENT all NULL.",
+      "expected": "One row: (gb01, 13001, account_number NULL, contact_number NULL, is_corporate 1, payment_date NULL, payment_year NULL, payment_month NULL, amount_paid_currency NULL, currency_code NULL, amount_paid_gbp NULL, payment_method_code 'Unknown', payment_method 'Unknown', country/region/market 'Unknown').",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-013 payment with null account, amounts, currency and dates is loaded, not rejected]"
+    },
+    {
+      "id": "TC-002-014",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-02",
+      "category": "reconciliation",
+      "description": "Per legal entity and currency, the sum of amount_paid_currency equals -1 times the FO AMOUNTCUR sum for TRANSTYPE 15 rows not on test accounts.",
+      "preconditions": "SetUp rows as TC-002-001. CUSTTRANS: us01 USD 9001 -200.00, 9002 -40.00, 9005 on test account T900001 -999.00; gb01 EUR 9003 -100.00; gb01 GBP 9004 -250.00.",
+      "expected": "us01/USD 240.000000; gb01/EUR 100.000000; gb01/GBP 250.000000.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-014 amount_paid_currency totals per legal entity and currency equal minus the FO AMOUNTCUR totals]"
+    },
+    {
+      "id": "TC-002-015",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-02",
+      "category": "boundary",
+      "description": "Amounts keep FO's six decimal places with no rounding (Q-023, decided at spec sign-off), so totals reconcile exactly.",
+      "preconditions": "SetUp rows as TC-002-001. CUSTTRANS gb01 9101 AMOUNTCUR -12.345678 EUR, AMOUNTMST -10.987654; gb01 9102 AMOUNTCUR -0.000001, AMOUNTMST -0.000001 GBP.",
+      "expected": "9101: amount_paid_currency 12.345678, amount_paid_gbp 10.987654; 9102: 0.000001 and 0.000001.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-015 amounts keep six decimal places without rounding]"
+    },
+    {
+      "id": "TC-002-016",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "acceptance_criterion_id": "AC-007-02",
+      "category": "happy_path",
+      "description": "The existing Layercake load runs the payment load: Layercake.usp_load_gold calls Layercake.usp_load_fact_contact_payment once, with its own @run_id, after every dimension load (Q-024), and still runs its nine dimension loads.",
+      "preconditions": "Every step usp_load_gold calls today (the nine usp_load_dim_* procedures, usp_load_fact_membership_events, usp_load_fact_daily_member_count_detail and usp_load_fact_annual_rate_base) and usp_load_fact_contact_payment are spied, each recording its call in order. usp_load_gold is called with @run_id A0000000-0000-0000-0000-000000000161.",
+      "expected": "usp_load_fact_contact_payment is called exactly once, with @run_id A0000000-0000-0000-0000-000000000161, after the last dimension load; all nine dimension loads are called.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD002].[test TC-002-016 usp_load_gold runs the payment load once with its run_id after every dimension load]"
+    }
+  ]
+}
