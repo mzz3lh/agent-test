@@ -10,8 +10,8 @@
 | Layercake.brnz_contact | Existing Layercake object, loaded from CRM | Contact number, current country and deleted flag of each CRM contact. |
 | Layercake.dim_country | Existing Layercake object | Country name, region and market reporting region. |
 
-None of these sources is changed by the solution.
-<!-- evidence: docs/design/DES-001.json#Sources (external, read-only); docs/design/DES-001.json#Layercake bronze and dimensions (existing); docs/specs/SPEC-001.json#CRM; docs/design/MP-001.json#without changing them -->
+None of these sources is changed by the solution. The rules view reads all five. The reconciliation view reads synapse_fo.CUSTTRANS and CE.tblContact_Test_Records directly, next to the reporting table.
+<!-- evidence: docs/design/DES-001.json#Sources (external, read-only); docs/design/DES-001.json#Layercake bronze and dimensions (existing); docs/specs/SPEC-001.json#CRM; docs/design/MP-001.json#without changing them; docs/design/MP-001.json#The FO side is computed directly from synapse_fo.CUSTTRANS -->
 
 ## Source-to-target mappings
 
@@ -50,3 +50,17 @@ Rows: on every run, exactly the rows the rules view returns at that moment, one 
 | created_at | The load run | One UTC time for every row written by the run. |
 | updated_at | The load run | Same value as created_at. |
 <!-- evidence: docs/design/DES-001.json#Layercake.fact_contact_payment; docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment; docs/design/DES-001.json#Equals created_at under a full rebuild; docs/dev/CN-MOD-002.json#stamping @run_id; docs/dev/CN-MOD-002.json#generates a run id when called standalone; docs/test/TCS-MOD-002.json#TC-002-001; docs/test/TCS-MOD-002.json#TC-002-004; docs/test/TCS-MOD-002.json#TC-002-005; docs/test/TCS-MOD-002.json#TC-002-011; docs/specs/SPEC-001.json#AC-006-05 -->
+
+### Layercake.vw_contact_payment_reconciliation (MOD-003)
+
+Rows: one per legal entity found in the reporting table or among the in-scope FO transactions. In-scope FO transactions are synapse_fo.CUSTTRANS rows with transaction type 15, all dates, cancelled payments included, except rows whose account number equals a contact number in CE.tblContact_Test_Records. These are worked out here directly, not taken from the rules view.
+
+| Target column | Source | Rule |
+|---|---|---|
+| legal_entity | fact_contact_payment.legal_entity and CUSTTRANS.DATAAREAID | The legal entity from either side; codes differing only in case count as one. |
+| dataset_row_count | Layercake.fact_contact_payment | Number of rows for the legal entity; 0 when there are none. |
+| dataset_amount_paid_gbp | fact_contact_payment.amount_paid_gbp | Total for the legal entity, six decimal places, no rounding; missing amounts add nothing; 0 when there are no rows. |
+| fo_row_count | synapse_fo.CUSTTRANS | Number of in-scope transactions for the legal entity, including any with no account number; 0 when there are none. |
+| fo_amount_paid_gbp | CUSTTRANS.AMOUNTMST | Total for the legal entity multiplied by -1; six decimal places, no rounding (assumed, Q-023); missing amounts add nothing; 0 when there are none. Taken to be GBP (assumed, Q-014). |
+| is_reconciled | The four figures above | 1 when dataset_row_count equals fo_row_count and dataset_amount_paid_gbp equals fo_amount_paid_gbp; otherwise 0. |
+<!-- evidence: docs/design/MP-001.json#MOD-003; docs/design/DES-001.json#One row per legal entity found on either side; docs/design/DES-001.json#decimal(38,6); docs/specs/SPEC-001.json#AC-008-03; docs/dev/CN-MOD-003.json#FULL OUTER JOINs; docs/dev/CN-MOD-003.json#cancelled payments kept; docs/dev/CN-MOD-003.json#Rows with a NULL ACCOUNTNUM are counted; docs/dev/CN-MOD-003.json#The total is -1 * SUM(AMOUNTMST); docs/dev/CN-MOD-003.json#SUM ignores NULL amounts; docs/dev/CN-MOD-003.json#case-insensitive collation; docs/dev/CN-MOD-003.json#is_reconciled is 1 only when both counts and both totals are equal; docs/test/TCS-MOD-003.json#TC-003-001; docs/test/TCS-MOD-003.json#TC-003-002; docs/test/TCS-MOD-003.json#TC-003-008 -->

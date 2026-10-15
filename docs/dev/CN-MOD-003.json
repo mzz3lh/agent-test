@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "artefact_type": "change_note",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "CN-MOD-003",
+    "version": 1,
+    "produced_by": "developer",
+    "produced_at": "2026-10-15T16:35:01Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/DES-001.json",
+      "docs/design/MP-001.json",
+      "docs/test/TCS-MOD-003.json",
+      "tests/tsqlt/test_MOD003.sql"
+    ]
+  },
+  "module_id": "MOD-003",
+  "branch": "agent/developer/MOD-003-per-legal-entity-reconciliation-view",
+  "commit": "0e56f64c92b63cacd10c4dce128d9d11facfe656",
+  "requirement_ids": [
+    "REQ-008"
+  ],
+  "objects_changed": [
+    {
+      "path": "src/sql/Layercake/Views/Layercake.vw_contact_payment_reconciliation.sql",
+      "object": "Layercake.vw_contact_payment_reconciliation",
+      "change": "added",
+      "requirement_ids": [
+        "REQ-008"
+      ]
+    }
+  ],
+  "unit_tests": [
+    "[test_MOD003_dev].[test entity whose amounts are all null on both sides shows 0 totals and reconciles]",
+    "[test_MOD003_dev].[test entity with only out-of-scope FO rows and no dataset rows does not appear]",
+    "[test_MOD003_dev].[test every column of the view is reported not null]"
+  ],
+  "migrations": [
+    {
+      "id": "MIG-0005",
+      "up_script": "src/sql/deploy/MIG-0005_MOD-003_per-legal-entity-reconciliation-view.up.sql",
+      "down_script": "src/sql/deploy/MIG-0005_MOD-003_per-legal-entity-reconciliation-view.down.sql",
+      "rollback_test": {
+        "commit": "0e56f64c92b63cacd10c4dce128d9d11facfe656",
+        "run_at": "2026-10-15T16:34:56.875159+00:00",
+        "result": "pass",
+        "steps": [
+          {
+            "step": "up applies and records 'up'",
+            "ok": true
+          },
+          {
+            "step": "second up changes nothing",
+            "ok": true
+          },
+          {
+            "step": "down restores the pre-migration schema",
+            "ok": true
+          },
+          {
+            "step": "down records 'down'",
+            "ok": true
+          },
+          {
+            "step": "second down changes nothing",
+            "ok": true
+          },
+          {
+            "step": "re-apply after rollback matches first apply",
+            "ok": true
+          }
+        ],
+        "database": "RICS_Dev"
+      }
+    }
+  ],
+  "deviations": [
+    "Read grant not scripted as a file, as in MOD-002: the reporting role's name is not recorded in the repo, and the Developer tools cannot write a standalone grant script. Assumption: the grant goes in the notes for a human to run, with a placeholder role name: GRANT SELECT ON Layercake.vw_contact_payment_reconciliation TO [<reporting_role>]; where <reporting_role> is the role the reporting tool already uses to read Layercake. Readers rely on the dbo ownership chain to synapse_fo.CUSTTRANS and CE.tblContact_Test_Records (DES-001 security).",
+    "New view uses upper-case keywords (base standard), as the MOD-001 and MOD-002 objects do; no project keyword-case override is recorded."
+  ],
+  "notes": "Object: Layercake.vw_contact_payment_reconciliation (new). It aggregates each side per legal entity, then FULL OUTER JOINs them so an entity on one side only still shows, with the other side 0.\n- FO side: read directly from synapse_fo.CUSTTRANS with TRANSTYPE 15, cancelled payments kept. Test accounts are excluded with NOT EXISTS against CE.tblContact_Test_Records, so a NULL apuk_contactnumber does not drop rows and duplicate test records do not multiply them. Rows with a NULL ACCOUNTNUM are counted. The total is -1 * SUM(AMOUNTMST).\n- Dataset side: read from Layercake.fact_contact_payment.\n- Totals are decimal(38,6) and compared exactly, with no rounding (Q-023). SUM ignores NULL amounts, so an entity whose amounts are all NULL shows 0 on that side.\n- is_reconciled is 1 only when both counts and both totals are equal.\n- Every column is NOT NULL, as designed: ISNULL is the outermost expression.\n- Under the case-insensitive collation, legal entities that differ only in case are grouped and joined as one entity, which matches the table's primary key.\n\nTests: the Tester's suite went from 0 of 10 passing (the view did not exist) to 10 of 10. Dev unit tests (3): all-NULL amounts reconcile at 0; an entity with only out-of-scope FO rows does not appear; every view column is reported NOT NULL. Round-trip passes and the checks pass. The sqlfluff findings are advisory, mostly identifier case on the FO upper-case columns.\n\nGrant for a human to run once the role name is confirmed: GRANT SELECT ON Layercake.vw_contact_payment_reconciliation TO [<reporting_role>];\n\nPerformance: the view reads FO directly and is meant for occasional checks (DES-001 performance).\n\nTest-first: the first run had 0 of 10 of the Tester's tests passing; the final run passed 10 of 10 and 3 unit test(s), in 3 run(s)."
+}
