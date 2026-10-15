@@ -8,9 +8,10 @@
 | Layercake.fact_contact_payment | Table | MOD-002 | The reporting table that report users read. Its whole content is replaced on every load run. |
 | Layercake.usp_load_fact_contact_payment | Load procedure | MOD-002 | Rebuilds the reporting table in full from the rules view, in one transaction, and logs the run. |
 | Layercake.usp_load_gold | Existing load step (changed) | MOD-002 | Calls the payment load as its last step. |
+| Layercake.vw_contact_payment_reconciliation | View | MOD-003 | Compares the reporting table with FO for each legal entity each time it is read. It has no load of its own and keeps no data. |
 
-Load order: the payment load runs as the last step of the existing Layercake gold load, after all of its dimension loads and its three existing fact loads. It reads the Layercake contact data (brnz_contact) and the country dimension (dim_country) through the rules view, so it runs after they have been loaded in the same Layercake run. The reconciliation view (MOD-003) will be added to this runbook when it is delivered.
-<!-- evidence: docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source; docs/design/DES-001.json#is the only input to the load procedure; docs/design/DES-001.json#Layercake.fact_contact_payment; docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment; docs/design/DES-001.json#Scheduling (Q-024); docs/dev/CN-MOD-002.json#after the three existing facts and so after every dimension step; docs/test/TCS-MOD-002.json#TC-002-016; docs/design/MP-001.json#MOD-003 -->
+Load order: the payment load runs as the last step of the existing Layercake gold load, after all of its dimension loads and its three existing fact loads. It reads the Layercake contact data (brnz_contact) and the country dimension (dim_country) through the rules view, so it runs after they have been loaded in the same Layercake run. The reconciliation view is not part of the load: it reads the reporting table as the latest payment load left it, and FO directly, whenever it is queried.
+<!-- evidence: docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source; docs/design/DES-001.json#is the only input to the load procedure; docs/design/DES-001.json#Layercake.fact_contact_payment; docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment; docs/design/DES-001.json#Scheduling (Q-024); docs/design/DES-001.json#Layercake.vw_contact_payment_reconciliation; docs/dev/CN-MOD-002.json#after the three existing facts and so after every dimension step; docs/test/TCS-MOD-002.json#TC-002-016; docs/design/MP-001.json#MOD-003; docs/dev/CN-MOD-003.json#Dataset side: read from Layercake.fact_contact_payment -->
 
 ## Scheduling
 
@@ -33,6 +34,15 @@ Each payment load run writes one entry in the existing Layercake run log, Layerc
 
 Errors are also recorded in the error log, audit.ErrorLog (see Error handling).
 <!-- evidence: docs/design/DES-001.json#Load logging; docs/specs/SPEC-001.json#AC-007-04; docs/dev/CN-MOD-002.json#layer 'gold', step 'fact_contact_payment'; docs/dev/CN-MOD-002.json#The log start entry is written before the transaction; docs/dev/CN-MOD-002.json#inserted = rows inserted, updated = 0 and deleted = previous rows; docs/dev/CN-MOD-002.json#counts 0/0/0; docs/test/TCS-MOD-002.json#TC-002-009; docs/test/TCS-MOD-002.json#TC-002-010 -->
+
+### Checking the dataset against FO
+
+The business and support staff can check the dataset against FO at any time, including in production, by reading the reconciliation view, Layercake.vw_contact_payment_reconciliation, from the reporting tool once read access has been granted (see Access for report users). It lists each legal entity with the dataset's row count and GBP total next to the FO figures. is_reconciled shows 1 where both counts and both totals agree and 0 where they do not. A legal entity with payments on one side only still appears, with 0 for the other side. See the Data model in the Architecture document for each column.
+
+This check is also how the GBP working assumption (Q-014) is to be confirmed on real data (see Known limitations).
+
+The view reads the full FO payment history every time it is queried, so it is meant for occasional checks rather than for use in every report.
+<!-- evidence: docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#including on production after go-live; docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#run occasionally; docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#Q-014; docs/design/DES-001.json#Layercake.vw_contact_payment_reconciliation; docs/dev/CN-MOD-003.json#is_reconciled is 1 only when both counts and both totals are equal; docs/dev/CN-MOD-003.json#meant for occasional checks; docs/test/TCS-MOD-003.json#TC-003-005; docs/test/TCS-MOD-003.json#TC-003-006 -->
 
 ## Error handling
 
@@ -61,9 +71,9 @@ Each module is deployed by a migration: an up script that applies it and a down 
 - Each script checks first whether the migration is already applied, so running it a second time changes nothing.
 - Each script runs in one transaction and stops on the first error, so a failed deployment leaves nothing half-applied and can be run again once the cause is fixed.
 - Every up and down run is recorded in the migration history (etl.MigrationHistory); etl.vw_MigrationState shows whether each migration is currently applied and etl.vw_DatabaseVersion shows the database's version.
-- A down script runs only in reverse order: it refuses while a later migration is applied. Migrations are therefore rolled back newest first (MIG-0004 before MIG-0003).
+- A down script runs only in reverse order: it refuses while a later migration is applied. Migrations are therefore rolled back newest first (MIG-0005, then MIG-0004, then MIG-0003).
 - A down script does not silently destroy data: a table that holds rows is renamed rather than dropped.
-<!-- evidence: BASE_STANDARDS.md#Idempotent; BASE_STANDARDS.md#Transactional; BASE_STANDARDS.md#etl.MigrationHistory; BASE_STANDARDS.md#Rollback for every deployment; BASE_STANDARDS.md#never silently destroys data; docs/dev/CN-MOD-001.json#MIG-0003; docs/dev/CN-MOD-002.json#MIG-0004 -->
+<!-- evidence: BASE_STANDARDS.md#Idempotent; BASE_STANDARDS.md#Transactional; BASE_STANDARDS.md#etl.MigrationHistory; BASE_STANDARDS.md#Rollback for every deployment; BASE_STANDARDS.md#never silently destroys data; docs/dev/CN-MOD-001.json#MIG-0003; docs/dev/CN-MOD-002.json#MIG-0004; docs/dev/CN-MOD-003.json#MIG-0005 -->
 
 ### MOD-001: migration MIG-0003
 
@@ -89,12 +99,24 @@ The reporting table, its load procedure and the change to the existing gold load
 The rollback was tested on the development database (RICS_Dev) on 2026-10-15 and passed every step: the up script applied and recorded itself; a second up changed nothing; the down script restored the schema to its state before the migration and recorded itself; a second down changed nothing; and re-applying after the rollback gave the same result as the first apply.
 <!-- evidence: docs/dev/CN-MOD-002.json#MIG-0004; docs/dev/CN-MOD-002.json#rollback_test; docs/dev/CN-MOD-002.json#RICS_Dev; docs/dev/CN-MOD-002.json#Its down script restores the previous definition; docs/design/MP-001.json#with a down script that restores it -->
 
+### MOD-003: migration MIG-0005
+
+The reconciliation view is deployed by migration MIG-0005 (per-legal-entity reconciliation view): the up script adds the view and the down script returns the schema to its state before the migration.
+
+| Script | Path |
+|---|---|
+| Up | src/sql/deploy/MIG-0005_MOD-003_per-legal-entity-reconciliation-view.up.sql |
+| Down | src/sql/deploy/MIG-0005_MOD-003_per-legal-entity-reconciliation-view.down.sql |
+
+The rollback was tested on the development database (RICS_Dev) on 2026-10-15 and passed every step: the up script applied and recorded itself; a second up changed nothing; the down script restored the schema to its state before the migration and recorded itself; a second down changed nothing; and re-applying after the rollback gave the same result as the first apply.
+<!-- evidence: docs/dev/CN-MOD-003.json#MIG-0005; docs/dev/CN-MOD-003.json#rollback_test; docs/dev/CN-MOD-003.json#RICS_Dev; docs/dev/CN-MOD-003.json#down restores the pre-migration schema -->
+
 ### Access for report users
 
-Read access to the reporting table is not part of the migration. A person reviews and runs the grant separately: read access on Layercake.fact_contact_payment for the role the reporting tool uses. It is to be run once that role's name is confirmed (see Known limitations). Report users are given no access to the rules view.
-<!-- evidence: docs/design/DES-001.json#a human reviews and runs them; docs/dev/CN-MOD-002.json#Read grant not scripted as a file; docs/dev/CN-MOD-002.json#No grant on the rules view; docs/test/TCS-MOD-002.json#The read grant for the reporting role is a script for a human to run -->
+Read access is not part of the migrations. A person reviews and runs the grants separately, for the role the reporting tool uses: read access on the reporting table, Layercake.fact_contact_payment, and on the reconciliation view, Layercake.vw_contact_payment_reconciliation. They are to be run once that role's name is confirmed (see Known limitations). Report users need read access on the reconciliation view only, not on the FO and CRM sources it reads. Report users are given no access to the rules view.
+<!-- evidence: docs/design/DES-001.json#a human reviews and runs them; docs/dev/CN-MOD-002.json#Read grant not scripted as a file; docs/dev/CN-MOD-002.json#No grant on the rules view; docs/dev/CN-MOD-003.json#Read grant not scripted as a file; docs/dev/CN-MOD-003.json#ownership chain; docs/test/TCS-MOD-002.json#The read grant for the reporting role is a script for a human to run -->
 
 ### Environments
 
-Which environments MIG-0003 and MIG-0004 are deployed to, and who runs the deployment there, is still to be confirmed.
-<!-- evidence: docs/dev/CN-MOD-001.json#MIG-0003; docs/dev/CN-MOD-002.json#MIG-0004 -->
+Which environments MIG-0003, MIG-0004 and MIG-0005 are deployed to, and who runs the deployment there, is still to be confirmed.
+<!-- evidence: docs/dev/CN-MOD-001.json#MIG-0003; docs/dev/CN-MOD-002.json#MIG-0004; docs/dev/CN-MOD-003.json#MIG-0005 -->
