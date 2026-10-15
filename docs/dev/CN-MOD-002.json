@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "artefact_type": "change_note",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "CN-MOD-002",
+    "version": 1,
+    "produced_by": "developer",
+    "produced_at": "2026-10-15T14:03:51Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/DES-001.json",
+      "docs/design/MP-001.json",
+      "docs/test/TCS-MOD-002.json",
+      "tests/tsqlt/test_MOD002.sql"
+    ]
+  },
+  "module_id": "MOD-002",
+  "branch": "agent/developer/MOD-002-contact-payment-table-full-rebuild-load",
+  "commit": "c5461d8a0d1c456734993f52b51fdf744f5a716e",
+  "requirement_ids": [
+    "REQ-006",
+    "REQ-007",
+    "REQ-008"
+  ],
+  "objects_changed": [
+    {
+      "path": "src/sql/Layercake/Tables/Layercake.fact_contact_payment.sql",
+      "object": "Layercake.fact_contact_payment",
+      "change": "added",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "path": "src/sql/Layercake/Procedures/Layercake.usp_load_fact_contact_payment.sql",
+      "object": "Layercake.usp_load_fact_contact_payment",
+      "change": "added",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "path": "src/sql/Layercake/Procedures/Layercake.usp_load_gold.sql",
+      "object": "Layercake.usp_load_gold",
+      "change": "added",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    }
+  ],
+  "unit_tests": [
+    "[test_MOD002_dev].[test every row of a run gets one shared stamp with created_at equal to updated_at]",
+    "[test_MOD002_dev].[test failed load logs zero counts, the error text, an ErrorLog row without LoadId and keeps the target]",
+    "[test_MOD002_dev].[test load called without run_id generates one and logs under it]",
+    "[test_MOD002_dev].[test load logs layer gold, its step name and counts inserted 2, updated 0, deleted 1]",
+    "[test_MOD002_dev].[test usp_load_gold runs the payment load last, after the existing facts]"
+  ],
+  "migrations": [
+    {
+      "id": "MIG-0004",
+      "up_script": "src/sql/deploy/MIG-0004_MOD-002_contact-payment-table-full-rebuild-load.up.sql",
+      "down_script": "src/sql/deploy/MIG-0004_MOD-002_contact-payment-table-full-rebuild-load.down.sql",
+      "rollback_test": {
+        "commit": "c5461d8a0d1c456734993f52b51fdf744f5a716e",
+        "run_at": "2026-10-15T14:03:44.691371+00:00",
+        "result": "pass",
+        "steps": [
+          {
+            "step": "up applies and records 'up'",
+            "ok": true
+          },
+          {
+            "step": "second up changes nothing",
+            "ok": true
+          },
+          {
+            "step": "down restores the pre-migration schema",
+            "ok": true
+          },
+          {
+            "step": "down records 'down'",
+            "ok": true
+          },
+          {
+            "step": "second down changes nothing",
+            "ok": true
+          },
+          {
+            "step": "re-apply after rollback matches first apply",
+            "ok": true
+          }
+        ],
+        "database": "RICS_Dev"
+      }
+    }
+  ],
+  "deviations": [
+    "Read grant not scripted as a file: the reporting role's name is not recorded anywhere in the repo, and the Developer tools cannot write a standalone grant script. Asked the human (answer deferred). Assumption: the grant goes in the notes for a human to run, with a placeholder role name: GRANT SELECT ON Layercake.fact_contact_payment TO [<reporting_role>]; with <reporting_role> being the role the reporting tool already uses to read the Layercake fact tables. No grant on the rules view; EXECUTE on the load only for the identity that runs the Layercake schedule (DES-001 security).",
+    "Load logging follows the project override (Layercake.usp_etl_log_start and usp_etl_log_end, layer 'gold', step 'fact_contact_payment', status 'Success' or 'Failed') rather than audit.usp_StartLoad and usp_EndLoad. Errors also go to audit.ErrorLog through audit.usp_LogError, as DES-001 requires. LoadId is NULL there because audit.ErrorLog.LoadId references audit.LoadLog, which Layercake loads do not write.",
+    "New objects use upper-case keywords (base standard); no project keyword-case override is recorded. The change to the existing Layercake.usp_load_gold keeps that file's lower-case style.",
+    "Layercake.usp_load_fact_contact_payment keeps the Layercake convention @run_id uniqueidentifier = NULL and generates a run id when called standalone, like every other Layercake load."
+  ],
+  "notes": "Objects:\n- Layercake.fact_contact_payment: the designed columns, clustered PK_Layercake_fact_contact_payment (legal_entity, fo_transaction_recid), no defaults or FKs.\n- Layercake.usp_load_fact_contact_payment: full rebuild in one transaction. It runs DELETE and then INSERT from Layercake.vw_fact_contact_payment_source, stamping @run_id and one SYSUTCDATETIME() value for created_at and updated_at. DELETE is used rather than TRUNCATE because it returns the deleted row count and needs no ALTER permission.\n  - The log start entry is written before the transaction. On success the run is logged as 'Success' with inserted = rows inserted, updated = 0 and deleted = previous rows.\n  - On failure the procedure rolls back, writes audit.usp_LogError, logs 'Failed' with counts 0/0/0 and the message 'msg (error n, line l)', then re-throws. The previous content stays in place.\n- Layercake.usp_load_gold: one call added at the end, after the three existing facts and so after every dimension step, passing @run_id. Its down script restores the previous definition (round-trip passes).\n\nTests: before the build, the Tester's suite was 0 passed, 16 failed (no objects yet). Now 16/16 pass, plus 5 dev tests:\n- log layer, step and counts\n- a single shared timestamp per run\n- run_id generated when the load is called standalone\n- error path: zero counts, error text, ErrorLog row with LoadId NULL, target unchanged\n- the payment load runs last in usp_load_gold\n\nRisk (design Q-025, open): the rebuild deletes and reinserts every TRANSTYPE 15 row in one transaction, so log use grows with FO history. An empty view output (for example an empty CUSTTRANS) empties the dataset by design (TC-002-006).\n\nGrant for a human to run, once the role name is confirmed: GRANT SELECT ON Layercake.fact_contact_payment TO [<reporting_role>];\n\nTest-first: the first run had 0 of 16 of the Tester's tests passing; the final run passed 16 of 16 and 5 unit test(s), in 4 run(s)."
+}

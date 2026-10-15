@@ -1,0 +1,432 @@
+{
+  "meta": {
+    "artefact_type": "doc_update",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "DU-MOD-002",
+    "version": 1,
+    "produced_by": "technical_writer",
+    "produced_at": "2026-10-15T15:50:03Z",
+    "status": "for_review",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/DES-001.json",
+      "docs/design/MP-001.json",
+      "docs/dev/CN-MOD-001.json",
+      "docs/test/TR-MOD-001-1.json",
+      "docs/dev/CN-MOD-002.json",
+      "docs/test/TR-MOD-002-1.json"
+    ]
+  },
+  "scope": "module",
+  "module_id": "MOD-002",
+  "documents": [
+    {
+      "path": "docs/handover/01-solution-overview.md",
+      "section": "Purpose",
+      "change_summary": "Added migrations (MIG-nnnn) to the explanation of the IDs used in the pack.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#summary",
+        "docs/specs/SPEC-001.json#REQ-003",
+        "docs/design/DES-001.json#overview",
+        "BASE_STANDARDS.md#Identifiers and traceability"
+      ]
+    },
+    {
+      "path": "docs/handover/01-solution-overview.md",
+      "section": "Scope",
+      "change_summary": "Added the Layercake reporting table and the report layout exclusion to scope, and noted that the pack now covers MOD-001 and MOD-002.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#RULE-002",
+        "docs/specs/SPEC-001.json#RULE-003",
+        "docs/specs/SPEC-001.json#RULE-005",
+        "docs/specs/SPEC-001.json#RULE-020",
+        "docs/specs/SPEC-001.json#RULE-021",
+        "docs/specs/SPEC-001.json#The report layout is not part of this requirement",
+        "docs/specs/SPEC-001.json#Q-006",
+        "docs/specs/SPEC-001.json#Q-011",
+        "docs/specs/SPEC-001.json#REQ-003",
+        "docs/design/MP-001.json#MOD-001",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#MOD-003"
+      ]
+    },
+    {
+      "path": "docs/handover/01-solution-overview.md",
+      "section": "Requirements delivered",
+      "change_summary": "Added REQ-007 and REQ-008 (met for MOD-002, with AC-008-03 following in MOD-003) and MOD-002's part in REQ-006, the restating of a contact's payments after a country change.",
+      "evidence": [
+        "docs/design/MP-001.json#MOD-001",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#AC-008-03",
+        "docs/test/TR-MOD-001-1.json#requirement_status",
+        "docs/test/TR-MOD-002-1.json#requirement_status",
+        "docs/specs/SPEC-001.json#REQ-001",
+        "docs/specs/SPEC-001.json#REQ-002",
+        "docs/specs/SPEC-001.json#REQ-003",
+        "docs/specs/SPEC-001.json#REQ-004",
+        "docs/specs/SPEC-001.json#REQ-005",
+        "docs/specs/SPEC-001.json#REQ-006",
+        "docs/specs/SPEC-001.json#AC-006-05",
+        "docs/specs/SPEC-001.json#Delivery and refresh",
+        "docs/specs/SPEC-001.json#Reconciliation to FO per legal entity",
+        "docs/specs/SPEC-001.json#RULE-022",
+        "docs/design/DES-001.json#is not granted to report users",
+        "docs/dev/CN-MOD-002.json#Read grant not scripted as a file"
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "path": "docs/handover/02-architecture.md",
+      "section": "Architecture overview",
+      "change_summary": "Added the reporting table, its load procedure, the changed gold load step and the load logging to the layer table.",
+      "evidence": [
+        "docs/design/DES-001.json#layers",
+        "docs/design/DES-001.json#Load logging",
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/DES-001.json#Rules in one place",
+        "docs/design/MP-001.json#MOD-001",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/design/MP-001.json#MOD-003",
+        "docs/dev/CN-MOD-002.json#Layercake.usp_load_gold",
+        "PROJECT_STANDARDS.md#Load logging",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#defined once"
+      ]
+    },
+    {
+      "path": "docs/handover/02-architecture.md",
+      "section": "Data model",
+      "change_summary": "Added sub-sections for Layercake.fact_contact_payment, Layercake.usp_load_fact_contact_payment and the change to Layercake.usp_load_gold.",
+      "evidence": [
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/DES-001.json#lowest ContactId",
+        "docs/design/DES-001.json#Q-022",
+        "docs/design/DES-001.json#Q-023",
+        "docs/design/DES-001.json#Q-014",
+        "docs/specs/SPEC-001.json#RULE-004",
+        "docs/specs/SPEC-001.json#RULE-009",
+        "docs/specs/SPEC-001.json#RULE-010",
+        "docs/test/TCS-MOD-001.json#TC-001-006",
+        "docs/test/TCS-MOD-001.json#TC-001-015",
+        "docs/dev/CN-MOD-001.json#space-only",
+        "docs/design/DES-001.json#Layercake.fact_contact_payment",
+        "docs/design/DES-001.json#No foreign keys",
+        "docs/design/DES-001.json#Equals created_at under a full rebuild",
+        "docs/design/DES-001.json#as recorded in Layercake.etl_run_log",
+        "docs/dev/CN-MOD-002.json#PK_Layercake_fact_contact_payment",
+        "docs/dev/CN-MOD-002.json#one shared stamp with created_at equal to updated_at",
+        "docs/test/TCS-MOD-002.json#TC-002-002",
+        "docs/specs/SPEC-001.json#RULE-020",
+        "docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment",
+        "docs/design/DES-001.json#readers see either the previous or the new dataset",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#Option B",
+        "docs/dev/CN-MOD-002.json#full rebuild in one transaction",
+        "docs/dev/CN-MOD-002.json#generates a run id when called standalone",
+        "docs/test/TCS-MOD-002.json#TC-002-004",
+        "docs/test/TCS-MOD-002.json#TC-002-005",
+        "docs/test/TCS-MOD-002.json#TC-002-007",
+        "docs/test/TCS-MOD-002.json#TC-002-011",
+        "docs/design/MP-001.json#MOD-002",
+        "docs/dev/CN-MOD-002.json#one call added at the end",
+        "docs/test/TCS-MOD-002.json#TC-002-016"
+      ]
+    },
+    {
+      "path": "docs/handover/02-architecture.md",
+      "section": "Design decisions",
+      "change_summary": "Recorded that MOD-002 builds ADR-001's recommended full rebuild, and that ADR-001 says a move to change-only loading would affect only the load procedure.",
+      "evidence": [
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#Option B",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#moving to C changes only the load procedure",
+        "docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#Option A",
+        "docs/design/DES-001.json#recommended option B",
+        "docs/design/DES-001.json#recommended option A",
+        "docs/design/MP-001.json#MOD-002"
+      ]
+    },
+    {
+      "path": "docs/handover/03-data-lineage.md",
+      "section": "Source-to-target mappings",
+      "change_summary": "Added the mapping from the rules view and the load run to Layercake.fact_contact_payment.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#REQ-001",
+        "docs/specs/SPEC-001.json#RULE-005",
+        "docs/specs/SPEC-001.json#RULE-006",
+        "docs/specs/SPEC-001.json#RULE-007",
+        "docs/specs/SPEC-001.json#RULE-008",
+        "docs/specs/SPEC-001.json#Layercake.fact_contact_payment.payment_date",
+        "docs/specs/SPEC-001.json#Layercake.brnz_contact._is_deleted",
+        "docs/design/DES-001.json#rics_countryid",
+        "docs/design/DES-001.json#lowest ContactId",
+        "docs/design/DES-001.json#Q-022",
+        "docs/design/DES-001.json#Q-023",
+        "docs/design/DES-001.json#Layercake.fact_contact_payment",
+        "docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment",
+        "docs/design/DES-001.json#Equals created_at under a full rebuild",
+        "docs/dev/CN-MOD-002.json#stamping @run_id",
+        "docs/dev/CN-MOD-002.json#generates a run id when called standalone",
+        "docs/test/TCS-MOD-002.json#TC-002-001",
+        "docs/test/TCS-MOD-002.json#TC-002-004",
+        "docs/test/TCS-MOD-002.json#TC-002-005",
+        "docs/test/TCS-MOD-002.json#TC-002-011",
+        "docs/specs/SPEC-001.json#AC-006-05"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Components and load order",
+      "change_summary": "Added the table, the load procedure and the gold load hook, with the load order set by the design (last step of the gold load, after the dimension loads).",
+      "evidence": [
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/DES-001.json#is the only input to the load procedure",
+        "docs/design/DES-001.json#Layercake.fact_contact_payment",
+        "docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment",
+        "docs/design/DES-001.json#Scheduling (Q-024)",
+        "docs/dev/CN-MOD-002.json#after the three existing facts and so after every dimension step",
+        "docs/test/TCS-MOD-002.json#TC-002-016",
+        "docs/design/MP-001.json#MOD-003"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Scheduling",
+      "change_summary": "Documented that the dataset refreshes within the existing Layercake schedule through usp_run_daily_load and usp_load_gold under one run ID, with the schedule timing still to be confirmed.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#RULE-021",
+        "docs/specs/SPEC-001.json#With the existing Layercake load schedule",
+        "docs/design/DES-001.json#Scheduling (Q-024)",
+        "docs/design/DES-001.json#Layercake.usp_run_daily_load is the scheduled entry point",
+        "docs/dev/CN-MOD-002.json#passing @run_id",
+        "docs/test/TCS-MOD-002.json#TC-002-016"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Monitoring",
+      "change_summary": "Documented the run log entry in Layercake.etl_run_log (layer, step, times, outcome, row counts) and the error log.",
+      "evidence": [
+        "docs/design/DES-001.json#Load logging",
+        "docs/specs/SPEC-001.json#AC-007-04",
+        "docs/dev/CN-MOD-002.json#layer 'gold', step 'fact_contact_payment'",
+        "docs/dev/CN-MOD-002.json#The log start entry is written before the transaction",
+        "docs/dev/CN-MOD-002.json#inserted = rows inserted, updated = 0 and deleted = previous rows",
+        "docs/dev/CN-MOD-002.json#counts 0/0/0",
+        "docs/test/TCS-MOD-002.json#TC-002-009",
+        "docs/test/TCS-MOD-002.json#TC-002-010"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Error handling",
+      "change_summary": "Documented that a failed load is undone in full, logged in both logs and passed back to the caller, leaving the previous dataset in place.",
+      "evidence": [
+        "docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment",
+        "docs/design/DES-001.json#Load logging",
+        "docs/dev/CN-MOD-002.json#On failure the procedure rolls back",
+        "docs/dev/CN-MOD-002.json#LoadId is NULL there",
+        "docs/test/TCS-MOD-002.json#TC-002-010",
+        "BASE_STANDARDS.md#No silent swallowing"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Recovery and reruns",
+      "change_summary": "Documented that a failed run can simply be run again, that reruns are safe, and how the load runs on its own.",
+      "evidence": [
+        "docs/design/DES-001.json#Rerunning with",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#idempotent by construction",
+        "docs/dev/CN-MOD-002.json#The previous content stays in place",
+        "docs/dev/CN-MOD-002.json#generates a run id when called standalone",
+        "docs/dev/CN-MOD-002.json#EXECUTE on the load only for the identity that runs the Layercake schedule",
+        "docs/test/TCS-MOD-002.json#TC-002-007",
+        "docs/test/TCS-MOD-002.json#TC-002-008"
+      ]
+    },
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Deployment and rollback",
+      "change_summary": "Moved shared migration behaviour into its own sub-section and added MIG-0004 with its rollback test, the separate read grant for report users, and environments still to be confirmed.",
+      "evidence": [
+        "BASE_STANDARDS.md#Idempotent",
+        "BASE_STANDARDS.md#Transactional",
+        "BASE_STANDARDS.md#etl.MigrationHistory",
+        "BASE_STANDARDS.md#Rollback for every deployment",
+        "BASE_STANDARDS.md#never silently destroys data",
+        "docs/dev/CN-MOD-001.json#MIG-0003",
+        "docs/dev/CN-MOD-002.json#MIG-0004",
+        "docs/dev/CN-MOD-001.json#rollback_test",
+        "docs/dev/CN-MOD-001.json#RICS_Dev",
+        "docs/dev/CN-MOD-002.json#rollback_test",
+        "docs/dev/CN-MOD-002.json#RICS_Dev",
+        "docs/dev/CN-MOD-002.json#Its down script restores the previous definition",
+        "docs/design/MP-001.json#with a down script that restores it",
+        "docs/design/DES-001.json#a human reviews and runs them",
+        "docs/dev/CN-MOD-002.json#Read grant not scripted as a file",
+        "docs/dev/CN-MOD-002.json#No grant on the rules view",
+        "docs/test/TCS-MOD-002.json#The read grant for the reporting role is a script for a human to run"
+      ]
+    },
+    {
+      "path": "docs/handover/05-test-summary.md",
+      "section": "Test approach",
+      "change_summary": "Described what MOD-002's tests cover, the untested read grant, and the developer's five MOD-002 unit tests.",
+      "evidence": [
+        "docs/test/TCS-MOD-001.json#designed_from",
+        "docs/test/TCS-MOD-001.json#acceptance_criterion_id",
+        "docs/test/TCS-MOD-001.json#assumes Q-014",
+        "docs/test/TCS-MOD-001.json#assumes Q-015",
+        "docs/test/TCS-MOD-001.json#assumes Q-022",
+        "docs/test/TCS-MOD-001.json#assumes Q-023",
+        "docs/test/TCS-MOD-002.json#designed_from",
+        "docs/test/TCS-MOD-002.json#assumes Q-014",
+        "docs/test/TCS-MOD-002.json#The read grant for the reporting role is a script for a human to run and is not tested here",
+        "BASE_STANDARDS.md#Separation",
+        "docs/dev/CN-MOD-001.json#unit_tests",
+        "docs/dev/CN-MOD-002.json#unit_tests"
+      ]
+    },
+    {
+      "path": "docs/handover/05-test-summary.md",
+      "section": "Results by module",
+      "change_summary": "Added MOD-002's results (16 of 16 passed, verdict Pass, REQ-006 to REQ-008 met, no defects).",
+      "evidence": [
+        "docs/test/TR-MOD-001-1.json#TR-MOD-001-1",
+        "docs/test/TR-MOD-001-1.json#requirement_status",
+        "docs/test/TR-MOD-001-1.json#verdict",
+        "docs/test/TR-MOD-002-1.json#TR-MOD-002-1",
+        "docs/test/TR-MOD-002-1.json#2026-10-15T15:31:48Z",
+        "docs/test/TR-MOD-002-1.json#requirement_status",
+        "docs/test/TR-MOD-002-1.json#verdict",
+        "docs/design/MP-001.json#AC-008-03"
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "path": "docs/handover/05-test-summary.md",
+      "section": "Traceability",
+      "change_summary": "Added the MOD-002 traceability table for TC-002-001 to TC-002-016.",
+      "evidence": [
+        "docs/test/TCS-MOD-001.json#TC-001-001",
+        "docs/test/TCS-MOD-001.json#TC-001-035",
+        "docs/test/TR-MOD-001-1.json#TC-001-001",
+        "docs/test/TR-MOD-001-1.json#TC-001-035",
+        "docs/design/MP-001.json#AC-006-04",
+        "docs/test/TCS-MOD-002.json#TC-002-001",
+        "docs/test/TCS-MOD-002.json#TC-002-016",
+        "docs/test/TCS-MOD-002.json#assumes Q-014",
+        "docs/test/TR-MOD-002-1.json#TC-002-001",
+        "docs/test/TR-MOD-002-1.json#TC-002-016",
+        "docs/design/MP-001.json#AC-006-05"
+      ],
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ]
+    },
+    {
+      "path": "docs/handover/06-known-limitations.md",
+      "section": "Known limitations",
+      "change_summary": "Added MOD-002 limitations: read grant waiting for the role name, error log entries without a load ID, row times showing only the last rebuild, an empty source emptying the dataset, and run time growing with FO history (Q-025).",
+      "evidence": [
+        "docs/dev/CN-MOD-001.json#follows synapse_fo.vwCustTrans literally",
+        "docs/test/TCS-MOD-001.json#DOCUMENTDATE time of day: follow vwCustTrans literally",
+        "docs/specs/SPEC-001.json#on or before 2021-08-23",
+        "docs/dev/CN-MOD-001.json#lowest CUSTPAYMMODETABLE.RECID",
+        "docs/dev/CN-MOD-001.json#lowest dim_country.id",
+        "docs/specs/SPEC-001.json#Q-006",
+        "docs/dev/CN-MOD-002.json#Read grant not scripted as a file",
+        "docs/dev/CN-MOD-002.json#the role the reporting tool already uses to read the Layercake fact tables",
+        "docs/dev/CN-MOD-002.json#LoadId is NULL there",
+        "docs/design/DES-001.json#Equals created_at under a full rebuild",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#created_at and updated_at only show the last rebuild",
+        "docs/dev/CN-MOD-002.json#empties the dataset by design",
+        "docs/test/TCS-MOD-002.json#TC-002-006",
+        "docs/design/DES-001.json#The spec gives no volumes (Q-025)",
+        "docs/dev/CN-MOD-002.json#log use grows with FO history"
+      ]
+    },
+    {
+      "path": "docs/handover/06-known-limitations.md",
+      "section": "Recommended next steps",
+      "change_summary": "Added confirming the reporting role name and removed MOD-002 from the remaining build work.",
+      "evidence": [
+        "docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#Q-014",
+        "docs/dev/CN-MOD-002.json#once the role name is confirmed",
+        "docs/design/DES-001.json#Q-025",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#provisional until Q-025",
+        "docs/design/MP-001.json#MOD-003"
+      ]
+    },
+    {
+      "path": "docs/handover/07-glossary.md",
+      "section": "Terms",
+      "change_summary": "Added Layercake load, reporting table, full rebuild, run ID, run log and error log.",
+      "evidence": [
+        "docs/specs/SPEC-001.json#Payment transaction",
+        "docs/specs/SPEC-001.json#Contact account",
+        "docs/specs/SPEC-001.json#Corporate payment",
+        "docs/specs/SPEC-001.json#Test account",
+        "docs/specs/SPEC-001.json#Payment date",
+        "docs/specs/SPEC-001.json#Accounting currency amount",
+        "docs/specs/SPEC-001.json#Legal entity",
+        "docs/specs/SPEC-001.json#RULE-008",
+        "docs/design/DES-001.json#market_reporting_region",
+        "docs/design/DES-001.json#existing Layercake solution",
+        "docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source",
+        "docs/design/DES-001.json#Layercake.fact_contact_payment",
+        "docs/design/DES-001.json#Layercake.usp_run_daily_load is the scheduled entry point",
+        "docs/design/DES-001.json#Load logging",
+        "docs/design/adr/ADR-001-contact-payment-dataset-view-or-persisted-table-and-how-it-r.md#Option B",
+        "docs/dev/CN-MOD-002.json#stamping @run_id",
+        "docs/dev/CN-MOD-001.json#MIG-0003",
+        "BASE_STANDARDS.md#Identifiers and traceability"
+      ]
+    }
+  ],
+  "unverified_statements": [
+    {
+      "text": "When and how often the Layercake schedule (Layercake.usp_run_daily_load) runs in production.",
+      "reason": "No artefact records the schedule time or frequency. The question was asked and the answer deferred."
+    },
+    {
+      "text": "Who supports the Layercake load for the client.",
+      "reason": "No artefact names a support contact. The question was asked and the answer deferred."
+    },
+    {
+      "text": "The name of the reporting role that needs read access to Layercake.fact_contact_payment.",
+      "reason": "The change note records that the role name appears in no project record and that the question was deferred."
+    },
+    {
+      "text": "Whether report users can already read Layercake.fact_contact_payment before the grant is run (for example through existing schema-wide permissions).",
+      "reason": "No artefact says what permissions the reporting role already holds, so the pack does not say that users cannot read the table until the grant is run."
+    },
+    {
+      "text": "What happens to the rest of the Layercake run (usp_load_gold and usp_run_daily_load) when the payment load fails and passes its error back.",
+      "reason": "The artefacts describe only the payment load's own behaviour on failure, not how the existing callers handle the error or whether earlier steps in the run are kept."
+    },
+    {
+      "text": "Which environments MIG-0003 and MIG-0004 are deployed to, and who runs the deployment there.",
+      "reason": "No artefact records target environments or who deploys."
+    }
+  ]
+}

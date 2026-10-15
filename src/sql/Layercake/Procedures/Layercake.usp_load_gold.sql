@@ -43,4 +43,9 @@ begin
          @DetailBatchDays = @DetailBatchDays;
 
     exec Layercake.usp_load_fact_annual_rate_base  @run_id = @run_id;
+
+    -- contact payments (RICS Phase 2, Q-024): full rebuild from the FO
+    -- payment rules view; after the dimension steps, so brnz_contact and
+    -- dim_country are already refreshed for this run
+    exec Layercake.usp_load_fact_contact_payment   @run_id = @run_id;
 end

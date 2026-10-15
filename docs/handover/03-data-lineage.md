@@ -37,6 +37,16 @@ Rows: every synapse_fo.CUSTTRANS row with transaction type 15, all legal entitie
 | country_name | dim_country.country_name | Matched contact's current country (brnz_contact.rics_countryid to dim_country.country_id); 'Unknown' for corporate payments, contacts with no country, or no match. |
 | region_name | dim_country.region_name | Same lookup; 'Unknown' wherever country_name is 'Unknown' (assumed, Q-022). |
 | market_reporting_region | dim_country.market_reporting_region | Same lookup; 'Unknown' wherever country_name is 'Unknown' (assumed, Q-022). |
+<!-- evidence: docs/specs/SPEC-001.json#REQ-001; docs/specs/SPEC-001.json#RULE-005; docs/specs/SPEC-001.json#RULE-006; docs/specs/SPEC-001.json#RULE-007; docs/specs/SPEC-001.json#RULE-008; docs/specs/SPEC-001.json#Layercake.fact_contact_payment.payment_date; docs/specs/SPEC-001.json#Layercake.brnz_contact._is_deleted; docs/design/DES-001.json#rics_countryid; docs/design/DES-001.json#lowest ContactId; docs/design/DES-001.json#Q-022; docs/design/DES-001.json#Q-023 -->
 
-The approved specification maps these columns to the reporting table Layercake.fact_contact_payment, which takes them from this view (MOD-002).
-<!-- evidence: docs/specs/SPEC-001.json#REQ-001; docs/specs/SPEC-001.json#RULE-005; docs/specs/SPEC-001.json#RULE-006; docs/specs/SPEC-001.json#RULE-007; docs/specs/SPEC-001.json#RULE-008; docs/specs/SPEC-001.json#Layercake.fact_contact_payment.payment_date; docs/specs/SPEC-001.json#Layercake.brnz_contact._is_deleted; docs/design/DES-001.json#rics_countryid; docs/design/DES-001.json#lowest ContactId; docs/design/DES-001.json#Q-022; docs/design/DES-001.json#Q-023; docs/design/MP-001.json#MOD-002 -->
+### Layercake.fact_contact_payment (MOD-002)
+
+Rows: on every run, exactly the rows the rules view returns at that moment, one per payment. The table is emptied and refilled in one transaction, so a payment removed from FO since the last run is no longer in it, and a corrected payment or a contact's changed country is restated for all history.
+
+| Target column | Source | Rule |
+|---|---|---|
+| legal_entity to market_reporting_region (16 columns) | The column of the same name in Layercake.vw_fact_contact_payment_source | Copied unchanged; all business rules are applied in the rules view (see the mapping above). |
+| run_id | The load run | The run ID passed in by the Layercake load, or a newly created one when the load is run on its own. |
+| created_at | The load run | One UTC time for every row written by the run. |
+| updated_at | The load run | Same value as created_at. |
+<!-- evidence: docs/design/DES-001.json#Layercake.fact_contact_payment; docs/design/DES-001.json#Layercake.usp_load_fact_contact_payment; docs/design/DES-001.json#Equals created_at under a full rebuild; docs/dev/CN-MOD-002.json#stamping @run_id; docs/dev/CN-MOD-002.json#generates a run id when called standalone; docs/test/TCS-MOD-002.json#TC-002-001; docs/test/TCS-MOD-002.json#TC-002-004; docs/test/TCS-MOD-002.json#TC-002-005; docs/test/TCS-MOD-002.json#TC-002-011; docs/specs/SPEC-001.json#AC-006-05 -->
