@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "artefact_type": "doc_update",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "DU-HANDOVER",
+    "version": 1,
+    "produced_by": "technical_writer",
+    "produced_at": "2026-10-15T17:25:57Z",
+    "status": "approved",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/DES-001.json",
+      "docs/design/MP-001.json",
+      "docs/dev/CN-MOD-001.json",
+      "docs/test/TR-MOD-001-1.json",
+      "docs/dev/CN-MOD-002.json",
+      "docs/test/TR-MOD-002-1.json",
+      "docs/dev/CN-MOD-003.json",
+      "docs/test/TR-MOD-003-1.json"
+    ],
+    "approval": {
+      "approved_by": "Mike",
+      "approved_at": "2026-10-15T18:53:16Z",
+      "gate": "final_handover_review"
+    }
+  },
+  "scope": "final_handover",
+  "documents": [
+    {
+      "path": "docs/handover/04-runbook.md",
+      "section": "Deployment and rollback",
+      "change_summary": "Final handover: the Environments sub-section now names the development (RICS_Dev) and test (RICS_Test) databases, says test frameworks are never deployed further and that a person deploys to the client's production environment, and the report-user access text is rewritten to cover both read grants, the rules view not being granted, and how reconciliation-view readers rely on database ownership.",
+      "evidence": [
+        "BASE_STANDARDS.md#Idempotent",
+        "BASE_STANDARDS.md#Transactional",
+        "BASE_STANDARDS.md#etl.MigrationHistory",
+        "BASE_STANDARDS.md#Rollback for every deployment",
+        "BASE_STANDARDS.md#never silently destroys data",
+        "docs/dev/CN-MOD-001.json#MIG-0003",
+        "docs/dev/CN-MOD-002.json#MIG-0004",
+        "docs/dev/CN-MOD-003.json#MIG-0005",
+        "docs/dev/CN-MOD-001.json#rollback_test",
+        "docs/dev/CN-MOD-001.json#RICS_Dev",
+        "docs/dev/CN-MOD-002.json#rollback_test",
+        "docs/dev/CN-MOD-002.json#RICS_Dev",
+        "docs/dev/CN-MOD-002.json#Its down script restores the previous definition",
+        "docs/design/MP-001.json#with a down script that restores it",
+        "docs/dev/CN-MOD-003.json#rollback_test",
+        "docs/dev/CN-MOD-003.json#RICS_Dev",
+        "docs/dev/CN-MOD-003.json#down restores the pre-migration schema",
+        "docs/design/DES-001.json#a human reviews and runs them",
+        "docs/dev/CN-MOD-002.json#Read grant not scripted as a file",
+        "docs/dev/CN-MOD-002.json#No grant on the rules view",
+        "docs/dev/CN-MOD-003.json#the role the reporting tool already uses to read Layercake",
+        "docs/dev/CN-MOD-003.json#ownership chain",
+        "docs/design/DES-001.json#is not granted to report users",
+        "docs/setup/ENVIRONMENTS.md#RICS_Dev",
+        "docs/setup/ENVIRONMENTS.md#RICS_Test",
+        "docs/setup/ENVIRONMENTS.md#Rebuilt clean",
+        "docs/setup/ENVIRONMENTS.md#never deployed further",
+        "docs/setup/ENVIRONMENTS.md#Humans deploy"
+      ]
+    }
+  ],
+  "unverified_statements": [
+    {
+      "text": "When and how often the Layercake load schedule runs in production.",
+      "reason": "No artefact gives the production schedule; the runbook says it is still to be confirmed."
+    },
+    {
+      "text": "The production server and database the migrations MIG-0003, MIG-0004 and MIG-0005 are deployed to, and who carries out the production deployment.",
+      "reason": "ENVIRONMENTS.md records production only as client-specific and that a person deploys there; no artefact names the server, database or deployer."
+    },
+    {
+      "text": "The name of the reporting role that should receive read access on Layercake.fact_contact_payment and Layercake.vw_contact_payment_reconciliation.",
+      "reason": "Not recorded in any artefact (CN-MOD-002 and CN-MOD-003 deviations); the grants cannot be run until it is confirmed."
+    },
+    {
+      "text": "Data volumes for FO payment transactions and the load window for the payment load (Q-025).",
+      "reason": "Q-025 is open in the design; ADR-001's full rebuild is provisional until it is answered."
+    },
+    {
+      "text": "The order in which migrations MIG-0003 to MIG-0005 must be applied.",
+      "reason": "Number order is implied by the rule that down scripts run only in reverse order, but no artefact states the apply order, so the pack gives only the rollback order."
+    }
+  ]
+}
