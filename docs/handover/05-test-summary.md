@@ -4,17 +4,20 @@
 
 Each module is tested against test conditions (TC-nnn-nnn) designed from the approved specification and the module's scope and acceptance criteria, independently of the code. Every test condition traces to a requirement and one of its acceptance criteria. The conditions are run as automated database tests, which set up their own sample data, so results do not depend on the contents of FO or CRM. Several conditions rest on the working assumptions listed in Known limitations (Q-014, Q-015, Q-022, Q-023) and test the rules as assumed.
 
-The developer's own unit tests also covered five implementation details of MOD-001 (how a document date on 23 August 2021 with a time of day is treated, and how duplicate country, payment mode and contact rows are handled); all five passed.
-<!-- evidence: docs/test/TCS-MOD-001.json#designed_from; docs/test/TCS-MOD-001.json#acceptance_criterion_id; docs/test/TCS-MOD-001.json#assumes Q-014; docs/test/TCS-MOD-001.json#assumes Q-015; docs/test/TCS-MOD-001.json#assumes Q-022; docs/test/TCS-MOD-001.json#assumes Q-023; BASE_STANDARDS.md#Separation; docs/dev/CN-MOD-001.json#unit_tests -->
+For MOD-002, the tests run the load against sample data and check the stored table, the run log and the error log: first loads, reloads after FO rows were added, corrected or removed, a load with no in-scope rows, repeated loads, a forced failure, a contact's country change, totals per legal entity, and the call from the existing gold load. The read grant for report users is run separately by a person and is not covered by the tests.
+
+The developer's own unit tests also covered implementation details. For MOD-001, five tests covered how a document date on 23 August 2021 with a time of day is treated and how duplicate country, payment mode and contact rows are handled. For MOD-002, five tests covered the run log's layer, step name and row counts, the single shared time stamp per run, the run ID created when the load is run on its own, the failure path, and the payment load running last in the gold load. All ten passed.
+<!-- evidence: docs/test/TCS-MOD-001.json#designed_from; docs/test/TCS-MOD-001.json#acceptance_criterion_id; docs/test/TCS-MOD-001.json#assumes Q-014; docs/test/TCS-MOD-001.json#assumes Q-015; docs/test/TCS-MOD-001.json#assumes Q-022; docs/test/TCS-MOD-001.json#assumes Q-023; docs/test/TCS-MOD-002.json#designed_from; docs/test/TCS-MOD-002.json#assumes Q-014; docs/test/TCS-MOD-002.json#The read grant for the reporting role is a script for a human to run and is not tested here; BASE_STANDARDS.md#Separation; docs/dev/CN-MOD-001.json#unit_tests; docs/dev/CN-MOD-002.json#unit_tests -->
 
 ## Results by module
 
 | Module | Test run | Environment | Conditions | Passed | Failed | Skipped | Verdict |
 |---|---|---|---|---|---|---|---|
 | MOD-001 Contact payment rules view | 2026-10-13 | Test | 35 | 35 | 0 | 0 | Pass |
+| MOD-002 Contact payment table, full-rebuild load and schedule hook | 2026-10-15 | Test | 16 | 16 | 0 | 0 | Pass |
 
-MOD-001 met all six of its requirements (REQ-001 to REQ-006). Testing raised no defects.
-<!-- evidence: docs/test/TR-MOD-001-1.json#TR-MOD-001-1; docs/test/TR-MOD-001-1.json#requirement_status; docs/test/TR-MOD-001-1.json#verdict -->
+MOD-001 met all six of its requirements (REQ-001 to REQ-006). MOD-002 met its three requirements (REQ-006, REQ-007 and REQ-008); the remaining acceptance criterion of REQ-008, the reconciliation view (AC-008-03), is tested with MOD-003. Testing of both modules raised no defects.
+<!-- evidence: docs/test/TR-MOD-001-1.json#TR-MOD-001-1; docs/test/TR-MOD-001-1.json#requirement_status; docs/test/TR-MOD-001-1.json#verdict; docs/test/TR-MOD-002-1.json#TR-MOD-002-1; docs/test/TR-MOD-002-1.json#2026-10-15T15:31:48Z; docs/test/TR-MOD-002-1.json#requirement_status; docs/test/TR-MOD-002-1.json#verdict; docs/design/MP-001.json#AC-008-03 -->
 
 ## Traceability
 
@@ -58,3 +61,25 @@ MOD-001 met all six of its requirements (REQ-001 to REQ-006). Testing raised no 
 | TC-001-034 | REQ-006 | AC-006-04 | A shared contact number gives one row with one matching country | Passed |
 | TC-001-035 | REQ-006 | AC-006-04 | A shared contact number uses the country of the lowest contact ID | Passed |
 <!-- evidence: docs/test/TCS-MOD-001.json#TC-001-001; docs/test/TCS-MOD-001.json#TC-001-035; docs/test/TR-MOD-001-1.json#TC-001-001; docs/test/TR-MOD-001-1.json#TC-001-035; docs/design/MP-001.json#AC-006-04 -->
+
+### MOD-002
+
+| Test condition | Requirement | Acceptance criterion | What it checks | Result |
+|---|---|---|---|---|
+| TC-002-001 | REQ-007 | AC-007-01 | The load stores a contact and a corporate payment with every column, the run ID and audit times | Passed |
+| TC-002-002 | REQ-007 | AC-007-01 | The table has exactly the designed columns, all named in lower case | Passed |
+| TC-002-003 | REQ-007 | AC-007-02 | A payment added in FO after a load appears after the next load | Passed |
+| TC-002-004 | REQ-007 | AC-007-02 | An FO correction to a loaded payment is restated on the next load | Passed |
+| TC-002-005 | REQ-007 | AC-007-02 | A payment removed from FO disappears on the next load | Passed |
+| TC-002-006 | REQ-007 | AC-007-02 | A load with no in-scope payments leaves the dataset empty | Passed |
+| TC-002-007 | REQ-007 | AC-007-03 | A second load with unchanged sources leaves row counts and totals per legal entity unchanged | Passed |
+| TC-002-008 | REQ-007 | AC-007-03 | A rerun keeps one row per payment, all stamped with the latest run ID | Passed |
+| TC-002-009 | REQ-007 | AC-007-04 | A successful load is logged as 'Success' with its start, finish and rows inserted and deleted | Passed |
+| TC-002-010 | REQ-007, REQ-008 | AC-007-04 | A failing load passes the error back, logs it and a 'Failed' run, and keeps the previous dataset | Passed |
+| TC-002-011 | REQ-006 | AC-006-05 | A contact's country change restates all the contact's payments on the next load | Passed |
+| TC-002-012 | REQ-008 | AC-008-01 | Row count and GBP total for a legal entity match FO, with the test account left out (assumed, Q-014) | Passed |
+| TC-002-013 | REQ-008 | AC-008-01 | A payment with missing account, amounts, currency and dates is loaded, not rejected | Passed |
+| TC-002-014 | REQ-008 | AC-008-02 | Currency totals per legal entity and currency equal the FO totals with the sign reversed | Passed |
+| TC-002-015 | REQ-008 | AC-008-02 | Amounts keep six decimal places without rounding | Passed |
+| TC-002-016 | REQ-007 | AC-007-02 | The existing gold load runs the payment load once, with its run ID, after every dimension load | Passed |
+<!-- evidence: docs/test/TCS-MOD-002.json#TC-002-001; docs/test/TCS-MOD-002.json#TC-002-016; docs/test/TCS-MOD-002.json#assumes Q-014; docs/test/TR-MOD-002-1.json#TC-002-001; docs/test/TR-MOD-002-1.json#TC-002-016; docs/design/MP-001.json#AC-006-05 -->
