@@ -152,7 +152,7 @@ GO
 CREATE PROCEDURE test_MOD002_dev.[test usp_load_gold runs the payment load last, after the existing facts]
 AS
 BEGIN
-    CREATE TABLE #calls (seq int IDENTITY(1, 1), step sysname NOT NULL);
+    CREATE TABLE #calls (seq int IDENTITY(1, 1), step sysname COLLATE DATABASE_DEFAULT NOT NULL);
 
     EXEC tSQLt.SpyProcedure 'Layercake.usp_load_dim_membership_grade';
     EXEC tSQLt.SpyProcedure 'Layercake.usp_load_dim_assessment_route';
