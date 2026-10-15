@@ -10,6 +10,9 @@ project:
   created: 2026-10-08
   base_standards_version: "1.6"   # framework standards this project follows
   login_prefix: rics_agent_
+  # The production database's default collation. Dev, test and CI databases are created with it, so a collation
+  # conflict with columns another system owns shows in testing, not in production. null: the server's default.
+  collation: SQL_Latin1_General_CP1_CI_AS
 
 environments:
   dev:
