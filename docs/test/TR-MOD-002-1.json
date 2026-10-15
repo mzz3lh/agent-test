@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "artefact_type": "test_results",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "version": 1,
+    "produced_by": "tester",
+    "produced_at": "2026-10-15T15:31:58Z",
+    "status": "for_review",
+    "artefact_id": "TR-MOD-002-1",
+    "source_artefacts": [
+      "CN-MOD-002",
+      "TCS-MOD-002",
+      "tests/tsqlt/test_MOD002.sql"
+    ]
+  },
+  "module_id": "MOD-002",
+  "loop_number": 1,
+  "run": {
+    "environment": "test",
+    "commit": "c5461d8a0d1c456734993f52b51fdf744f5a716e",
+    "started_at": "2026-10-15T15:31:48Z",
+    "finished_at": "2026-10-15T15:31:54Z"
+  },
+  "results": [
+    {
+      "test_condition_id": "TC-002-001",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-002",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-003",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-004",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-005",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-006",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-007",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-008",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-009",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-010",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-011",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-012",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-013",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-014",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-015",
+      "outcome": "pass"
+    },
+    {
+      "test_condition_id": "TC-002-016",
+      "outcome": "pass"
+    }
+  ],
+  "requirement_status": [
+    {
+      "requirement_id": "REQ-006",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-007",
+      "status": "met"
+    },
+    {
+      "requirement_id": "REQ-008",
+      "status": "met"
+    }
+  ],
+  "verdict": "pass"
+}
