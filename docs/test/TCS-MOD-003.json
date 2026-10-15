@@ -1,0 +1,160 @@
+{
+  "meta": {
+    "artefact_type": "test_conditions",
+    "schema_version": "0.1",
+    "project_id": "RICS",
+    "artefact_id": "TCS-MOD-003",
+    "version": 1,
+    "produced_by": "tester",
+    "produced_at": "2026-10-15T16:08:41Z",
+    "status": "approved",
+    "source_artefacts": [
+      "docs/specs/SPEC-001.json",
+      "docs/design/MP-001.json",
+      "docs/design/DES-001.json"
+    ],
+    "approval": {
+      "approved_by": "Mike",
+      "approved_at": "2026-10-15T16:33:35Z",
+      "gate": "test_design_review"
+    }
+  },
+  "module_id": "MOD-003",
+  "designed_from": [
+    "docs/specs/SPEC-001.json",
+    "docs/design/MP-001.json",
+    "docs/design/DES-001.json"
+  ],
+  "conditions": [
+    {
+      "id": "TC-003-001",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "happy_path",
+      "description": "For gb01 the view lists the dataset count and GBP total next to the FO count and -1 times the FO AMOUNTMST total; the FO side keeps TRANSTYPE 15 rows (including a cancelled payment and a corporate account) and leaves out the test account and TRANSTYPE 8 and 24 rows.",
+      "preconditions": "assumes Q-014: AMOUNTMST is GBP. CUSTTRANS, tblContact_Test_Records and fact_contact_payment faked. Test record 'T900001'. CUSTTRANS gb01: RECID 1001 C100001 T15 AMOUNTMST -100.00; 1002 C100002 T15 -50.00 CANCELLEDPAYMENT 1; 1003 ACME01 T15 +30.00; 1004 T900001 T15 -999.00; 1005 C100001 T8 -500.00; 1006 C100001 T24 -700.00. Dataset gb01: 1001 100.00, 1002 50.00, 1003 -30.00.",
+      "expected": "Exactly one row: legal_entity 'gb01', dataset_row_count 3, fo_row_count 3, dataset_amount_paid_gbp 120.000000, fo_amount_paid_gbp 120.000000, is_reconciled 1.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-001 gb01 reconciles with test account and other transtypes excluded from FO side]"
+    },
+    {
+      "id": "TC-003-002",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "reconciliation",
+      "description": "Two legal entities are reconciled separately, one row each; the FO side uses AMOUNTMST (not AMOUNTCUR) and excludes a test-account row in us01.",
+      "preconditions": "assumes Q-014: AMOUNTMST is GBP. Test record 'T900001'. CUSTTRANS T15: gb01 2001 AMOUNTMST -100.00, gb01 2002 -25.50; us01 2001 AMOUNTCUR -200.00 / AMOUNTMST -160.00, us01 2003 -40.00 / -32.00, us01 2004 T900001 -999.00. Dataset: gb01 2001 100.00, gb01 2002 25.50, us01 2001 160.00, us01 2003 32.00.",
+      "expected": "Two rows: gb01 2, 2, 125.500000, 125.500000, 1; us01 2, 2, 192.000000, 192.000000, 1.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-002 one row per legal entity with each entity reconciled separately]"
+    },
+    {
+      "id": "TC-003-003",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "negative",
+      "description": "Row counts differ while GBP totals agree: the flag must show not reconciled.",
+      "preconditions": "CUSTTRANS gb01 T15: 3001 -100.00, 3002 -50.00, 3003 0.00. Dataset gb01: 3001 100.00, 3002 50.00 (3003 missing).",
+      "expected": "One row: gb01, dataset_row_count 2, fo_row_count 3, dataset_amount_paid_gbp 150.000000, fo_amount_paid_gbp 150.000000, is_reconciled 0.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-003 row count mismatch with equal totals is not reconciled]"
+    },
+    {
+      "id": "TC-003-004",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "negative",
+      "description": "Row counts agree while GBP totals differ: the flag must show not reconciled.",
+      "preconditions": "CUSTTRANS gb01 T15: 4001 -100.00, 4002 -50.00. Dataset gb01: 4001 100.00, 4002 49.99.",
+      "expected": "One row: gb01, 2, 2, dataset_amount_paid_gbp 149.990000, fo_amount_paid_gbp 150.000000, is_reconciled 0.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-004 amount mismatch with equal counts is not reconciled]"
+    },
+    {
+      "id": "TC-003-005",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "boundary",
+      "description": "A legal entity with in-scope FO payments but no dataset rows still appears, with the dataset side 0.",
+      "preconditions": "CUSTTRANS T15: gb01 5001 -100.00; us01 5002 AMOUNTMST -40.00. Dataset: gb01 5001 100.00 only.",
+      "expected": "Two rows: gb01 1, 1, 100.000000, 100.000000, 1; us01 dataset_row_count 0, fo_row_count 1, dataset_amount_paid_gbp 0.000000, fo_amount_paid_gbp 40.000000, is_reconciled 0.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-005 legal entity only in FO shows with dataset side zero and not reconciled]"
+    },
+    {
+      "id": "TC-003-006",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "boundary",
+      "description": "A legal entity with dataset rows but no FO payments still appears, with the FO side 0.",
+      "preconditions": "CUSTTRANS T15: gb01 6001 -100.00. Dataset: gb01 6001 100.00; ie01 6002 10.00.",
+      "expected": "Two rows: gb01 1, 1, 100.000000, 100.000000, 1; ie01 dataset_row_count 1, fo_row_count 0, dataset_amount_paid_gbp 10.000000, fo_amount_paid_gbp 0.000000, is_reconciled 0.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-006 legal entity only in dataset shows with FO side zero and not reconciled]"
+    },
+    {
+      "id": "TC-003-007",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "nulls",
+      "description": "FO rows with a null ACCOUNTNUM or a null AMOUNTMST are in scope and counted (nulls carried through as recorded), and a null apuk_contactnumber in the test list does not drop in-scope FO rows; the test account is still excluded.",
+      "preconditions": "Test records 'T900001' and NULL. CUSTTRANS gb01 T15: 7001 ACCOUNTNUM NULL AMOUNTMST -100.00; 7002 C100001 AMOUNTMST NULL; 7003 T900001 -999.00. Dataset gb01: 7001 100.00; 7002 NULL.",
+      "expected": "One row: gb01, dataset_row_count 2, fo_row_count 2, dataset_amount_paid_gbp 100.000000, fo_amount_paid_gbp 100.000000, is_reconciled 1.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-007 null account number and null amount rows are counted and test list null does not drop rows]"
+    },
+    {
+      "id": "TC-003-008",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "boundary",
+      "description": "Totals are compared at FO's six decimal places with no rounding: an exact six-decimal match reconciles, a 0.000001 difference does not.",
+      "preconditions": "assumes Q-023: FO six-decimal precision kept. CUSTTRANS T15: gb01 8001 AMOUNTMST -10.123456; us01 8002 AMOUNTMST -10.000001. Dataset: gb01 8001 10.123456; us01 8002 10.000000.",
+      "expected": "Two rows: gb01 1, 1, 10.123456, 10.123456, 1; us01 1, 1, dataset 10.000000, fo 10.000001, is_reconciled 0.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-008 totals compared at six decimals without rounding]"
+    },
+    {
+      "id": "TC-003-009",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "boundary",
+      "description": "A payment and a refund that net to zero give totals of 0 on both sides and reconcile.",
+      "preconditions": "CUSTTRANS gb01 T15: 9001 AMOUNTMST -30.00; 9002 +30.00. Dataset gb01: 9001 30.00; 9002 -30.00.",
+      "expected": "One row: gb01, 2, 2, 0.000000, 0.000000, is_reconciled 1.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-009 payment and refund netting to zero reconcile at 0]"
+    },
+    {
+      "id": "TC-003-010",
+      "requirement_ids": [
+        "REQ-008"
+      ],
+      "acceptance_criterion_id": "AC-008-03",
+      "category": "duplicates",
+      "description": "Two identical FO payments with different RECIDs are both counted on the FO side (no de-duplication), and a test account listed twice in the test records neither multiplies nor lets through FO rows.",
+      "preconditions": "Test records 'T900001' twice. CUSTTRANS gb01 T15, all PAYMMODE 'DD', TRANSDATE 2024-01-15: 10001 C100001 -75.00; 10002 C100001 -75.00; 10003 T900001 -999.00. Dataset gb01: 10001 75.00; 10002 75.00.",
+      "expected": "One row: gb01, dataset_row_count 2, fo_row_count 2, dataset_amount_paid_gbp 150.000000, fo_amount_paid_gbp 150.000000, is_reconciled 1.",
+      "framework": "tsqlt",
+      "test_ref": "[test_MOD003].[test TC-003-010 identical FO payments both counted and duplicate test records do not multiply rows]"
+    }
+  ]
+}
