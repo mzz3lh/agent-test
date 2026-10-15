@@ -2,7 +2,7 @@
 
 ## Test approach
 
-Each module is tested against test conditions (TC-nnn-nnn) designed from the approved specification and the module's scope and acceptance criteria, independently of the code. Every test condition traces to a requirement and one of its acceptance criteria. The conditions are run as automated database tests, which set up their own sample data, so results do not depend on the contents of FO or CRM. Several conditions rest on the working assumptions listed in Known limitations (Q-014, Q-015, Q-022, Q-023) and test the rules as assumed.
+Each module is tested against test conditions (TC-nnn-nnn) designed from the approved specification and the module's scope and acceptance criteria, independently of the code. Every test condition traces to a requirement and one of its acceptance criteria. The conditions are run as automated database tests, which set up their own sample data, so results do not depend on the contents of FO or CRM. Several conditions rest on the working assumptions listed in Known limitations (Q-014, Q-015) and test the rules as assumed; others test the decisions taken at specification sign-off (Q-022, Q-023).
 
 For MOD-002, the tests run the load against sample data and check the stored table, the run log and the error log: first loads, reloads after FO rows were added, corrected or removed, a load with no in-scope rows, repeated loads, a forced failure, a contact's country change, totals per legal entity, and the call from the existing gold load. The read grant for report users is run separately by a person and is not covered by the tests.
 
@@ -38,7 +38,7 @@ MOD-001 met all six of its requirements (REQ-001 to REQ-006). MOD-002 met its th
 | TC-001-008 | REQ-001 | AC-001-06 | Identical payments with different record IDs are both kept | Passed |
 | TC-001-009 | REQ-001 | AC-001-07 | All legal entities and old dates are included | Passed |
 | TC-001-010 | REQ-002 | AC-002-01 | A EUR payment shows positive currency and GBP amounts (assumed, Q-014) | Passed |
-| TC-001-011 | REQ-002 | AC-002-01 | Amounts keep six decimal places without rounding (assumed, Q-023) | Passed |
+| TC-001-011 | REQ-002 | AC-002-01 | Amounts keep six decimal places without rounding (decided at sign-off, Q-023) | Passed |
 | TC-001-012 | REQ-002 | AC-002-02 | A refund shows negative and nets off against a payment (assumed, Q-015) | Passed |
 | TC-001-013 | REQ-002 | AC-002-03 | A GBP payment shows positive amounts | Passed |
 | TC-001-014 | REQ-003 | AC-003-01 | Payment method is named from the legal entity's payment mode table | Passed |
@@ -58,9 +58,9 @@ MOD-001 met all six of its requirements (REQ-001 to REQ-006). MOD-002 met its th
 | TC-001-028 | REQ-005 | AC-005-04 | The contact match applies in any legal entity | Passed |
 | TC-001-029 | REQ-005 | AC-005-05 | Contact plus corporate totals equal the legal entity total | Passed |
 | TC-001-030 | REQ-006 | AC-006-01 | A contact payment shows country, region and market | Passed |
-| TC-001-031 | REQ-006 | AC-006-02 | A contact without a known country shows 'Unknown' (assumed, Q-022) | Passed |
-| TC-001-032 | REQ-006 | AC-006-03 | A corporate payment shows 'Unknown' country, region and market (assumed, Q-022) | Passed |
-| TC-001-033 | REQ-006 | AC-006-03 | 'Unknown' values have exact case and no padding (assumed, Q-022) | Passed |
+| TC-001-031 | REQ-006 | AC-006-02 | A contact without a known country shows 'Unknown' (decided at sign-off, Q-022) | Passed |
+| TC-001-032 | REQ-006 | AC-006-03 | A corporate payment shows 'Unknown' country, region and market (decided at sign-off, Q-022) | Passed |
+| TC-001-033 | REQ-006 | AC-006-03 | 'Unknown' values have exact case and no padding (decided at sign-off, Q-022) | Passed |
 | TC-001-034 | REQ-006 | AC-006-04 | A shared contact number gives one row with one matching country | Passed |
 | TC-001-035 | REQ-006 | AC-006-04 | A shared contact number uses the country of the lowest contact ID | Passed |
 <!-- evidence: docs/test/TCS-MOD-001.json#TC-001-001; docs/test/TCS-MOD-001.json#TC-001-035; docs/test/TR-MOD-001-1.json#TC-001-001; docs/test/TR-MOD-001-1.json#TC-001-035; docs/design/MP-001.json#AC-006-04 -->
@@ -98,7 +98,7 @@ MOD-001 met all six of its requirements (REQ-001 to REQ-006). MOD-002 met its th
 | TC-003-005 | REQ-008 | AC-008-03 | A legal entity with FO payments but none in the dataset still shows, with the dataset side 0 | Passed |
 | TC-003-006 | REQ-008 | AC-008-03 | A legal entity with dataset rows but no FO payments still shows, with the FO side 0 | Passed |
 | TC-003-007 | REQ-008 | AC-008-03 | FO rows with a missing account number or amount are counted, and a test record with no contact number excludes nothing else | Passed |
-| TC-003-008 | REQ-008 | AC-008-03 | Totals are compared at six decimal places without rounding (assumed, Q-023) | Passed |
+| TC-003-008 | REQ-008 | AC-008-03 | Totals are compared at six decimal places without rounding (decided at sign-off, Q-023) | Passed |
 | TC-003-009 | REQ-008 | AC-008-03 | A payment and a refund that net to zero reconcile at 0 | Passed |
 | TC-003-010 | REQ-008 | AC-008-03 | Identical FO payments are both counted, and a test account listed twice neither multiplies nor lets through FO rows | Passed |
 <!-- evidence: docs/test/TCS-MOD-003.json#TC-003-001; docs/test/TCS-MOD-003.json#TC-003-010; docs/test/TCS-MOD-003.json#assumes Q-014; docs/test/TCS-MOD-003.json#assumes Q-023; docs/test/TR-MOD-003-1.json#TC-003-001; docs/test/TR-MOD-003-1.json#TC-003-010; docs/design/MP-001.json#AC-008-03 -->

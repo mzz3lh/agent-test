@@ -35,14 +35,14 @@ No lookup can repeat a payment. Where an account number matches more than one cu
 | payment_date | The adjusted FO date: the document date when it is on or before 2021-08-23 and not in 1900; otherwise the transaction date, including when there is no document date. Same rule as the existing FO reporting (see Known limitations for the 23 August 2021 boundary). |
 | payment_year | Calendar year of payment_date. |
 | payment_month | Calendar month (1 to 12) of payment_date, not the fiscal period. |
-| amount_paid_currency | Amount in the currency paid, sign reversed so money received is positive and refunds or reversals are negative. Kept at FO's six decimal places, with no rounding (assumed, Q-023). |
+| amount_paid_currency | Amount in the currency paid, sign reversed so money received is positive and refunds or reversals are negative. Kept at FO's six decimal places, with no rounding (decided at sign-off, Q-023). |
 | currency_code | Currency paid, as recorded. |
 | amount_paid_gbp | Accounting-currency amount, sign reversed in the same way, six decimal places, no rounding. Labelled GBP (assumed, Q-014). |
 | payment_method_code | FO payment mode code as recorded; 'Unknown' when the code is missing, empty or only spaces. |
 | payment_method | Name of the payment mode in the transaction's own legal entity. 'Unknown' when there is no code. The code itself when the legal entity has no row for that code, or its name is missing or blank. |
 | country_name | Country of the matched contact's current CRM country. 'Unknown' for corporate payments, for contacts with no country, and where the country has no row in the country dimension. |
-| region_name | Region from the same country lookup; 'Unknown' wherever country_name is 'Unknown' (assumed, Q-022). |
-| market_reporting_region | Market reporting region from the same lookup; 'Unknown' wherever country_name is 'Unknown' (assumed, Q-022). |
+| region_name | Region from the same country lookup; 'Unknown' wherever country_name is 'Unknown' (decided at sign-off, Q-022). |
+| market_reporting_region | Market reporting region from the same lookup; 'Unknown' wherever country_name is 'Unknown' (decided at sign-off, Q-022). |
 
 Values that are missing in FO (account number, amounts, currency, dates) are carried through as empty values; the row is kept, not dropped.
 <!-- evidence: docs/design/DES-001.json#Layercake.vw_fact_contact_payment_source; docs/design/DES-001.json#lowest ContactId; docs/design/DES-001.json#Q-022; docs/design/DES-001.json#Q-023; docs/design/DES-001.json#Q-014; docs/specs/SPEC-001.json#RULE-004; docs/specs/SPEC-001.json#RULE-009; docs/specs/SPEC-001.json#RULE-010; docs/test/TCS-MOD-001.json#TC-001-006; docs/test/TCS-MOD-001.json#TC-001-015; docs/dev/CN-MOD-001.json#space-only -->
@@ -91,7 +91,7 @@ One row per legal entity found on either side, so a legal entity that is missing
 | fo_amount_paid_gbp | Total FO accounting-currency amount, sign reversed, for the same in-scope transactions. |
 | is_reconciled | 1 only when both row counts and both totals are equal; otherwise 0. |
 
-Totals are held at six decimal places and compared exactly, with no rounding (assumed, Q-023), so a difference of 0.000001 shows as not reconciled. Payments with no amount are counted but add nothing to the total; a legal entity whose amounts are all missing shows a total of 0. Every column always has a value.
+Totals are held at six decimal places and compared exactly, with no rounding (decided at sign-off, Q-023), so a difference of 0.000001 shows as not reconciled. Payments with no amount are counted but add nothing to the total; a legal entity whose amounts are all missing shows a total of 0. Every column always has a value.
 <!-- evidence: docs/design/DES-001.json#One row per legal entity found on either side; docs/design/DES-001.json#dataset_row_count; docs/design/DES-001.json#fo_row_count; docs/design/DES-001.json#decimal(38,6); docs/design/DES-001.json#is_reconciled; docs/design/MP-001.json#MOD-003; docs/design/adr/ADR-002-how-the-per-legal-entity-reconciliation-to-fo-is-delivered.md#Option A; docs/dev/CN-MOD-003.json#FULL OUTER JOINs; docs/dev/CN-MOD-003.json#Rows with a NULL ACCOUNTNUM are counted; docs/dev/CN-MOD-003.json#is_reconciled is 1 only when both counts and both totals are equal; docs/dev/CN-MOD-003.json#SUM ignores NULL amounts; docs/dev/CN-MOD-003.json#case-insensitive collation; docs/dev/CN-MOD-003.json#Every column is NOT NULL; docs/dev/CN-MOD-003.json#test entity with only out-of-scope FO rows and no dataset rows does not appear; docs/test/TCS-MOD-003.json#TC-003-005; docs/test/TCS-MOD-003.json#TC-003-006; docs/test/TCS-MOD-003.json#TC-003-007; docs/test/TCS-MOD-003.json#TC-003-008; docs/test/TCS-MOD-003.json#dataset_amount_paid_gbp; docs/test/TCS-MOD-003.json#fo_amount_paid_gbp -->
 
 ## Design decisions
