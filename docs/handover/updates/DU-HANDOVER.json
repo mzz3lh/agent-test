@@ -7,7 +7,7 @@
     "version": 1,
     "produced_by": "technical_writer",
     "produced_at": "2026-10-15T17:25:57Z",
-    "status": "for_review",
+    "status": "approved",
     "source_artefacts": [
       "docs/specs/SPEC-001.json",
       "docs/design/DES-001.json",
@@ -18,7 +18,12 @@
       "docs/test/TR-MOD-002-1.json",
       "docs/dev/CN-MOD-003.json",
       "docs/test/TR-MOD-003-1.json"
-    ]
+    ],
+    "approval": {
+      "approved_by": "Mike",
+      "approved_at": "2026-10-15T18:53:16Z",
+      "gate": "final_handover_review"
+    }
   },
   "scope": "final_handover",
   "documents": [
