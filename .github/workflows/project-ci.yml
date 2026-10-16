@@ -1,6 +1,9 @@
 # RICS project CI (agent team framework, base standards section 8). Runs on every push and pull
 # request: the offline checks (artefacts validate, migrations.py check, sqlfluff as advisory), then a throwaway
-# SQL Server 2022 container where every migration is applied twice from nothing and every tSQLt suite runs.
+# SQL Server 2022 container where every migration is applied twice from nothing, the dbt models (if the project
+# uses dbt) are built twice, and every tSQLt suite runs. The container's server collation deliberately differs
+# from the project's database collation, so code that picks up tempdb's collation (a temp table's string
+# column) fails here rather than on a server whose tempdb differs from the database.
 # It never touches the project's real databases.
 #
 # One-time repository setup (a human, in the project repo's Settings > Secrets and variables > Actions):
@@ -33,6 +36,11 @@ jobs:
           cache: pip
           cache-dependency-path: framework/requirements.txt
       - run: pip install -r framework/requirements.txt
+      - name: Install dbt if the project uses it (project.dbt in config/project.yaml)
+        run: |
+          if python -c "import sys, yaml; sys.exit(0 if yaml.safe_load(open('project/config/project.yaml'))['project'].get('dbt') else 1)"; then
+            pip install -r framework/requirements-dbt.txt
+          fi
       - name: Offline checks
         run: python framework/agents/tools/ci.py offline --project project
       - name: Start a throwaway SQL Server 2022
@@ -40,7 +48,7 @@ jobs:
           pw="Ci$(openssl rand -hex 16)!"
           echo "::add-mask::$pw"
           echo "AGENT_SQL_PASSWORD=$pw" >> "$GITHUB_ENV"
-          docker run -d --name mssql -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=$pw" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          docker run -d --name mssql -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=$pw" -e MSSQL_COLLATION=Latin1_General_100_CI_AS -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
           curl -sSL https://github.com/microsoft/go-sqlcmd/releases/latest/download/sqlcmd-linux-amd64.tar.bz2 | sudo tar -xj -C /usr/local/bin sqlcmd
           for i in $(seq 1 60); do sqlcmd -S localhost -U sa -P "$pw" -C -Q "SELECT 1" >/dev/null 2>&1 && exit 0; sleep 2; done
           docker logs mssql; exit 1
@@ -54,6 +62,8 @@ jobs:
         env:
           AGENT_SQL_SERVER: localhost
           AGENT_SQL_USER: sa
+          DBT_BACKEND: mssql-python
+          DBT_TRUST_CERT: "true"
         run: python framework/agents/tools/ci.py database --project project --database RICS_CI --tsqlt ${{ vars.TSQLT_URL != '' && 'tsqlt' || 'framework/vendor/tSQLt' }} --junit tsqlt-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
